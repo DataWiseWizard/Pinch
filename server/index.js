@@ -11,8 +11,10 @@ const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 
 const passport = require("passport");
-const LocalStrategy = require("passport-local");
+// const LocalStrategy = require("passport-local");
 const User = require(path.join(__dirname, "models", "user.js"));
+
+const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New route for Google
 
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
 
@@ -70,13 +72,13 @@ const sessionOptions = {
 
 app.use(session(sessionOptions));
 app.use(flash());
-
+require('./config/passport'); 
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.use(new LocalStrategy(User.authenticate()));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res, next) => {
     res.locals.success = req.flash("success");
@@ -91,6 +93,7 @@ app.get("/", (req,res) => {
 })
 
 app.use("/", userRouter);
+app.use("/auth", authRouter); 
 
 app.all("/", (req, res, next) => {
     next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError

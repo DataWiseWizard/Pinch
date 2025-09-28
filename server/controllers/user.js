@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const bcrypt = require('bcryptjs');
+
 
 module.exports.renderSignupForm = (req, res) => {
     res.render("./users/signup.ejs");
@@ -7,26 +9,29 @@ module.exports.renderSignupForm = (req, res) => {
 module.exports.signup = async (req, res, next) => {
     try {
         let { username, email, password } = req.body;
-        const newUser = new User({ email, username });
-        const registeredUser = await User.register(newUser, password);
-        console.log("Registered User:", registeredUser);
+        
+        // Hash the password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = new User({ email, username,displayName: username , password: hashedPassword });
+        const registeredUser = await newUser.save();
+        
         req.login(registeredUser, (err) => {
             if (err) {
-                console.log("Error during req.login:", err);
                 return next(err);
             }
             req.flash("success", "Welcome to Pinch!");
             res.redirect("/pins");
         });
     } catch (e) {
-        console.log("Error during signup:", e.message);
         req.flash("error", e.message);
         res.redirect("/signup");
     }
 };
 
 module.exports.renderLoginForm = (req, res) => {
-    res.render("/users/login.ejs");
+    res.render("./users/login.ejs");
 };
 
 module.exports.login = async (req, res) => {

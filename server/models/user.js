@@ -10,7 +10,7 @@ const userSchema = new Schema({
         unique: true
     },
     // Required display name.
-    displayName: {
+    username: {
         type: String,
         required: true
     },
@@ -31,7 +31,7 @@ const userSchema = new Schema({
     }
 }, { timestamps: true });
 
-userSchema.plugin(passportLocalMongoose);
+// userSchema.plugin(passportLocalMongoose);
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
