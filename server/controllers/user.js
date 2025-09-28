@@ -1,0 +1,44 @@
+const User = require("../models/user");
+
+module.exports.renderSignupForm = (req, res) => {
+    res.render("./users/signup.ejs");
+};
+
+module.exports.signup = async (req, res, next) => {
+    try {
+        let { username, email, password } = req.body;
+        const newUser = new User({ email, username });
+        const registeredUser = await User.register(newUser, password);
+        console.log("Registered User:", registeredUser);
+        req.login(registeredUser, (err) => {
+            if (err) {
+                console.log("Error during req.login:", err);
+                return next(err);
+            }
+            req.flash("success", "Welcome to Pinch!");
+            res.redirect("/pins");
+        });
+    } catch (e) {
+        console.log("Error during signup:", e.message);
+        req.flash("error", e.message);
+        res.redirect("/signup");
+    }
+};
+
+module.exports.renderLoginForm = (req, res) => {
+    res.render("/users/login.ejs");
+};
+
+module.exports.login = async (req, res) => {
+    req.flash("success", "Welcome to Wanderlust! You are logged in!");
+    let redirectUrl = res.locals.redirectUrl || "/pins";
+    res.redirect(redirectUrl);
+};
+
+module.exports.logout = (req, res, next) => {
+    req.logout((err) => {
+        if (err) { return next(err); }
+        req.flash("success", "You are logged out now!");
+        res.redirect("/pins");
+    });
+};
