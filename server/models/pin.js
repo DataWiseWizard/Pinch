@@ -4,23 +4,28 @@ const Schema = mongoose.Schema;
 const pinSchema = new Schema({
   title: {
     type: String,
-    required: true 
+    required: true,
   },
   destination: {
-    type: URL,
-    required: true
+    type: String,
+    required: true,
   },
   image: {
-    type: Image,
-    required: true
+    type: String,
+    required: true,
   },
   category: {
     type: String,
-    
+
   },
   userId: {
     type: String,
   },
+  uploadedAt: {
+    type: Date,
+    default: Date.now
+  },
+
   // postedBy: {
   //   type: Schema.Types.objectId,
   //   ref: 'User'

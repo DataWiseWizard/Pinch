@@ -24,4 +24,7 @@ router.route("/login")
 
 router.get("/logout", userController.logout);
 
+
+router.get("/verify-email", wrapAsync(userController.verifyEmail));
+
 module.exports = router;

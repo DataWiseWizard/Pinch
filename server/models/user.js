@@ -28,6 +28,17 @@ const userSchema = new Schema({
     profileImage: {
         type: String,
         required: false
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String,
+    },
+    verificationTokenExpires: {
+        type: Date,
+        required: false
     }
 }, { timestamps: true });
 

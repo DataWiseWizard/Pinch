@@ -1,5 +1,6 @@
-// const ExpressError = require("./utils/expressError.js");
-// const User = require("./models/user.js");
+const { pinSchema} = require("./Schema.js");
+const ExpressError = require("./utils/expressError.js");
+const Pin = require("./models/pin.js");
 
 
 module.exports.isLoggedIn = (req, res, next) => {
@@ -17,3 +18,13 @@ module.exports.saveRedirectUrl = (req,res,next) => {
     }
     next();
 }
+
+module.exports.validatePin = (req,res,next) => {
+    let {error} = pinSchema.validate(req.body);
+    if(error) {
+        let errMsg = error.details.map((el) => el.message).join(".");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};

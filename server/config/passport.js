@@ -27,6 +27,10 @@ passport.use(new LocalStrategy(async (username, password, done) => {
         if (!user) {
             return done(null, false, { message: 'Incorrect username.' });
         }
+        if (!user.isVerified && user.password) {
+            return done(null, false, { message: 'Please verify your email before logging in.' });
+        }
+
         if (!user.password) { // User signed up with Google and has no password
             return done(null, false, { message: 'Please log in with Google.' });
         }
@@ -47,34 +51,34 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/auth/google/callback',
 },
-async (accessToken, refreshToken, profile, done) => {
-    try {
-        let user = await User.findOne({ googleId: profile.id });
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await User.findOne({ googleId: profile.id });
 
-        if (user) {
-            return done(null, user); // User found, log them in
-        } else {
-            // Check if user exists with that email
-            user = await User.findOne({ email: profile.emails[0].value });
             if (user) {
-                // User exists but logged in locally, link their googleId
-                user.googleId = profile.id;
-                user.profileImage = user.profileImage || profile.photos[0].value;
-                await user.save();
-                return done(null, user);
-            }
+                return done(null, user); // User found, log them in
+            } else {
+                // Check if user exists with that email
+                user = await User.findOne({ email: profile.emails[0].value });
+                if (user) {
+                    // User exists but logged in locally, link their googleId
+                    user.googleId = profile.id;
+                    user.profileImage = user.profileImage || profile.photos[0].value;
+                    await user.save();
+                    return done(null, user);
+                }
 
-            // If no user, create a new one
-            const newUser = new User({
-                googleId: profile.id,
-                username: profile.displayName, // or profile.emails[0].value.split('@')[0]
-                email: profile.emails[0].value,
-                profileImage: profile.photos[0].value,
-            });
-            await newUser.save();
-            return done(null, newUser);
+                // If no user, create a new one
+                const newUser = new User({
+                    googleId: profile.id,
+                    username: profile.displayName, // or profile.emails[0].value.split('@')[0]
+                    email: profile.emails[0].value,
+                    profileImage: profile.photos[0].value,
+                });
+                await newUser.save();
+                return done(null, newUser);
+            }
+        } catch (err) {
+            return done(err, null);
         }
-    } catch (err) {
-        return done(err, null);
-    }
-}));
+    }));

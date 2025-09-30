@@ -18,6 +18,8 @@ const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New ro
 
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
 
+const pinRouter = require(path.join(__dirname, "routes", "pin.js"));
+
 const dbUrl = 'mongodb://localhost:27017/chonku';
 
 main()
@@ -83,7 +85,7 @@ app.use(passport.session());
 app.use((req,res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash('error');
-    // res.locals.currUser = req.user;
+    res.locals.currUser = req.user;
     next();
 });
 
@@ -92,6 +94,7 @@ app.get("/", (req,res) => {
     res.redirect("/pins");
 })
 
+app.use("/", pinRouter);
 app.use("/", userRouter);
 app.use("/auth", authRouter); 
 
