@@ -94,7 +94,7 @@ app.get("/", (req,res) => {
     res.redirect("/pins");
 })
 
-app.use("/", pinRouter);
+app.use("/pins", pinRouter);
 app.use("/", userRouter);
 app.use("/auth", authRouter); 
 

@@ -2,8 +2,8 @@ const Pin = require('../models/pin')
 
 
 module.exports.index = async (req, res) => {
-    const allPins = await Pin.find({});
-    res.render("pins/index.ejs", {allPins});
+    const allPins = await Pin.find({}).populate("postedBy");
+    res.render("pins/index.ejs", { allPins });
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -13,11 +13,27 @@ module.exports.renderNewForm = (req, res) => {
 
 
 //Create Pin
-module.exports.createPin =async (req, res, next) => {
-    let url = req.file.path;
+module.exports.createPin = async (req, res, next) => {
     const newPin = new Pin(req.body.pin);
-    newPin.image = {url};
+    newPin.image = {
+        url: req.file.path,
+        filename: req.file.filename
+    };
+
+    newPin.postedBy = req.user._id;
+
     await newPin.save();
-    req.flash("success", "New Listing created!");
+    req.flash("success", "New Pin created!");
     res.redirect("/pins");
+};
+
+
+module.exports.showPin = async (req, res) => {
+    let { id } = req.params;
+    const pin = await Pin.findById(id).populate("postedBy");
+    if (!pin) {
+        req.flash("error", "Pin you requested does not exist!");
+        return res.redirect("/pins");
+    }
+    res.render("pins/show.ejs", { pin });
 };

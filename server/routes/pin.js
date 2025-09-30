@@ -8,17 +8,19 @@ const multer = require('multer');
 const { storage } = require("../config/cloudConfig.js");
 const upload = multer({ storage });
 
+router.get("/", wrapAsync(pinController.index));
+
 router.get("/new", isLoggedIn, pinController.renderNewForm);
 
-router.route("/pins")
-    .get(wrapAsync(pinController.index))
-    .post(
-        isLoggedIn,
-        upload.single("pin[image]"),
-        validatePin,
-        wrapAsync(pinController.createPin)
-    );
+router.post("/",
+    isLoggedIn,
+    upload.single("image"),
+    validatePin,
+    wrapAsync(pinController.createPin)
+);
 
+
+router.get("/:id", wrapAsync(pinController.showPin));
 
 
 module.exports = router;

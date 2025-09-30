@@ -8,41 +8,25 @@ const pinSchema = new Schema({
   },
   destination: {
     type: String,
-    required: true,
   },
   image: {
-    type: String,
-    required: true,
+    url: String, // Store URL from Cloudinary
+    filename: String // Store filename from Cloudinary
   },
   category: {
     type: String,
-
   },
-  userId: {
-    type: String,
+  // This is the correct way to link to the User model
+  postedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   },
   uploadedAt: {
     type: Date,
     default: Date.now
   },
-
-  // postedBy: {
-  //   type: Schema.Types.objectId,
-  //   ref: 'User'
-  // },
-  // save: {
-  //   type: Array,
-  // },
-  // comments: [
-  //       {
-  //           type: Schema.Types.ObjectId,
-  //           ref: "Review",
-  //       },
-  //   ],
 });
 
 const Pin = mongoose.model('Pin', pinSchema);
-
-
 
 module.exports = Pin;
