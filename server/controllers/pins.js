@@ -20,7 +20,7 @@ module.exports.createPin = async (req, res, next) => {
     }
 
 
-    const newPin = new Pin(req.body.pin);
+    const newPin = new Pin(req.body);
 
     // Ensure req.file exists before trying to access its properties
     if (!req.file) {
