@@ -15,7 +15,7 @@ router.get("/new", isLoggedIn, pinController.renderNewForm);
 router.post("/",
     isLoggedIn,
     upload.single("image"),
-    // validatePin,
+    validatePin,
     wrapAsync(pinController.createPin)
 );
 

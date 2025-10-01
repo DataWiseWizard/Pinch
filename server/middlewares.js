@@ -19,10 +19,12 @@ module.exports.saveRedirectUrl = (req,res,next) => {
     next();
 }
 
-module.exports.validatePin = (req,res,next) => {
-    let {error} = pinSchema.validate(req.body);
-    if(error) {
-        let errMsg = error.details.map((el) => el.message).join(".");
+module.exports.validatePin = (req, res, next) => {
+    
+    const { error } = pinSchema.validate(req.body); 
+    if (error) {
+    
+        const errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
         next();
