@@ -13,6 +13,13 @@ module.exports.renderNewForm = (req, res) => {
 
 
 module.exports.createPin = async (req, res, next) => {
+    const { error } = pinSchema.validate({ pin: req.body });
+    if (error) {
+        const errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    }
+
+
     const newPin = new Pin(req.body.pin);
 
     // Ensure req.file exists before trying to access its properties
