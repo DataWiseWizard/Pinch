@@ -12,15 +12,6 @@ module.exports.renderNewForm = (req, res) => {
 
 
 
-module.exports.index = async (req, res) => {
-    const allPins = await Pin.find({}).populate("postedBy");
-    res.render("pins/index.ejs", { allPins });
-};
-
-module.exports.renderNewForm = (req, res) => {
-    res.render("pins/new.ejs");
-};
-
 module.exports.createPin = async (req, res, next) => {
     const newPin = new Pin(req.body.pin);
 

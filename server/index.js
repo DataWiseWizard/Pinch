@@ -98,7 +98,7 @@ app.use("/pins", pinRouter);
 app.use("/", userRouter);
 app.use("/auth", authRouter); 
 
-app.all("/", (req, res, next) => {
+app.all("*", (req, res, next) => {
     next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError
 })
 
