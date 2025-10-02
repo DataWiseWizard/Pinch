@@ -4,6 +4,5 @@ module.exports.pinSchema = Joi.object({
     pin: Joi.object({
         title: Joi.string().required(),
         destination: Joi.string().required(),
-        image: Joi.string().required()
     }).required()
 });

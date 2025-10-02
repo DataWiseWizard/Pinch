@@ -11,7 +11,7 @@ const upload = multer({ storage });
 router.get("/", wrapAsync(pinController.index));
 router.post("/",
   isLoggedIn,
-  upload.single("image"),
+  upload.single("pin[image]"),
   validatePin,
   wrapAsync(pinController.createPin)
 );
