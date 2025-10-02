@@ -13,17 +13,17 @@ const pinSchema = new Schema({
     url: String, // Correctly defined as an object property
     filename: String 
   },
-  category: {
-    type: String,
-  },
+  // category: {
+  //   type: String,
+  // },
   postedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  uploadedAt: {
-    type: Date,
-    default: Date.now
-  },
+  // uploadedAt: {
+  //   type: Date,
+  //   default: Date.now
+  // },
 });
 
 const Pin = mongoose.model('Pin', pinSchema);

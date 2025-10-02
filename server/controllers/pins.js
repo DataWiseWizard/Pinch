@@ -1,8 +1,8 @@
-const Pin = require('../models/pin')
+const Pin = require("../models/pin");
 
 
 module.exports.index = async (req, res) => {
-    const allPins = await Pin.find({}).populate("postedBy");
+    const allPins = await Pin.find({});
     res.render("pins/index.ejs", { allPins });
 };
 
@@ -13,20 +13,7 @@ module.exports.renderNewForm = (req, res) => {
 
 
 module.exports.createPin = async (req, res, next) => {
-    const { error } = pinSchema.validate({ pin: req.body });
-    if (error) {
-        const errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    }
-
-
-    const newPin = new Pin(req.body);
-
-    // Ensure req.file exists before trying to access its properties
-    if (!req.file) {
-        req.flash("error", "Image file is required.");
-        return res.redirect("/pins/new");
-    }
+    const newPin = new Pin(req.body.pin);
 
     newPin.image = {
         url: req.file.path,
@@ -40,12 +27,12 @@ module.exports.createPin = async (req, res, next) => {
     res.redirect("/pins");
 };
 
-module.exports.showPin = async (req, res) => {
-    let { id } = req.params;
-    const pin = await Pin.findById(id).populate("postedBy");
-    if (!pin) {
-        req.flash("error", "Pin you requested does not exist!");
-        return res.redirect("/pins");
-    }
-    res.render("pins/show.ejs", { pin });
-};
+// module.exports.showPin = async (req, res) => {
+//     let { id } = req.params;
+//     const pin = await Pin.findById(id).populate("postedBy");
+//     if (!pin) {
+//         req.flash("error", "Pin you requested does not exist!");
+//         return res.redirect("/pins");
+//     }
+//     res.render("pins/show.ejs", { pin });
+// };

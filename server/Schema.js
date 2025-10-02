@@ -1,6 +1,9 @@
 const Joi = require("joi");
 
 module.exports.pinSchema = Joi.object({
-    title: Joi.string().required(),
-    destination: Joi.string().required(),
-}).required();
+    pin: Joi.object({
+        title: Joi.string().required(),
+        destination: Joi.string().required(),
+        image: Joi.string().required()
+    }).required()
+});

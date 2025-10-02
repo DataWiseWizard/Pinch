@@ -1,4 +1,9 @@
 const path = require("path");
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+    console.log(process.env);
+};
+
 const express = require('express');
 
 const dotenv = require('dotenv');
@@ -6,21 +11,22 @@ const mongoose = require('mongoose');
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require(path.join(__dirname, "utils", "ExpressError.js"));
+const mongoDbUrl = process.env.ATLASDB_URL;
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 
 const passport = require("passport");
-// const LocalStrategy = require("passport-local");
-const User = require(path.join(__dirname, "models", "user.js"));
+
+const pinRouter = require(path.join(__dirname, "routes", "pin.js"));
 
 const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New route for Google
 
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
 
-const pinRouter = require(path.join(__dirname, "routes", "pin.js"));
 
-const dbUrl = 'mongodb://localhost:27017/chonku';
+
+
 
 main()
     .then(() => {
@@ -32,7 +38,7 @@ main()
 
 
 async function main() {
-    await mongoose.connect(dbUrl);
+    await mongoose.connect(mongoDbUrl);
 }
 
 
@@ -42,27 +48,26 @@ const PORT = process.env.PORT || 5000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
 const store = MongoStore.create({
-    mongoUrl: dbUrl, // Use dbUrl from environment variable
+    mongoUrl: mongoDbUrl,
     crypto: {
-        secret: process.env.SECRET || 'thisshouldbeabettersecret!', // Use environment variable for secret
+        secret: process.env.SECRET
     },
-    touchAfter: 24 * 3600,
-})
+    touchAfter: 24 * 60 * 60
+});
 
-store.on("error", (err) => { // Added err parameter for consistency
-    console.log("ERROR in MONGO SESSION STORE.", err);
+store.on("error", (err) => {
+    console.log("ERROR IN MONGO SEESION STORE.", err);
 })
-
 
 const sessionOptions = {
     store,
-    secret: process.env.SECRET, // Use environment variable for secret
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -70,11 +75,13 @@ const sessionOptions = {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
     },
-};
+}
+
+
 
 app.use(session(sessionOptions));
 app.use(flash());
-require('./config/passport'); 
+require('./config/passport');
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -82,7 +89,7 @@ app.use(passport.session());
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
 
-app.use((req,res, next) => {
+app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash('error');
     res.locals.currUser = req.user;
@@ -90,13 +97,13 @@ app.use((req,res, next) => {
 });
 
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.redirect("/pins");
 })
 
 app.use("/pins", pinRouter);
 app.use("/", userRouter);
-app.use("/auth", authRouter); 
+app.use("/auth", authRouter);
 
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError
