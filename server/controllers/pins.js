@@ -27,12 +27,19 @@ module.exports.createPin = async (req, res, next) => {
     res.redirect("/pins");
 };
 
-// module.exports.showPin = async (req, res) => {
-//     let { id } = req.params;
-//     const pin = await Pin.findById(id).populate("postedBy");
-//     if (!pin) {
-//         req.flash("error", "Pin you requested does not exist!");
-//         return res.redirect("/pins");
-//     }
-//     res.render("pins/show.ejs", { pin });
-// };
+module.exports.showPin = async (req, res) => {
+    let { id } = req.params;
+    const pin = await Pin.findById(id).populate("postedBy");
+    if (!pin) {
+        req.flash("error", "Pin you requested does not exist!");
+        return res.redirect("/pins");
+    }
+    res.render("pins/show.ejs", { pin });
+};
+
+
+module.exports.getUserPins = async (req, res) => {
+    const { userId } = req.params;
+    const userPins = await Pin.find({ postedBy: userId });
+    res.status(200).json(userPins);
+};

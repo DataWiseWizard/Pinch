@@ -27,4 +27,13 @@ router.get("/logout", userController.logout);
 
 router.get("/verify-email", wrapAsync(userController.verifyEmail));
 
+router.get('/api/check-auth', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.status(200).json(req.user);
+    } else {
+        res.status(401).json({ message: 'Not authenticated' });
+    }
+});
+
+
 module.exports = router;

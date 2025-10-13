@@ -37,6 +37,8 @@ module.exports.signup = async (req, res, next) => {
 };
 
 
+
+
 module.exports.verifyEmail = async (req, res) => {
     try {
         const {token} = req.query;
@@ -78,9 +80,8 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    req.flash("success", "Welcome to Wanderlust! You are logged in!");
-    let redirectUrl = res.locals.redirectUrl || "/pins";
-    res.redirect(redirectUrl);
+    // We no longer need to flash and redirect from the backend for API calls
+    res.status(200).json({ message: "Login successful!", user: req.user });
 };
 
 module.exports.logout = (req, res, next) => {
