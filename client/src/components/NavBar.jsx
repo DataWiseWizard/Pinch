@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-    const [currentUser, logout] = useAuth();
+    const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {

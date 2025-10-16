@@ -10,6 +10,7 @@ import PinCreate from './pages/PinCreate';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
+import ProtectedRoute from './components/ProtectedRoute'
 // import './App.css';
 
 function App() {
@@ -22,7 +23,13 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/pin/:id" element={<PinDetail />} />
-          <Route path="/pin/new" element={<PinCreate />} />
+          <Route
+            path="/pin/new"
+            element={
+              <ProtectedRoute>
+                <PinCreate/>
+              </ProtectedRoute>
+            } />
           <Route
             path="/profile"
             element={

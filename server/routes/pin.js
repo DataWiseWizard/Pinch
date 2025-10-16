@@ -10,21 +10,22 @@ const upload = multer({ storage });
 
 
 router.get("/", wrapAsync(pinController.index));
+;
+
+
+router.get("/new", isLoggedIn, pinController.renderNewForm);
+
+router.get("/user/:userId", isLoggedIn, wrapAsync(pinController.getUserPins));
+
+router.get("/:id", wrapAsync(pinController.showPin));
+
 router.post("/",
   isLoggedIn,
   upload.single("pin[image]"),
   validatePin,
   wrapAsync(pinController.createPin)
-);
+)
 
-
-router.get("/new", isLoggedIn, pinController.renderNewForm);
-
-
-router.get("/:id", wrapAsync(pinController.showPin));
-
-
-router.get("/user/:userId", isLoggedIn, wrapAsync(pinController.getUserPins));
 
 
 module.exports = router;
