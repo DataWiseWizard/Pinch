@@ -3,6 +3,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from 'react-router-dom';
+
 
 const Navbar = () => {
     const { currentUser, logout } = useAuth();
@@ -22,7 +24,7 @@ const Navbar = () => {
             <div>
                 {currentUser ? (
                     <>
-                        <Link to="/profile" style={{ marginRight: '1rem' }}>
+                        <Link to="/profile" className='profile' style={{ marginRight: '1rem' }}>
                             {currentUser.username}
                         </Link>
                         <button onClick={handleLogout}>Log Out</button>

@@ -7,7 +7,7 @@ import './Pin.css';
 const Pin = ({ pin }) => {
     return (
         <div className="pin-container">
-            <Link to={`/pin/${pin._id}`}>
+            <Link to={`/pins/${pin._id}`}>
                 <img src={pin.image.url} alt={pin.title} />
                 <div className="pin-overlay">
                     <div className="pin-header">

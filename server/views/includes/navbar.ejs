@@ -12,6 +12,9 @@
                     <a class="nav-link" href="/login"><b>Log In</b></a>
                     <% } %>
                         <% if(typeof currUser !=='undefined' && currUser) { %>
+                            <a class="nav-link" href="/pins/user/<%= currUser._id %>"><b>
+                                    <%{currUser}%>
+                                </b></a>
                             <a class="nav-link" href="/logout"><b>Log Out</b></a>
                             <% } %>
             </div>

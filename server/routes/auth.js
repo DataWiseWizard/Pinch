@@ -6,14 +6,13 @@ router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
 }));
 
+const clientURL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 router.get('/google/callback', passport.authenticate('google', {
-    failureRedirect: '/login'
+    failureRedirect: `${clientURL}/login`
 }), (req, res) => {
-    // Successful authentication
     req.flash("success", "Successfully logged in with Google!");
-    const redirectUrl = req.session.redirectUrl || '/pins';
-    delete req.session.redirectUrl;
-    res.redirect(redirectUrl);
+    res.redirect(clientURL);
 });
 
 module.exports = router;

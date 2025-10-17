@@ -9,7 +9,7 @@ const PinList = () => {
     const [pins, setPins] = useState([]);
 
     useEffect(() => {
-        // Fetch pins from your backend API
+        
         const fetchPins = async () => {
             try {
                 const response = await fetch('/pins'); // Adjust the URL if needed

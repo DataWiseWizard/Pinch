@@ -11,7 +11,7 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute'
-// import './App.css';
+import './App.css';
 
 function App() {
   return (
@@ -22,9 +22,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/pin/:id" element={<PinDetail />} />
+          <Route path="/pins/:id" element={<PinDetail />} />
           <Route
-            path="/pin/new"
+            path="/pins/new"
             element={
               <ProtectedRoute>
                 <PinCreate/>

@@ -23,16 +23,14 @@ module.exports.signup = async (req, res, next) => {
         await newUser.save();
         await sendVerificationEmail(newUser.email, verificationToken);
 
-        
-        req.flash("success", "Registration successful! Please check your email to verify your account.");
-        res.redirect("/login");
+
+        res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
     } catch (e) {
         if (e.code === 11000) {
-            req.flash("error", "An account with that email already exists.");
+            return res.status(409).json({ message: "An account with that email already exists." });
         } else {
-            req.flash("error", e.message);
-        }        
-        res.redirect("/signup");
+            return res.status(400).json({ message: e.message });
+        }
     }
 };
 
@@ -41,7 +39,7 @@ module.exports.signup = async (req, res, next) => {
 
 module.exports.verifyEmail = async (req, res) => {
     try {
-        const {token} = req.query;
+        const { token } = req.query;
         if (!token) {
             req.flash("error", "Verification failed. Token is missing.");
             return res.redirect("/login");
@@ -49,10 +47,10 @@ module.exports.verifyEmail = async (req, res) => {
 
         const user = await User.findOne({
             verificationToken: token,
-            verificationTokenExpires: { $gt: Date.now()}
+            verificationTokenExpires: { $gt: Date.now() }
         })
 
-        if(!user) {
+        if (!user) {
             req.flash("error", "Invalid or expired verification token.");
             return res.redirect("/login");
         }
@@ -62,11 +60,13 @@ module.exports.verifyEmail = async (req, res) => {
         user.verificationTokenExpires = undefined;
         await user.save();
 
-        req.login(user, (err) => {{
-            if (err) {return next(err);}
-            req.flash("success", "Email verified successfully! You are now logged in.");
-            res.redirect("/pins");
-        }})
+        req.login(user, (err) => {
+            {
+                if (err) { return next(err); }
+                req.flash("success", "Email verified successfully! You are now logged in.");
+                res.redirect("/pins");
+            }
+        })
 
     } catch (error) {
         req.flash("error", "Something went wrong during verification.");

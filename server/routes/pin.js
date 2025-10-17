@@ -10,7 +10,7 @@ const upload = multer({ storage });
 
 
 router.get("/", wrapAsync(pinController.index));
-;
+
 
 
 router.get("/new", isLoggedIn, pinController.renderNewForm);

@@ -6,8 +6,7 @@ const ExpressError = require("./utils/ExpressError.js");
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
         req.session.redirectUrl = req.originalUrl;
-        req.flash("error", "you must be looged in to create listing");
-        return res.redirect("/login");
+        return res.status(401).json({ message: "You must be logged in to perform this action." });
     }
     next();
 }
