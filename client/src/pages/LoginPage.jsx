@@ -40,7 +40,7 @@ const LoginPage = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+        <div className='form-container'>
             <h2>Login to Pinch</h2>
             {signupSuccess && <p style={{ color: 'green' }}>Signup successful! Please log in.</p>}
             <form onSubmit={handleSubmit}>

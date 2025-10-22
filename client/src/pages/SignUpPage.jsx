@@ -38,7 +38,7 @@ const SignUpPage = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+        <div className='form-container'>
             <h2>Sign Up for Pinch</h2>
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '15px' }}>

@@ -37,7 +37,7 @@ const PinCreate = () => {
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
+        <div className="form-container">
             <h2>Create a New Pin</h2>
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '15px' }}>

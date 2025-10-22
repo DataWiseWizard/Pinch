@@ -27,11 +27,13 @@ const PinDetail = () => {
     }
 
     return (
-        <div>
-            <h2>{pin.title}</h2>
-            <img src={pin.image.url} alt={pin.title} style={{ maxWidth: '500px' }} />
-            <p>{pin.destination}</p>
-            <p>Posted by: {pin.postedBy?.username}</p>
+        <div className='pin-detail-container'>
+            <div className="pin-detail-info">
+                <h2>{pin.title}</h2>
+                <div className="pin-detail-image"><img src={pin.image.url} alt={pin.title} style={{ maxWidth: '500px' }} /></div>
+                <p>{pin.destination}</p>
+                <p>Posted by: {pin.postedBy?.username}</p>
+            </div>
         </div>
     );
 };

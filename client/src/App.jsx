@@ -16,29 +16,32 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <NavBar />
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/pins/:id" element={<PinDetail />} />
-          <Route
-            path="/pins/new"
-            element={
-              <ProtectedRoute>
-                <PinCreate/>
-              </ProtectedRoute>
-            } />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            } />
-        </Routes>
+      <div className='bg-gray-900 text-gray-200 min-h-screen'>
+        <NavBar />
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/pins/:id" element={<PinDetail />} />
+            <Route
+              path="/pins/new"
+              element={
+                <ProtectedRoute>
+                  <PinCreate />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+          </Routes>
+        </div>
       </div>
+
     </Router>
   );
 
