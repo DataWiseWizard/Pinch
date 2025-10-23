@@ -1,9 +1,8 @@
 const User = require("../models/user");
+const Pin = require("../models/pin");
 const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/Token');
 const { sendVerificationEmail } = require('../utils/Email');
-
-
 
 module.exports.renderSignupForm = (req, res) => {
     res.render("./users/signup.ejs");
@@ -33,9 +32,6 @@ module.exports.signup = async (req, res, next) => {
         }
     }
 };
-
-
-
 
 module.exports.verifyEmail = async (req, res) => {
     try {
@@ -74,7 +70,6 @@ module.exports.verifyEmail = async (req, res) => {
     }
 }
 
-
 module.exports.renderLoginForm = (req, res) => {
     res.render("./users/login.ejs");
 };
@@ -90,4 +85,65 @@ module.exports.logout = (req, res, next) => {
         req.flash("success", "You are logged out now!");
         res.redirect("/pins");
     });
+};
+
+module.exports.toggleSavePin = async (req, res) => {
+    const { pinId } = req.params;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    const pin = await Pin.findById(pinId);
+
+    if (!pin) {
+        return res.status(404).json({ message: "Pin not found." });
+    }
+    if (!user) {
+        return res.status(404).json({ message: "User not found." });
+    }
+
+    const savedIndex = user.savedPins.indexOf(pinId);
+
+    let message;
+    let updatedSavedPins;
+
+    if (savedIndex > -1) {
+        user.savedPins.splice(savedIndex, 1);
+        message = "Pin unsaved successfully.";
+        updatedSavedPins = user.savedPins;
+    } else {
+        user.savedPins.push(pinId);
+        message = "Pin saved successfully.";
+        updatedSavedPins = user.savedPins;
+    }
+
+    await user.save();
+    res.status(200).json({ message, savedPins: updatedSavedPins });
+};
+
+module.exports.getSavedPins = async (req, res) => {
+    const userId = req.user._id;
+    console.log(`Fetching saved pins for user: ${userId}`);
+    try { // Add try...catch around the database query
+        const user = await User.findById(userId).populate({
+            path: 'savedPins',
+            populate: {
+                path: 'postedBy',
+                select: 'username profileImage _id' // Ensure _id is selected if needed elsewhere
+            }
+        });
+
+    if (!user) {
+            console.error(`User not found for ID: ${userId}`); // Log: User not found
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        console.log(`Found ${user.savedPins ? user.savedPins.length : 0} saved pins for user ${userId}`); // Log: Success
+
+        res.status(200).json(user.savedPins || []); // Return empty array if savedPins is null/undefined
+
+    } catch (error) {
+        console.error(`Error fetching saved pins for user ${userId}:`, error); // Log: Detailed error
+        // Send a generic error message to the client
+        res.status(500).json({ message: "Internal server error while fetching saved pins." });
+    }
 };

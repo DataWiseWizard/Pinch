@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
-const { saveRedirectUrl } = require("../middlewares.js");
+const { saveRedirectUrl, isLoggedIn } = require("../middlewares.js");
 
 const userController = require("../controllers/user.js");
 
@@ -35,5 +35,14 @@ router.get('/api/check-auth', (req, res) => {
     }
 });
 
+router.put('/pins/:pinId/save',
+    isLoggedIn,
+    wrapAsync(userController.toggleSavePin)
+);
+
+router.get('/pins/saved',
+    isLoggedIn,
+    wrapAsync(userController.getSavedPins)
+);
 
 module.exports = router;

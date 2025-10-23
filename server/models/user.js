@@ -39,7 +39,11 @@ const userSchema = new Schema({
     verificationTokenExpires: {
         type: Date,
         required: false
-    }
+    },
+    savedPins: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Pin'
+    }]
 }, { timestamps: true });
 
 // userSchema.plugin(passportLocalMongoose);

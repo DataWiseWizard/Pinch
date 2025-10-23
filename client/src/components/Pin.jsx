@@ -10,8 +10,9 @@ import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
 
-const Pin = ({ pin, onDelete }) => {
+const Pin = ({ pin, onDelete, onSave, isSaved }) => {
     const handleDeleteClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -21,6 +22,15 @@ const Pin = ({ pin, onDelete }) => {
             }
         }
     };
+
+    const handleSaveClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onSave) {
+            onSave(pin._id, !isSaved);
+        }
+    };
+
     return (
         <Card sx={{
             position: 'relative',
@@ -62,27 +72,32 @@ const Pin = ({ pin, onDelete }) => {
                 >
                     {/* Header section of overlay */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                            {pin.title}
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            sx={{
-                                bgcolor: '#e60023', // Pinterest red
-                                color: 'white',
-                                borderRadius: '20px', // Pill shape
-                                '&:hover': { bgcolor: '#ad081b' } // Darker red on hover
-                            }}
-                            onClick={(e) => {
-                                e.preventDefault(); // Prevent link navigation
-                                e.stopPropagation(); // Stop event bubbling
-                                // Add save functionality here later
-                                console.log('Save clicked');
-                            }}
-                        >
-                            Save
-                        </Button>
+                        <Box sx={{ flexGrow: 1 }} />
+
+                        {/* --- MODIFIED SAVE BUTTON --- */}
+                        {/* Only show if onSave is provided */}
+                        {onSave && (
+                            <Button
+                                variant="contained"
+                                size="small"
+                                disabled={isSaved} // Disable button if already saved
+                                sx={{
+                                    bgcolor: isSaved ? 'grey.700' : '#e60023', // Different bg color when saved
+                                    color: 'white',
+                                    borderRadius: '20px',
+                                    minWidth: 'auto',
+                                    px: 1.5,
+                                    '&:hover': { bgcolor: isSaved ? 'grey.700' : '#ad081b' }
+                                }}
+                                onClick={handleSaveClick}
+                                startIcon={isSaved ? <CheckIcon fontSize="small" /> : null} // Show checkmark if saved
+                            >
+                                {isSaved ? "Saved" : "Save"}
+                            </Button>
+                        )}
+                        {/* --- END MODIFIED SAVE BUTTON --- */}
+
+
                     </Box>
                     {/* Footer section of overlay */}
                     <Box>
@@ -94,25 +109,27 @@ const Pin = ({ pin, onDelete }) => {
             </Link>
 
 
-            {onDelete && (
-                <IconButton
-                    aria-label="delete pin"
-                    className="delete-button" 
-                    onClick={handleDeleteClick}
-                    sx={{
-                        position: 'absolute',
-                        bottom: 8,
-                        right: 8,
-                        color: 'white',
-                        bgcolor: 'rgba(0, 0, 0, 0.4)',
-                        opacity: 0.7, 
-                    }}
-                    size="small"
-                >
-                    <DeleteIcon fontSize="small" />
-                </IconButton>
-            )}
-        </Card>
+            {
+                onDelete && (
+                    <IconButton
+                        aria-label="delete pin"
+                        className="delete-button"
+                        onClick={handleDeleteClick}
+                        sx={{
+                            position: 'absolute',
+                            bottom: 8,
+                            right: 8,
+                            color: 'white',
+                            bgcolor: 'rgba(0, 0, 0, 0.4)',
+                            opacity: 0.7,
+                        }}
+                        size="small"
+                    >
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
+                )
+            }
+        </Card >
     );
 };
 
