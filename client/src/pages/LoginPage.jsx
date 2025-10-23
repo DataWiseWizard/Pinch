@@ -3,6 +3,15 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
+import GoogleIcon from '@mui/icons-material/Google';
+
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -40,30 +49,80 @@ const LoginPage = () => {
     };
 
     return (
-        <div className='form-container'>
-            <h2>Login to Pinch</h2>
-            {signupSuccess && <p style={{ color: 'green' }}>Signup successful! Please log in.</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="username">Username</label>
-                    <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required style={{ width: '100%', padding: '8px' }} />
-                </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="password">Password</label>
-                    <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px' }} />
-                </div>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <button type="submit">Log In</button>
-            </form>
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                <p>OR</p>
-                {/* This is a simple link to your backend Google auth route */}
-                <a href="http://localhost:5000/auth/google" role="button" style={{ textDecoration: 'none', color: 'white', backgroundColor: '#db4437', padding: '10px 15px', borderRadius: '4px' }}>
-                    Login with Google
-                </a>
-            </div>
+        <Container component="main" maxWidth="xs" sx={{ mt: 4 }}> {/* Use Container for layout */}
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Typography component="h1" variant="h5">
+                    Login to Pinch
+                </Typography>
 
-        </div>
+                {signupSuccess && (
+                    <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
+                        Signup successful! Please log in.
+                    </Alert>
+                )}
+
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="username"
+                        label="Username"
+                        name="username"
+                        autoComplete="username"
+                        autoFocus
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                    {error && (
+                        <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained" 
+                        sx={{ mt: 3, mb: 2 }}
+                    >
+                        Log In
+                    </Button>
+                    
+                    <Divider sx={{ my: 2 }}>OR</Divider>
+
+                    <Button
+                        fullWidth
+                        variant="outlined"
+                        href="http://localhost:5000/auth/google"
+                        startIcon={<GoogleIcon />}
+                    >
+                        Login with Google
+                    </Button>
+
+                </Box>
+            </Box>
+        </Container>
     );
 };
 

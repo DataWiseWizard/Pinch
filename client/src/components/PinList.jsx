@@ -1,15 +1,18 @@
 // client/src/components/PinList.jsx
 
 import React, { useState, useEffect } from 'react';
-import Masonry from 'react-masonry-css';
 import Pin from './Pin';
-import './PinList.css'; // We'll create this file next
+
+import Masonry from '@mui/lab/Masonry';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
 const PinList = () => {
     const [pins, setPins] = useState([]);
 
     useEffect(() => {
-        
+
         const fetchPins = async () => {
             try {
                 const response = await fetch('/pins'); // Adjust the URL if needed
@@ -33,16 +36,22 @@ const PinList = () => {
         500: 1
     };
 
+
+
     return (
-        <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="my-masonry-grid"
-            columnClassName="my-masonry-grid_column"
-        >
-            {pins.map(pin => (
-                <Pin key={pin._id} pin={pin} />
-            ))}
-        </Masonry>
+        <Box sx={{ width: 'auto', p: 1 }}> 
+            <Masonry
+                columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} 
+                spacing={2} 
+            >
+                {pins.map(pin => (
+                    // Each child needs a key
+                    <div key={pin._id}>
+                        <Pin pin={pin} />
+                    </div>
+                ))}
+            </Masonry>
+        </Box>
     );
 };
 

@@ -22,9 +22,14 @@ router.get("/:id", wrapAsync(pinController.showPin));
 router.post("/",
   isLoggedIn,
   upload.single("pin[image]"),
-  validatePin,
+  // validatePin,
   wrapAsync(pinController.createPin)
 )
+
+router.delete("/:id",
+  isLoggedIn, 
+  wrapAsync(pinController.deletePin)
+);
 
 
 

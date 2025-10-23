@@ -42,3 +42,30 @@ module.exports.getUserPins = async (req, res) => {
     const userPins = await Pin.find({ postedBy: userId });
     res.status(200).json(userPins);
 };
+
+
+module.exports.deletePin = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const pin = await Pin.findById(id);
+
+    if (!pin) {
+        throw new ExpressError(404, "Pin not found.");
+    }
+
+    if (!pin.postedBy.equals(userId)) {
+        return res.status(403).json({ message: "You are not authorized to delete this pin." });
+        // req.flash("error", "You don't have permission to delete this pin.");
+        // return res.redirect(`/pins/${id}`);
+    }
+
+    await Pin.findByIdAndDelete(id);
+
+
+    await cloudinary.uploader.destroy(pin.image.filename);
+
+    res.status(200).json({ message: "Pin deleted successfully." });
+    req.flash("success", "Pin deleted!");
+    res.redirect("/pins"); 
+};
