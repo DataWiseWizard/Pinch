@@ -123,27 +123,23 @@ module.exports.toggleSavePin = async (req, res) => {
 module.exports.getSavedPins = async (req, res) => {
     const userId = req.user._id;
     console.log(`Fetching saved pins for user: ${userId}`);
-    try { // Add try...catch around the database query
-        const user = await User.findById(userId).populate({
-            path: 'savedPins',
-            populate: {
-                path: 'postedBy',
-                select: 'username profileImage _id' // Ensure _id is selected if needed elsewhere
-            }
-        });
-
-    if (!user) {
-            console.error(`User not found for ID: ${userId}`); // Log: User not found
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            console.error(`User not found for ID: ${userId}`);
             return res.status(404).json({ message: "User not found." });
         }
 
-        console.log(`Found ${user.savedPins ? user.savedPins.length : 0} saved pins for user ${userId}`); // Log: Success
+        // Fetch pins that exist in the Pin collection
+        const savedPins = await Pin.find({
+            '_id': { $in: user.savedPins }
+        });
 
-        res.status(200).json(user.savedPins || []); // Return empty array if savedPins is null/undefined
+        console.log(`Found ${savedPins.length} saved pins for user ${userId}`);
+        res.status(200).json(savedPins);
 
     } catch (error) {
-        console.error(`Error fetching saved pins for user ${userId}:`, error); // Log: Detailed error
-        // Send a generic error message to the client
+        console.error(`Error fetching saved pins for user ${userId}:`, error);
         res.status(500).json({ message: "Internal server error while fetching saved pins." });
     }
 };

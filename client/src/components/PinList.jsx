@@ -9,8 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import Alert from '@mui/material/Alert';
 
 const PinList = () => {
-    const { currentUser } = useAuth(); // Get current user
-    console.log('PinList currentUser:', currentUser);
+    const { currentUser } = useAuth(); 
     const [pins, setPins] = useState([]);
     const [savedPinIds, setSavedPinIds] = useState(new Set()); // Use a Set for efficient lookups
     const [loading, setLoading] = useState(true);
@@ -91,23 +90,19 @@ const PinList = () => {
         }
     };
 
-    
-
-
-
     return (
         <Box sx={{ width: 'auto', p: 1 }}>
              {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
              <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2} >
                 {pins.map(pin => {
                      // *** CHANGE HERE: Determine onSave function inside the map ***
-                    const currentOnSave = currentUser ? handleSavePin : null;
+                    // const currentOnSave = currentUser ? handleSavePin : null;
                     return (
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
                                 // Pass the determined function
-                                onSave={currentOnSave}
+                                onSave={currentUser ? handleSavePin : null}
                                 isSaved={savedPinIds.has(pin._id)}
                                 // onDelete is null here as it's the home feed
                                 onDelete={null}
