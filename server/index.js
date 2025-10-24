@@ -101,17 +101,29 @@ app.get("/", (req, res) => {
     res.redirect("/pins");
 })
 
-app.use("/pins", pinRouter);
 app.use("/", userRouter);
+app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError
 })
 
-app.use((err, req, res, next) => { // Standardized error handling middleware
+app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something Went Wrong!" } = err;
-    res.status(statusCode).render("error.ejs", { err }); // Pass err object to template
+    console.error("--- Central Error Handler ---"); // Log that it's being used
+    console.error("Status Code:", statusCode);
+    console.error("Message:", message);
+    console.error("Stack:", err.stack); // *** Ensure stack trace is logged ***
+    console.error("--- End Error ---");
+    // Ensure you're sending a JSON response for API routes, or render for EJS views
+    // Check if the request likely expects JSON (common for React frontends)
+    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/pins') || req.originalUrl.startsWith('/auth') || req.accepts('json')) {
+       res.status(statusCode).json({ message: message }); // Send JSON error
+    } else {
+        // Fallback for non-API routes (if any still use EJS rendering for errors)
+        res.status(statusCode).render("error.ejs", { err }); // Pass err object to template
+    }
 });
 
 app.listen(PORT, () => {

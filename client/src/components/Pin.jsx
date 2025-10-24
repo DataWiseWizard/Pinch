@@ -80,7 +80,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                             <Button
                                 variant="contained"
                                 size="small"
-                                disabled={isSaved} // Disable button if already saved
+                                // disabled={isSaved} // Disable button if already saved
                                 sx={{
                                     bgcolor: isSaved ? 'grey.700' : '#e60023', // Different bg color when saved
                                     color: 'white',

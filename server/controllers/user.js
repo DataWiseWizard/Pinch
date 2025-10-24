@@ -87,82 +87,106 @@ module.exports.logout = (req, res, next) => {
     });
 };
 
-module.exports.toggleSavePin = async (req, res, next) => { // Added next for error handling
+module.exports.toggleSavePin = async (req, res, next) => {
     const { pinId } = req.params;
+    // Ensure user is attached
+    if (!req.user || !req.user._id) {
+        console.error("[toggleSavePin] Error: User not found on request object.");
+        return next(new ExpressError(401, "Authentication error: User not identified."));
+    }
     const userId = req.user._id;
 
-    try { // Wrap in a try...catch for better error handling
-        const user = await User.findById(userId);
-        const pin = await Pin.findById(pinId); // Ensure the pin exists
+    try {
+        console.log(`[toggleSavePin] User ${userId} toggling save for pin ${pinId}`); // Log: Start toggle
+        // Fetch both user and pin concurrently
+        const [user, pin] = await Promise.all([
+            User.findById(userId),
+            Pin.findById(pinId) // Check if pin exists
+        ]);
 
+        if (!user) { // Should be caught by isLoggedIn, but good safety check
+             console.error(`[toggleSavePin] User not found in DB: ${userId}`);
+             return res.status(404).json({ message: "User not found." });
+        }
         if (!pin) {
+            console.warn(`[toggleSavePin] Pin not found: ${pinId}`);
             return res.status(404).json({ message: "Pin not found." });
         }
-        if (!user) {
-            // This case should be rare if isLoggedIn middleware works, but good practice
-            return res.status(404).json({ message: "User not found." });
-        }
 
-        const savedIndex = user.savedPins.findIndex(savedId => savedId.equals(pinId)); // Use findIndex and .equals for ObjectIds
-
+        const savedIndex = user.savedPins.findIndex(savedId => savedId.equals(pinId));
         let message;
 
         if (savedIndex > -1) {
-            // Pin exists, remove it
             user.savedPins.splice(savedIndex, 1);
             message = "Pin unsaved successfully.";
+            console.log(`[toggleSavePin] User ${userId} unsaved pin ${pinId}`); // Log: Unsave
         } else {
-            // Pin doesn't exist, add it
             user.savedPins.push(pinId);
             message = "Pin saved successfully.";
+            console.log(`[toggleSavePin] User ${userId} saved pin ${pinId}`); // Log: Save
         }
 
-        // *** Crucial: Save the user document ***
-        const updatedUser = await user.save(); // Await the save operation
+        console.log(`[toggleSavePin] Attempting to save user ${userId}`); // Log: Before save
+        const updatedUser = await user.save(); // Await the save
+        console.log(`[toggleSavePin] User ${userId} saved successfully.`); // Log: After save
 
-        // *** Return the updated list of saved pin IDs ***
-        // Ensure you return only the IDs, not populated objects here
+        // Return the confirmed list of saved pin *IDs*
         const updatedSavedPinIds = updatedUser.savedPins.map(id => id.toString());
 
         res.status(200).json({
-             message,
-             // Send back the array of *IDs* confirmed saved in the DB
-             savedPins: updatedSavedPinIds
-         });
+            message,
+            savedPins: updatedSavedPinIds // Send updated IDs
+        });
 
     } catch (error) {
-        console.error("Error toggling save pin:", error);
-        // Pass error to the global error handler
-        next(new ExpressError(500, "Could not update saved pins.")); // Use ExpressError
+        console.error(`[toggleSavePin] CRITICAL ERROR for user ${userId}, pin ${pinId}:`, error);
+        next(new ExpressError(500, `Could not update saved pins. Details: ${error.message}`));
     }
 };
 
-module.exports.getSavedPins = async (req, res, next) => { // Added next
+module.exports.getSavedPins = async (req, res, next) => {
+    // Check if user is properly attached by middleware
+    if (!req.user || !req.user._id) {
+        console.error("[getSavedPins] Error: User not found on request object. Middleware issue?");
+        // Use next to pass error to central handler
+        return next(new ExpressError(401, "Authentication error: User not identified."));
+    }
+
     const userId = req.user._id;
-    console.log(`Fetching saved pins for user: ${userId}`);
+    console.log(`[getSavedPins] Attempting to fetch saved pins for user: ${userId}`); // Log: Start
+
     try {
-        const user = await User.findById(userId).populate({
-            path: 'savedPins',
-            populate: {
-                path: 'postedBy',
-                select: 'username profileImage _id'
-            }
-        });
+        console.log(`[getSavedPins] Finding user document for ID: ${userId}`); // Log: Before find
+        const user = await User.findById(userId);
 
         if (!user) {
-            console.error(`User not found for ID: ${userId}`);
+            console.error(`[getSavedPins] User document not found in DB for ID: ${userId}`);
+            // Send 404 directly as user genuinely doesn't exist
             return res.status(404).json({ message: "User not found." });
         }
+        console.log(`[getSavedPins] User document found. User has ${user.savedPins?.length ?? 0} saved pin references.`); // Log: User found
 
-        // Filter out null pins (in case a saved pin was deleted)
-        const validSavedPins = user.savedPins ? user.savedPins.filter(pin => pin !== null) : [];
+        // *** Fetch and Populate Saved Pins Separately ***
+        // This helps isolate population errors
+        console.log(`[getSavedPins] Attempting to find and populate pins with IDs: ${user.savedPins}`);
+        const populatedPins = await Pin.find({
+            '_id': { $in: user.savedPins } // Find pins whose IDs are in the user's savedPins array
+        }).populate({
+            path: 'postedBy',
+            select: 'username profileImage _id'
+        });
+        console.log(`[getSavedPins] Successfully populated ${populatedPins.length} pins.`); // Log: Population success
 
-        console.log(`Found ${validSavedPins.length} valid saved pins for user ${userId}`);
-        res.status(200).json(validSavedPins); // Send the populated, filtered array
+        // Although Pin.find with $in naturally filters out non-existent IDs,
+        // it's good practice, especially if the savedPins array could contain duplicates or invalid entries
+        // Note: The previous filtering of nulls after populate isn't needed with this approach.
+
+        res.status(200).json(populatedPins || []); // Send the successfully populated pins
 
     } catch (error) {
-        console.error(`Error fetching saved pins for user ${userId}:`, error);
-        // Pass a structured error
-         next(new ExpressError(500, "Internal server error while fetching saved pins."));
+        // *** Log the *specific* error that occurred ***
+        console.error(`[getSavedPins] CRITICAL ERROR fetching/populating saved pins for user ${userId}:`, error);
+        // Pass a detailed error to the central handler
+        next(new ExpressError(500, `Server error fetching saved pins. Details: ${error.message}`));
     }
 };
