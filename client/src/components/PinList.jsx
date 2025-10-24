@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Pin from './Pin';
+import API_URL from '../apiConfig';
 
 import Masonry from '@mui/lab/Masonry';
 import Box from '@mui/material/Box';
@@ -23,7 +24,7 @@ const PinList = () => {
             return;
         }
         try {
-            const savedResponse = await fetch('/pins/saved');
+            const savedResponse = await fetch(`${API_URL}/pins/saved`);
             if (!savedResponse.ok) {
                 // Try to get error message from backend
                 let errorMsg = 'Failed to fetch saved pins status.';
@@ -50,7 +51,7 @@ const PinList = () => {
         setSaveError(null);
         try {
             // Fetch all pins
-            const pinsResponse = await fetch('/pins');
+            const pinsResponse = await fetch(`${API_URL}/pins`);
             if (!pinsResponse.ok) throw new Error('Failed to fetch pins.');
             const pinsData = await pinsResponse.json();
             setPins(pinsData);
@@ -80,7 +81,7 @@ const PinList = () => {
         setSaveError(null);
 
         try {
-            const response = await fetch(`/pins/${pinId}/save`, {
+            const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
                 method: 'PUT',
             });
 

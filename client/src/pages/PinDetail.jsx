@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -16,7 +17,7 @@ const PinDetail = () => {
     useEffect(() => {
         const fetchPin = async () => {
             try {
-                const response = await fetch(`/pins/${id}`);
+                const response = await fetch(`${API_URL}/pins/${id}`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

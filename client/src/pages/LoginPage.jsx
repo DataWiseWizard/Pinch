@@ -1,6 +1,7 @@
 // client/src/pages/LoginPage.jsx
 
 import React, { useState } from 'react';
+import API_URL from '../apiConfig';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import Container from '@mui/material/Container';
@@ -29,7 +30,7 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const response = await fetch('/login', {
+            const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
@@ -103,18 +104,18 @@ const LoginPage = () => {
                     <Button
                         type="submit"
                         fullWidth
-                        variant="contained" 
+                        variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
                         Log In
                     </Button>
-                    
+
                     <Divider sx={{ my: 2 }}>OR</Divider>
 
                     <Button
                         fullWidth
                         variant="outlined"
-                        href="http://localhost:5000/auth/google"
+                        href={`${API_URL}/auth/google`}
                         startIcon={<GoogleIcon />}
                     >
                         Login with Google

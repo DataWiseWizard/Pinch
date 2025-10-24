@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from '../apiConfig';
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -16,9 +17,9 @@ const PinCreate = () => {
     const [title, setTitle] = useState("");
     const [destination, setDestination] = useState("");
     const [image, setImage] = useState(null);
-    const [imageName, setImageName] = useState(""); 
+    const [imageName, setImageName] = useState("");
     const [error, setError] = useState("");
-    const [submitting, setSubmitting] = useState(false); 
+    const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
 
@@ -48,7 +49,7 @@ const PinCreate = () => {
         } formData.append("pin[image]", image);
 
         try {
-            const response = await fetch("/pins", {
+            const response = await fetch(`${API_URL}/pins`, {
                 method: "post",
                 body: formData
             })

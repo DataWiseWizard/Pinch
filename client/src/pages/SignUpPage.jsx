@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -23,7 +24,7 @@ const SignUpPage = () => {
         setError('');
 
         try {
-            const response = await fetch('/signup', {
+            const response = await fetch(`${API_URL}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

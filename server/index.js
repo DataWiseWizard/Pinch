@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== "production") {
 };
 
 const express = require('express');
-
+const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const methodOverride = require("method-override");
@@ -24,10 +24,6 @@ const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New ro
 
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
 
-
-
-
-
 main()
     .then(() => {
         console.log("connected to DB");
@@ -45,6 +41,13 @@ async function main() {
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const clientURL = process.env.CLIENT_URL || 'http://localhost:5173'; // Get client URL
+const corsOptions = {
+  origin: clientURL, // Allow requests ONLY from your frontend URL
+  credentials: true // Important for sessions/cookies
+};
+app.use(cors(corsOptions));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -96,6 +99,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.json()); // <-- Add this to parse JSON request bodies
+
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
     res.redirect("/pins");

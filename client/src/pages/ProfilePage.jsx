@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Masonry from '@mui/lab/Masonry';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
+import API_URL from '../apiConfig';
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -30,7 +31,7 @@ const ProfilePage = () => {
         setLoadingCreated(true);
         setError(null);
         try {
-            const response = await fetch(`/pins/user/${currentUser._id}`);
+            const response = await fetch(`${API_URL}/pins/user/${currentUser._id}`);
             if (!response.ok) throw new Error('Could not fetch created pins.');
             const data = await response.json();
             setCreatedPins(data);
@@ -44,7 +45,7 @@ const ProfilePage = () => {
         setLoadingSaved(true);
         setError(null); // Clear general error
         try {
-            const response = await fetch(`/pins/saved`); // Use the new endpoint
+            const response = await fetch(`${API_URL}/pins/saved`); 
             if (!response.ok) throw new Error('Could not fetch saved pins.');
             const data = await response.json();
             setSavedPins(data);
@@ -67,7 +68,7 @@ const ProfilePage = () => {
         setCreatedPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
 
         try {
-            const response = await fetch(`/pins/${pinIdToDelete}`, { method: 'DELETE' });
+            const response = await fetch(`${API_URL}/pins/${pinIdToDelete}`, { method: 'DELETE' });
 
             if (!response.ok) {
                 let errorMsg = `HTTP error! Status: ${response.status}`;
@@ -96,7 +97,7 @@ const ProfilePage = () => {
         setSaveError(null);
 
         try {
-            const response = await fetch(`/pins/${pinId}/save`, { method: 'PUT' });
+            const response = await fetch(`${API_URL}/pins/${pinId}/save`, { method: 'PUT' });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Failed to ${shouldSave ? 'save' : 'unsave'} pin.`);

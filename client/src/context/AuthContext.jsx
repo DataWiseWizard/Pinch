@@ -1,6 +1,7 @@
 // client/src/context/AuthContext.jsx
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import API_URL from '../apiConfig';
 
 // 1. Create the context
 export const AuthContext = createContext();
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         const checkLoggedInStatus = async () => {
             try {
                 // This endpoint checks the session on the backend
-                const response = await fetch('/api/check-auth'); 
+                const response = await fetch(`${API_URL}/api/check-auth`); 
                 if (response.ok) {
                     const user = await response.json();
                     setCurrentUser(user);
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await fetch('/logout', { method: 'GET' }); // Clear session on backend
+        await fetch(`${API_URL}/logout`, { method: 'GET' }); // Clear session on backend
         setCurrentUser(null);
     };
 
