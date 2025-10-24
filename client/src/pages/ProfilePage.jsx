@@ -23,6 +23,7 @@ const ProfilePage = () => {
     const [deleteError, setDeleteError] = useState(null);
     const [saveError, setSaveError] = useState(null); // Error for saving actions
     const [currentTab, setCurrentTab] = useState(0);
+    const [userPins, setUserPins] = useState([]);
 
     const fetchCreatedPins = useCallback(async () => {
         if (!currentUser) return;
@@ -52,7 +53,7 @@ const ProfilePage = () => {
         finally { setLoadingSaved(false); }
     }, [currentUser]);
 
-    // Initial fetch for both
+
     useEffect(() => {
         fetchCreatedPins();
         fetchSavedPins();
@@ -61,66 +62,38 @@ const ProfilePage = () => {
 
     const handleDeletePin = async (pinIdToDelete) => {
         setDeleteError(null);
-
-        const originalPins = [...userPins];
-        setUserPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
+        // Optimistically remove from the 'Created' pins list
+        const originalCreatedPins = [...createdPins];
+        setCreatedPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
 
         try {
-            const response = await fetch(`/pins/${pinIdToDelete}`, {
-                method: 'DELETE',
-                // headers: { /* Auth headers if needed */ },
-            });
-
+            const response = await fetch(`/pins/${pinIdToDelete}`, { method: 'DELETE' });
 
             if (!response.ok) {
-
-                let errorMsg = `HTTP error! status: ${response.status} ${response.statusText}`;
+                let errorMsg = `HTTP error! Status: ${response.status}`;
                 try {
                     const errorData = await response.json();
                     errorMsg = errorData.message || errorMsg;
-                } catch (jsonError) {
-                    console.error("Could not parse error response as JSON:", jsonError);
-                }
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
-
-
-            setUserPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
-
-
-
-            try {
-                const data = await response.json();
-                console.log(data.message || 'Deletion successful');
-            } catch (e) {
-                console.log('Deletion successful (no response body or not JSON)');
-            }
-
+            // If successful, also refetch saved pins in case the deleted pin was saved
+            await fetchSavedPins();
 
         } catch (err) {
             console.error("Error deleting pin:", err);
             setDeleteError(err.message || "Could not delete pin. Please try again.");
-            setUserPins(originalPins);
+            // Revert optimistic update on error
+            setCreatedPins(originalCreatedPins);
         }
     };
 
     const handleSavePin = async (pinId, shouldSave) => {
-        // ... (same save/unsave logic as in PinList, but updates savedPins/savedPinIds state)
-        if (!currentUser) { setSaveError("You must be logged in."); return; }
-        setSaveError(null);
-        const originalSavedPinIds = new Set(savedPinIds); // Store for potential revert
-
-        // Optimistic UI update for immediate feedback
-        setSavedPinIds(prevIds => {
-            const newIds = new Set(prevIds);
-            if (shouldSave) newIds.add(pinId); else newIds.delete(pinId);
-            return newIds;
-        });
-        // Also update savedPins array optimistically if showing saved tab
-        if (!shouldSave && currentTab === 1) {
-            setSavedPins(prevPins => prevPins.filter(p => p._id !== pinId));
+        if (!currentUser) {
+            setSaveError("You must be logged in.");
+            return;
         }
-
+        setSaveError(null);
 
         try {
             const response = await fetch(`/pins/${pinId}/save`, { method: 'PUT' });
@@ -129,17 +102,26 @@ const ProfilePage = () => {
                 throw new Error(errorData.message || `Failed to ${shouldSave ? 'save' : 'unsave'} pin.`);
             }
             const result = await response.json();
-            // Sync state with backend response (important if optimistic differs or failed)
-            setSavedPinIds(new Set(result.savedPins || []));
-            // Re-fetch saved pins if the tab is active to ensure full data consistency
-            if (currentTab === 1) fetchSavedPins();
+
+            // Update state based ONLY on the backend response
+            if (result.savedPins && Array.isArray(result.savedPins)) {
+                setSavedPinIds(new Set(result.savedPins)); // Update the Set of IDs
+
+                // *** FIX: If currently viewing the "Saved" tab, refetch the saved pins list ***
+                if (currentTab === 1) {
+                    await fetchSavedPins();
+                }
+            } else {
+                // Fallback: If response format is wrong, refetch saved pins
+                console.warn("Backend save/unsave response missing 'savedPins'. Refetching saved pins.");
+                await fetchSavedPins();
+            }
 
         } catch (err) {
             console.error("Error saving/unsaving pin:", err);
             setSaveError(err.message);
-            // Revert optimistic updates on error
-            setSavedPinIds(originalSavedPinIds);
-            if (!shouldSave && currentTab === 1) fetchSavedPins(); // Re-fetch if unsave failed on saved tab
+            // On error, refetch saved pins to ensure consistency
+            await fetchSavedPins();
         }
     };
 
@@ -148,15 +130,11 @@ const ProfilePage = () => {
         setCurrentTab(newValue);
     };
 
-    if (!currentUser && loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-                <CircularProgress />
-            </Box>
-        );
+    if ((loadingCreated || loadingSaved) && !currentUser) { // Adjust initial loading check
+        return <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>;
     }
 
-
+    // --- Not Logged In State ---
     if (!currentUser) {
         return (
             <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -168,10 +146,21 @@ const ProfilePage = () => {
     const renderContent = () => {
         const isLoading = currentTab === 0 ? loadingCreated : loadingSaved;
         const pinsToDisplay = currentTab === 0 ? createdPins : savedPins;
+        const currentError = error || (currentTab === 0 ? deleteError : saveError); // Combine general and specific errors
+
 
         if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>;
-        // Show general fetch error if present
-        if (error && pinsToDisplay.length === 0) return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
+
+        // Display specific action errors first if they exist
+        if (currentError && !error) { // Show action error if no general fetch error
+            // Error is already displayed above the tabs, avoid duplication here if needed
+            return <Alert severity="error" sx={{ mt: 2 }}>{currentError}</Alert>;
+        }
+        // Then display general fetch error if pins couldn't load
+        else if (error && pinsToDisplay.length === 0) {
+            return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
+        }
+
 
         if (pinsToDisplay.length > 0) {
             return (
@@ -180,12 +169,9 @@ const ProfilePage = () => {
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
-                                // Pass onDelete only for the "Created" tab
                                 onDelete={currentTab === 0 ? handleDeletePin : null}
-                                // Pass onSave for both tabs (to allow unsaving from "Saved" tab)
-                                onSave={handleSavePin}
-                                // Check saved status against the savedPinIds Set
-                                isSaved={savedPinIds.has(pin._id)}
+                                onSave={handleSavePin} // Pass save handler to both tabs
+                                isSaved={savedPinIds.has(pin._id)} // Check against the Set
                             />
                         </div>
                     ))}
@@ -194,7 +180,7 @@ const ProfilePage = () => {
         }
         return <Typography sx={{ mt: 4, textAlign: 'center' }}>
             {currentTab === 0 ? "You haven't created any pins yet." : "You haven't saved any pins yet."}
-         </Typography>;
+        </Typography>;
     };
 
     return (
@@ -210,22 +196,19 @@ const ProfilePage = () => {
             >
                 <Avatar
                     alt={currentUser.username}
-                    src={currentUser.profileImage || '/broken-image.jpg'}
+                    src={currentUser.profileImage || '/broken-image.jpg'} // Use profileImage or fallback
                     sx={{ width: 120, height: 120, mb: 2 }}
                 />
                 <Typography variant="h4" component="h1">
                     {currentUser.username}
                 </Typography>
-                {/* Optional: Add email or other details if available */}
                 <Typography variant="body1" color="text.secondary">
                     {currentUser.email}
                 </Typography>
             </Box>
 
-            {/* User Pins Section */}
-            <Typography variant="h5" component="h2" gutterBottom align="center">
-                Your Pins
-            </Typography>
+            {/* User Pins Section Title (Optional) */}
+            <Typography variant="h5" component="h2" gutterBottom align="center">Your Pins</Typography>
 
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                 <Tabs value={currentTab} onChange={handleTabChange} centered>
@@ -233,9 +216,12 @@ const ProfilePage = () => {
                     <Tab label="Saved" />
                 </Tabs>
             </Box>
-             {/* Display errors specific to actions */}
+
+            {/* Display errors specific to actions above the content */}
              {deleteError && currentTab === 0 && <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>}
              {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
+             {/* Display general fetch error if it occurred */}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{`Error: ${error}`}</Alert>}
 
 
             {renderContent()}

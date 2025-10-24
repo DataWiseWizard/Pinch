@@ -87,59 +87,82 @@ module.exports.logout = (req, res, next) => {
     });
 };
 
-module.exports.toggleSavePin = async (req, res) => {
+module.exports.toggleSavePin = async (req, res, next) => { // Added next for error handling
     const { pinId } = req.params;
     const userId = req.user._id;
 
-    const user = await User.findById(userId);
-    const pin = await Pin.findById(pinId);
+    try { // Wrap in a try...catch for better error handling
+        const user = await User.findById(userId);
+        const pin = await Pin.findById(pinId); // Ensure the pin exists
 
-    if (!pin) {
-        return res.status(404).json({ message: "Pin not found." });
+        if (!pin) {
+            return res.status(404).json({ message: "Pin not found." });
+        }
+        if (!user) {
+            // This case should be rare if isLoggedIn middleware works, but good practice
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        const savedIndex = user.savedPins.findIndex(savedId => savedId.equals(pinId)); // Use findIndex and .equals for ObjectIds
+
+        let message;
+
+        if (savedIndex > -1) {
+            // Pin exists, remove it
+            user.savedPins.splice(savedIndex, 1);
+            message = "Pin unsaved successfully.";
+        } else {
+            // Pin doesn't exist, add it
+            user.savedPins.push(pinId);
+            message = "Pin saved successfully.";
+        }
+
+        // *** Crucial: Save the user document ***
+        const updatedUser = await user.save(); // Await the save operation
+
+        // *** Return the updated list of saved pin IDs ***
+        // Ensure you return only the IDs, not populated objects here
+        const updatedSavedPinIds = updatedUser.savedPins.map(id => id.toString());
+
+        res.status(200).json({
+             message,
+             // Send back the array of *IDs* confirmed saved in the DB
+             savedPins: updatedSavedPinIds
+         });
+
+    } catch (error) {
+        console.error("Error toggling save pin:", error);
+        // Pass error to the global error handler
+        next(new ExpressError(500, "Could not update saved pins.")); // Use ExpressError
     }
-    if (!user) {
-        return res.status(404).json({ message: "User not found." });
-    }
-
-    const savedIndex = user.savedPins.indexOf(pinId);
-
-    let message;
-    let updatedSavedPins;
-
-    if (savedIndex > -1) {
-        user.savedPins.splice(savedIndex, 1);
-        message = "Pin unsaved successfully.";
-        updatedSavedPins = user.savedPins;
-    } else {
-        user.savedPins.push(pinId);
-        message = "Pin saved successfully.";
-        updatedSavedPins = user.savedPins;
-    }
-
-    await user.save();
-    res.status(200).json({ message, savedPins: updatedSavedPins });
 };
 
-module.exports.getSavedPins = async (req, res) => {
+module.exports.getSavedPins = async (req, res, next) => { // Added next
     const userId = req.user._id;
     console.log(`Fetching saved pins for user: ${userId}`);
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate({
+            path: 'savedPins',
+            populate: {
+                path: 'postedBy',
+                select: 'username profileImage _id'
+            }
+        });
+
         if (!user) {
             console.error(`User not found for ID: ${userId}`);
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Fetch pins that exist in the Pin collection
-        const savedPins = await Pin.find({
-            '_id': { $in: user.savedPins }
-        });
+        // Filter out null pins (in case a saved pin was deleted)
+        const validSavedPins = user.savedPins ? user.savedPins.filter(pin => pin !== null) : [];
 
-        console.log(`Found ${savedPins.length} saved pins for user ${userId}`);
-        res.status(200).json(savedPins);
+        console.log(`Found ${validSavedPins.length} valid saved pins for user ${userId}`);
+        res.status(200).json(validSavedPins); // Send the populated, filtered array
 
     } catch (error) {
         console.error(`Error fetching saved pins for user ${userId}:`, error);
-        res.status(500).json({ message: "Internal server error while fetching saved pins." });
+        // Pass a structured error
+         next(new ExpressError(500, "Internal server error while fetching saved pins."));
     }
 };

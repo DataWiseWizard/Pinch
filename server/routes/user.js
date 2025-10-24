@@ -24,6 +24,16 @@ router.route("/login")
 
 router.get("/logout", userController.logout);
 
+router.put('/pins/:pinId/save',
+    isLoggedIn,
+    wrapAsync(userController.toggleSavePin)
+);
+
+router.get('/pins/saved',
+    isLoggedIn,
+    wrapAsync(userController.getSavedPins)
+);
+
 
 router.get("/verify-email", wrapAsync(userController.verifyEmail));
 
@@ -35,14 +45,5 @@ router.get('/api/check-auth', (req, res) => {
     }
 });
 
-router.put('/pins/:pinId/save',
-    isLoggedIn,
-    wrapAsync(userController.toggleSavePin)
-);
-
-router.get('/pins/saved',
-    isLoggedIn,
-    wrapAsync(userController.getSavedPins)
-);
 
 module.exports = router;
