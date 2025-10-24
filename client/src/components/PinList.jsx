@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Pin from './Pin';
-import API_URL from '../apiConfig';
+import API_URL from '../';
 
 import Masonry from '@mui/lab/Masonry';
 import Box from '@mui/material/Box';
