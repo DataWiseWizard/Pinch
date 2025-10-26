@@ -1,7 +1,7 @@
 // client/src/pages/LoginPage.jsx
 
 import React, { useState } from 'react';
-import API_URL from "../apiConfig";
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import API_URL from "../apiConfig";
