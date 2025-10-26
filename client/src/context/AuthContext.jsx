@@ -21,7 +21,9 @@ export const AuthProvider = ({ children }) => {
         const checkLoggedInStatus = async () => {
             try {
                 // This endpoint checks the session on the backend
-                const response = await fetch(`${API_URL}/api/check-auth`); 
+                const response = await fetch(`${API_URL}/api/check-auth`, {
+                    credentials: 'include' // <-- Make sure this is added
+                });
                 if (response.ok) {
                     const user = await response.json();
                     setCurrentUser(user);
