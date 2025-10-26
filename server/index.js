@@ -44,8 +44,8 @@ const PORT = process.env.PORT || 5000;
 
 const clientURL = process.env.CLIENT_URL;
 const corsOptions = {
-  origin: clientURL, // Allow requests ONLY from your frontend URL
-  credentials: true // Important for sessions/cookies
+    origin: clientURL, // Allow requests ONLY from your frontend URL
+    credentials: true // Important for sessions/cookies
 };
 app.use(cors(corsOptions));
 app.set('trust proxy', 1);
@@ -79,6 +79,8 @@ const sessionOptions = {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // Standardized cookie expiration
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
+        secure: true, // MUST be true for HTTPS/Render
+        sameSite: 'lax'
     },
 }
 
@@ -106,17 +108,17 @@ app.use(express.json()); // <-- Add this to parse JSON request bodies
 app.use(express.urlencoded({ extended: true }));
 
 app.get('*', (req, res, next) => {
-  // If the request is for an API endpoint, skip the fallback
-  if (req.originalUrl.startsWith('/api') ||
-      req.originalUrl.startsWith('/pins') ||
-      req.originalUrl.startsWith('/auth') ||
-      req.originalUrl.startsWith('/login') || // Add other server routes if necessary
-      req.originalUrl.startsWith('/signup') ||
-      req.originalUrl.startsWith('/logout') ||
-      req.originalUrl.startsWith('/verify-email') ) {
-     return next();
-  }
-  res.sendFile(path.join(__dirname, '../client/dist', 'index.html')); // Adjust path if needed
+    // If the request is for an API endpoint, skip the fallback
+    if (req.originalUrl.startsWith('/api') ||
+        req.originalUrl.startsWith('/pins') ||
+        req.originalUrl.startsWith('/auth') ||
+        req.originalUrl.startsWith('/login') || // Add other server routes if necessary
+        req.originalUrl.startsWith('/signup') ||
+        req.originalUrl.startsWith('/logout') ||
+        req.originalUrl.startsWith('/verify-email')) {
+        return next();
+    }
+    res.sendFile(path.join(__dirname, '../client/dist', 'index.html')); // Adjust path if needed
 });
 
 app.get("/", (req, res) => {
@@ -141,7 +143,7 @@ app.use((err, req, res, next) => {
     // Ensure you're sending a JSON response for API routes, or render for EJS views
     // Check if the request likely expects JSON (common for React frontends)
     if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/pins') || req.originalUrl.startsWith('/auth') || req.accepts('json')) {
-       res.status(statusCode).json({ message: message }); // Send JSON error
+        res.status(statusCode).json({ message: message }); // Send JSON error
     } else {
         // Fallback for non-API routes (if any still use EJS rendering for errors)
         res.status(statusCode).render("error.ejs", { err }); // Pass err object to template
