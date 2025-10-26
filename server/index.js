@@ -42,7 +42,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const clientURL = process.env.CLIENT_URL || 'http://localhost:5173'; // Get client URL
+const clientURL = process.env.CLIENT_URL;
 const corsOptions = {
   origin: clientURL, // Allow requests ONLY from your frontend URL
   credentials: true // Important for sessions/cookies
@@ -55,6 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 const store = MongoStore.create({
     mongoUrl: mongoDbUrl,
@@ -102,6 +103,20 @@ app.use((req, res, next) => {
 app.use(express.json()); // <-- Add this to parse JSON request bodies
 
 app.use(express.urlencoded({ extended: true }));
+
+app.get('*', (req, res, next) => {
+  // If the request is for an API endpoint, skip the fallback
+  if (req.originalUrl.startsWith('/api') ||
+      req.originalUrl.startsWith('/pins') ||
+      req.originalUrl.startsWith('/auth') ||
+      req.originalUrl.startsWith('/login') || // Add other server routes if necessary
+      req.originalUrl.startsWith('/signup') ||
+      req.originalUrl.startsWith('/logout') ||
+      req.originalUrl.startsWith('/verify-email') ) {
+     return next();
+  }
+  res.sendFile(path.join(__dirname, '../client/dist', 'index.html')); // Adjust path if needed
+});
 
 app.get("/", (req, res) => {
     res.redirect("/pins");
