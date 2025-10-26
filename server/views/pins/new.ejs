@@ -1,0 +1,35 @@
+<% layout('/layouts/boilerplate') -%>
+
+    <body>
+        <div class="row">
+            <div class="col-8 offset-2">
+                <h3>Post a new Pin</h3>
+                <br>
+                <form action="/pins" method="post" novalidate class="needs-validation" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" placeholder="Enter title" name="pin[title]" class="form-control"
+                            id="title" required>
+                            
+                            <div class="invalid-feedback">Title should be valid.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="destination" class="form-label">Destination</label>
+                        <textarea name="pin[destination]" cols="20" rows="5" placeholder="Enter destination "
+                            class="form-control" required></textarea>
+                            <div class="invalid-feedback">Please provide the image's Destination.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Upload Image</label>
+                        <input type="file" placeholder="Add image" name="pin[image]" class="form-control"  required>
+                        
+                    </div>
+
+                    <button type="submit" class="btn btn-dark add-btn">Add</button>
+                </form>
+                <br><br>
+            </div>
+        </div>
+        
+    </body>

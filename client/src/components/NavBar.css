@@ -1,0 +1,49 @@
+/* client/src/components/NavBar.css
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-logo a {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+.navbar-links a, .navbar-user button {
+    margin-left: 1.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+    color: var(--primary-color);
+}
+
+.navbar-user .logout-button {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.navbar-user .logout-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+} */
