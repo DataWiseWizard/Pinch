@@ -10,11 +10,33 @@ passport.serializeUser((user, done) => {
 });
 
 // This function retrieves the full user data from the session
+// passport.deserializeUser(async (id, done) => {
+//     try {
+//         const user = await User.findById(id);
+//         done(null, user);
+//     } catch (err) {
+//         done(err, null);
+//     }
+// });
+
 passport.deserializeUser(async (id, done) => {
+    // --- ADD LOGGING ---
+    console.log(`[deserializeUser] Attempting to deserialize user with ID: ${id}`);
+    // --- END LOGGING ---
     try {
         const user = await User.findById(id);
-        done(null, user);
+        // --- ADD LOGGING ---
+        if (!user) {
+            console.error(`[deserializeUser] User not found in DB for ID: ${id}`);
+            return done(null, false); // Important: Indicate user not found
+        }
+        console.log(`[deserializeUser] Successfully found user: ${user.username}`);
+        // --- END LOGGING ---
+        done(null, user); // Pass the found user object
     } catch (err) {
+        // --- ADD LOGGING ---
+        console.error(`[deserializeUser] Error during User.findById for ID ${id}:`, err);
+        // --- END LOGGING ---
         done(err, null);
     }
 });
