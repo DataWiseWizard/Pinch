@@ -24,8 +24,9 @@ const PinList = () => {
             return;
         }
         try {
-            const savedResponse = await fetch(`${API_URL}/pins/saved`);
-            if (!savedResponse.ok) {
+            const savedResponse = await fetch(`${API_URL}/pins/saved`, {
+                credentials: 'include' // <-- ADD THIS
+            }); if (!savedResponse.ok) {
                 // Try to get error message from backend
                 let errorMsg = 'Failed to fetch saved pins status.';
                 try {
@@ -83,6 +84,7 @@ const PinList = () => {
         try {
             const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
                 method: 'PUT',
+                credentials: 'include' // <-- ADD THIS
             });
 
             if (!response.ok) {

@@ -31,8 +31,9 @@ const ProfilePage = () => {
         setLoadingCreated(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/pins/user/${currentUser._id}`);
-            if (!response.ok) throw new Error('Could not fetch created pins.');
+            const response = await fetch(`${API_URL}/pins/user/${currentUser._id}`, {
+                credentials: 'include' // <-- ADD THIS
+            }); if (!response.ok) throw new Error('Could not fetch created pins.');
             const data = await response.json();
             setCreatedPins(data);
         } catch (err) { setError(err.message); }
@@ -45,8 +46,9 @@ const ProfilePage = () => {
         setLoadingSaved(true);
         setError(null); // Clear general error
         try {
-            const response = await fetch(`${API_URL}/pins/saved`); 
-            if (!response.ok) throw new Error('Could not fetch saved pins.');
+            const response = await fetch(`${API_URL}/pins/saved`, {
+                credentials: 'include' // <-- ADD THIS
+            }); if (!response.ok) throw new Error('Could not fetch saved pins.');
             const data = await response.json();
             setSavedPins(data);
             setSavedPinIds(new Set(data.map(pin => pin._id))); // Update the Set of saved IDs
@@ -68,8 +70,10 @@ const ProfilePage = () => {
         setCreatedPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
 
         try {
-            const response = await fetch(`${API_URL}/pins/${pinIdToDelete}`, { method: 'DELETE' });
-
+            const response = await fetch(`${API_URL}/pins/${pinIdToDelete}`, {
+                method: 'DELETE',
+                credentials: 'include' // <-- ADD THIS
+            });
             if (!response.ok) {
                 let errorMsg = `HTTP error! Status: ${response.status}`;
                 try {
@@ -97,8 +101,10 @@ const ProfilePage = () => {
         setSaveError(null);
 
         try {
-            const response = await fetch(`${API_URL}/pins/${pinId}/save`, { method: 'PUT' });
-            if (!response.ok) {
+            const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
+                method: 'PUT',
+                credentials: 'include' // <-- ADD THIS
+            }); if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Failed to ${shouldSave ? 'save' : 'unsave'} pin.`);
             }
@@ -219,9 +225,9 @@ const ProfilePage = () => {
             </Box>
 
             {/* Display errors specific to actions above the content */}
-             {deleteError && currentTab === 0 && <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>}
-             {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
-             {/* Display general fetch error if it occurred */}
+            {deleteError && currentTab === 0 && <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>}
+            {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
+            {/* Display general fetch error if it occurred */}
             {error && <Alert severity="error" sx={{ mb: 2 }}>{`Error: ${error}`}</Alert>}
 
 
