@@ -107,6 +107,20 @@ app.use(express.json()); // <-- Add this to parse JSON request bodies
 
 app.use(express.urlencoded({ extended: true }));
 
+
+
+app.get("/", (req, res) => {
+    res.redirect("/pins");
+})
+
+app.use("/", userRouter);
+app.use("/pins", pinRouter);
+app.use("/auth", authRouter);
+
+app.all("*", (req, res, next) => {
+    next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError
+})
+
 app.get('*', (req, res, next) => {
     // If the request is for an API endpoint, skip the fallback
     if (req.originalUrl.startsWith('/api') ||
@@ -120,18 +134,6 @@ app.get('*', (req, res, next) => {
     }
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html')); // Adjust path if needed
 });
-
-app.get("/", (req, res) => {
-    res.redirect("/pins");
-})
-
-app.use("/", userRouter);
-app.use("/pins", pinRouter);
-app.use("/auth", authRouter);
-
-app.all("*", (req, res, next) => {
-    next(new ExpressError(404, "Page not found!")); // Standardize to ExpressError
-})
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something Went Wrong!" } = err;
