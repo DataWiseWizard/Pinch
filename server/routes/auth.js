@@ -28,7 +28,21 @@ router.get('/google/callback', passport.authenticate('google', {
 
     req.flash("success", "Successfully logged in with Google!");
 
-    res.redirect(clientURL); // Redirect to the verified CLIENT_URL
+    req.session.save((err) => {
+        if (err) {
+            console.error('[Google Callback] Error saving session:', err);
+            // If session save fails, don't redirect, pass error to handler
+            return next(err);
+        }
+        // --- LOG AFTER SAVE ---
+        console.log('[Google Callback] Session saved successfully.');
+        // Check session content *after* save attempt (for debugging)
+        console.log('[Google Callback] req.session.passport?.user AFTER save:', req.session?.passport?.user);
+        console.log('[Google Callback] Redirecting to:', clientURL);
+        // --- END LOGGING ---
+
+        res.redirect(clientURL); // Redirect ONLY after successful save
+    });
 });
 
 module.exports = router;

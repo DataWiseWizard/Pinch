@@ -80,11 +80,16 @@ const sessionOptions = {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         secure: true, // MUST be true for HTTPS/Render
-        sameSite: 'lax'
+        sameSite: 'none',
+        path: "/"
     },
 }
 
-
+console.log("Session Options Being Applied:", JSON.stringify(sessionOptions, (key, value) => {
+    if (key === 'secret') return '[REDACTED]';
+    if (key === 'store') return '[MongoStore Instance]';
+    return value;
+}, 2));
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -137,18 +142,35 @@ app.get('*', (req, res, next) => {
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something Went Wrong!" } = err;
-    console.error("--- Central Error Handler ---"); // Log that it's being used
+    console.error("--- Central Error Handler ---");
+    console.error("Request URL:", req.originalUrl); // Log URL for context
     console.error("Status Code:", statusCode);
     console.error("Message:", message);
-    console.error("Stack:", err.stack); // *** Ensure stack trace is logged ***
+    console.error("Stack:", err.stack);
     console.error("--- End Error ---");
-    // Ensure you're sending a JSON response for API routes, or render for EJS views
-    // Check if the request likely expects JSON (common for React frontends)
-    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/pins') || req.originalUrl.startsWith('/auth') || req.accepts('json')) {
-        res.status(statusCode).json({ message: message }); // Send JSON error
+
+    // Check if the request path looks like an API endpoint OR if the client prefers JSON
+    if (req.originalUrl.startsWith('/api') ||
+        req.originalUrl.startsWith('/pins') ||
+        req.originalUrl.startsWith('/auth') ||
+        req.originalUrl.startsWith('/login') || // Added API-like paths
+        req.originalUrl.startsWith('/signup') ||
+        req.originalUrl.startsWith('/logout') ||
+        req.originalUrl.startsWith('/verify-email') ||
+        req.accepts(['json', 'html']) === 'json') { // More robust check for JSON preference
+
+        // Ensure statusCode is a valid number before sending
+        const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
+        res.status(validStatusCode).json({ message: message }); // Always Send JSON error
     } else {
-        // Fallback for non-API routes (if any still use EJS rendering for errors)
-        res.status(statusCode).render("error.ejs", { err }); // Pass err object to template
+        // Fallback for non-API routes (render HTML error page if needed)
+        // Ensure statusCode is valid here too
+        const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
+        // You might still want to render an EJS page for full page errors
+        // but avoid it if the request indicates it wants JSON
+        res.status(validStatusCode).send(`<html><body><h1>Error ${validStatusCode}</h1><p>${message}</p></body></html>`); // Basic HTML fallback
+        // Or keep your EJS render if preferred for non-API errors:
+        // res.status(validStatusCode).render("error.ejs", { err });
     }
 });
 
