@@ -20,9 +20,12 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkLoggedInStatus = async () => {
             try {
-                // This endpoint checks the session on the backend
                 const response = await fetch(`${API_URL}/api/check-auth`, {
-                    credentials: 'include' // <-- Make sure this is added
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
                 });
                 if (response.ok) {
                     const user = await response.json();
@@ -31,6 +34,7 @@ export const AuthProvider = ({ children }) => {
                     setCurrentUser(null);
                 }
             } catch (error) {
+                console.error('Auth check failed:', error);
                 setCurrentUser(null);
             } finally {
                 setLoading(false);
@@ -44,8 +48,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await fetch(`${API_URL}/logout`, { method: 'GET' }); // Clear session on backend
-        setCurrentUser(null);
+        try {
+            await fetch(`${API_URL}/logout`, {
+                method: 'GET',
+                credentials: 'include' // ✅ Add this
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setCurrentUser(null);
+        }
     };
 
     const value = {

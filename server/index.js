@@ -44,11 +44,24 @@ const PORT = process.env.PORT || 5000;
 
 const clientURL = process.env.CLIENT_URL;
 const corsOptions = {
-    origin: clientURL, // Allow requests ONLY from your frontend URL
-    credentials: true // Important for sessions/cookies
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or Postman)
+        if (!origin) return callback(null, true);
+        
+        if (clientURL === origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // ✅ Critical
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['set-cookie']
 };
 app.use(cors(corsOptions));
 app.set('trust proxy', 1);
+app.use(express.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
@@ -74,13 +87,13 @@ const sessionOptions = {
     store,
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // Standardized cookie expiration
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: true, // MUST be true for HTTPS/Render
-        sameSite: 'none',
+        secure: process.env.NODE_ENV === 'production', // Only secure in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Conditional
         path: "/"
     },
 }
@@ -94,12 +107,10 @@ console.log("Session Options Being Applied:", JSON.stringify(sessionOptions, (ke
 app.use(session(sessionOptions));
 app.use(flash());
 require('./config/passport');
-
+app.options('*', cors(corsOptions));
 app.use(passport.initialize());
 app.use(passport.session());
-// passport.use(new LocalStrategy(User.authenticate()));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
+
 
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");

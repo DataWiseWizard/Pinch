@@ -34,16 +34,21 @@ const LoginPage = () => {
         try {
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // ✅ Add this
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ username, password }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
+                const data = await response.json();
                 throw new Error(data.message || 'Failed to log in.');
             }
-            login(data.user)
+
+            const data = await response.json();
+            login(data.user);
             navigate('/');
 
         } catch (err) {

@@ -75,8 +75,17 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    // We no longer need to flash and redirect from the backend for API calls
-    res.status(200).json({ message: "Login successful!", user: req.user });
+    // Force session save before sending response
+    req.session.save((err) => {
+        if (err) {
+            console.error('[Login] Session save error:', err);
+            return res.status(500).json({ message: "Session error" });
+        }
+        res.status(200).json({
+            message: "Login successful!",
+            user: req.user
+        });
+    });
 };
 
 module.exports.logout = (req, res, next) => {
@@ -105,8 +114,8 @@ module.exports.toggleSavePin = async (req, res, next) => {
         ]);
 
         if (!user) { // Should be caught by isLoggedIn, but good safety check
-             console.error(`[toggleSavePin] User not found in DB: ${userId}`);
-             return res.status(404).json({ message: "User not found." });
+            console.error(`[toggleSavePin] User not found in DB: ${userId}`);
+            return res.status(404).json({ message: "User not found." });
         }
         if (!pin) {
             console.warn(`[toggleSavePin] Pin not found: ${pinId}`);
