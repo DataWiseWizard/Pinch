@@ -43,24 +43,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const clientURL = process.env.CLIENT_URL;
+// IMPORTANT: For production, cookies need sameSite: 'none'
 const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or Postman)
-        if (!origin) return callback(null, true);
-        
-        if (clientURL === origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true, // ✅ Critical
+    origin: clientURL,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     exposedHeaders: ['set-cookie']
 };
 app.use(cors(corsOptions));
-app.set('trust proxy', 1);
 app.use(express.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -92,10 +83,11 @@ const sessionOptions = {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // Standardized cookie expiration
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Only secure in production
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Conditional
+        secure: true,
+        sameSite: "none",
         path: "/"
     },
+    proxy: true 
 }
 
 console.log("Session Options Being Applied:", JSON.stringify(sessionOptions, (key, value) => {
@@ -104,6 +96,7 @@ console.log("Session Options Being Applied:", JSON.stringify(sessionOptions, (ke
     return value;
 }, 2));
 
+app.set('trust proxy', 1);
 app.use(session(sessionOptions));
 app.use(flash());
 require('./config/passport');
