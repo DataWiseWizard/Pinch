@@ -163,38 +163,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// Root redirect
+// Root redirect for API
 app.get("/", (req, res) => {
-    if (process.env.NODE_ENV === 'production') {
-        res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
-    } else {
-        res.redirect("/pins");
-    }
+    res.json({ message: "Pinch API Server", status: "running" });
 });
 
 app.use("/", userRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 
+// 404 handler for unknown API routes
+app.all("*", (req, res, next) => {
+    next(new ExpressError(404, "API endpoint not found!"));
+});
 
-// Catch-all for React app (ONLY for non-API routes)
-if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-        // Don't serve index.html for API routes
-        if (req.originalUrl.startsWith('/api') ||
-            req.originalUrl.startsWith('/pins') ||
-            req.originalUrl.startsWith('/auth') ||
-            req.originalUrl.startsWith('/login') ||
-            req.originalUrl.startsWith('/signup') ||
-            req.originalUrl.startsWith('/logout') ||
-            req.originalUrl.startsWith('/verify-email')) {
-            return res.status(404).json({ message: "API endpoint not found" });
-        }
-        
-        res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
-    });
-}
-
+// Error handler
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something Went Wrong!" } = err;
     console.error("--- Central Error Handler ---");
@@ -204,21 +187,13 @@ app.use((err, req, res, next) => {
     console.error("Stack:", err.stack);
     console.error("--- End Error ---");
 
-    if (req.originalUrl.startsWith('/api') ||
-        req.originalUrl.startsWith('/pins') ||
-        req.originalUrl.startsWith('/auth') ||
-        req.originalUrl.startsWith('/login') ||
-        req.originalUrl.startsWith('/signup') ||
-        req.originalUrl.startsWith('/logout') ||
-        req.originalUrl.startsWith('/verify-email') ||
-        req.accepts(['json', 'html']) === 'json') {
-        
-        const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
-        res.status(validStatusCode).json({ message: message });
-    } else {
-        const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
-        res.status(validStatusCode).send(`<html><body><h1>Error ${validStatusCode}</h1><p>${message}</p></body></html>`);
-    }
+    const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
+    
+    // Always return JSON for API server
+    res.status(validStatusCode).json({ 
+        error: message,
+        statusCode: validStatusCode 
+    });
 });
 
 app.listen(PORT, () => {
