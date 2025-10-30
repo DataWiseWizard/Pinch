@@ -12,47 +12,58 @@ const GoogleCallback = () => {
     const { login } = useAuth();
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        
-        if (!token) {
-            console.error('No token in URL');
-            navigate('/login?error=no_token');
-            return;
-        }
+        const handleCallback = async () => {
+            const token = searchParams.get('token');
 
-        // Verify token and get user data
-        const verifyAndLogin = async () => {
+            console.log('[GoogleCallback] Token from URL:', token ? 'Present' : 'Missing');
+
+            if (!token) {
+                console.error('[GoogleCallback] No token in URL');
+                navigate('/login?error=no_token');
+                return;
+            }
+
             try {
-                const response = await fetch(`${API_URL}/api/check-auth`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json',
-                    }
-                });
-                
-                if (response.ok) {
-                    const user = await response.json();
-                    login(user, token);
-                    navigate('/');
-                } else {
-                    console.error('Token verification failed');
-                    navigate('/login?error=invalid_token');
-                }
+                // Decode the token to get user info (without verification - backend already verified)
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(
+                    atob(base64)
+                        .split('')
+                        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join('')
+                );
+
+                const decoded = JSON.parse(jsonPayload);
+                console.log('[GoogleCallback] Decoded user:', decoded.username);
+
+                // Create user object from decoded token
+                const user = {
+                    _id: decoded.id,
+                    email: decoded.email,
+                    username: decoded.username
+                };
+
+                // Log in with the token and user data
+                login(user, token);
+
+                console.log('[GoogleCallback] Login successful, redirecting to home');
+                navigate('/');
             } catch (error) {
-                console.error('Token verification error:', error);
-                navigate('/login?error=verification_failed');
+                console.error('[GoogleCallback] Error processing token:', error);
+                navigate('/login?error=invalid_token');
             }
         };
 
-        verifyAndLogin();
+        handleCallback();
     }, [searchParams, navigate, login]);
 
     return (
-        <Box sx={{ 
-            display: 'flex', 
+        <Box sx={{
+            display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center', 
-            alignItems: 'center', 
+            justifyContent: 'center',
+            alignItems: 'center',
             height: '100vh',
             gap: 2
         }}>

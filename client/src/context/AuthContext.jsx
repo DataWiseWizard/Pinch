@@ -141,7 +141,9 @@ export const AuthProvider = ({ children }) => {
         checkLoggedInStatus();
     }, []);
 
-    const login = (userData) => {
+    const login = (userData, authToken) => {
+        console.log('[AuthContext] Login called with user:', userData.username);
+
         setCurrentUser(userData);
         setToken(authToken);
         localStorage.setItem('authToken', authToken);
