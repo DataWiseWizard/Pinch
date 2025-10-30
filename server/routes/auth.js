@@ -4,6 +4,8 @@ const router = express.Router();
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const clientURL = process.env.CLIENT_URL;
 
+console.log('[Auth Routes] CLIENT_URL is set to:', clientURL);
+
 
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email'],
@@ -33,8 +35,12 @@ router.get('/google/callback',
                 path: '/'
             });
             
-            console.log('[Google Callback] Tokens generated. Redirecting with access token...');
+            // CONSTRUCT REDIRECT URL
+            const redirectURL = `${clientURL}/auth/callback?token=${accessToken}`;
             
+            // ADD LOGGING
+            console.log('[Google Callback] CLIENT_URL:', clientURL);
+            console.log('[Google Callback] Redirecting to:', redirectURL);            
             // Redirect to frontend with access token
             res.redirect(`${clientURL}/auth/callback?token=${accessToken}`);
         } catch (error) {
