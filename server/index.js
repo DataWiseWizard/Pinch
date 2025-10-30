@@ -86,11 +86,22 @@ app.use(mongoSanitize());
 // Cookie parser (needed for refresh tokens)
 app.use(cookieParser());
 
-const clientURL = process.env.CLIENT_URL;
-// IMPORTANT: For production, cookies need sameSite: 'none'
+const allowedOrigins = [
+    process.env.CLIENT_URL,                 // The URL from your env variables
+    'https://pinch-nk6z.onrender.com',      // Your exact frontend URL, hardcoded as a fallback
+    'http://localhost:5173'                 // Your local dev environment
+];
+
 const corsOptions = {
-    origin: clientURL,
-    credentials: true,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl tests) or from the allow list
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.error('CORS Error: This origin is not allowed:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    }, credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     exposedHeaders: ['set-cookie']
@@ -139,7 +150,7 @@ const sessionOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/'
     },
-    proxy: true 
+    proxy: true
 }
 
 console.log("Session Options Being Applied:", JSON.stringify(sessionOptions, (key, value) => {
@@ -188,11 +199,11 @@ app.use((err, req, res, next) => {
     console.error("--- End Error ---");
 
     const validStatusCode = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
-    
+
     // Always return JSON for API server
-    res.status(validStatusCode).json({ 
+    res.status(validStatusCode).json({
         error: message,
-        statusCode: validStatusCode 
+        statusCode: validStatusCode
     });
 });
 
