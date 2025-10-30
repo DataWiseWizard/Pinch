@@ -56,7 +56,7 @@ const GoogleCallback = () => {
         };
 
         handleCallback();
-    }, [searchParams, navigate, login]);
+    }, [searchParams, navigate]);
 
     return (
         <Box sx={{
