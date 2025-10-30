@@ -14,7 +14,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 const ProfilePage = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, getAuthHeaders } = useAuth();
     const [createdPins, setCreatedPins] = useState([]);
     const [savedPins, setSavedPins] = useState([]);
     const [savedPinIds, setSavedPinIds] = useState(new Set()); // Keep track of saved IDs

@@ -8,7 +8,7 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const PinList = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, getAuthHeaders } = useAuth();
     const [pins, setPins] = useState([]);
     const [savedPinIds, setSavedPinIds] = useState(new Set()); // Use a Set for efficient lookups
     const [loading, setLoading] = useState(true);
