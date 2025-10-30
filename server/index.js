@@ -107,6 +107,13 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
+// Serve static files from React app ONLY in production
+if (process.env.NODE_ENV === 'production') {
+    const clientBuildPath = path.join(__dirname, '../client/dist');
+    console.log('Serving static files from:', clientBuildPath);
+    app.use(express.static(clientBuildPath));
+}
+
 const store = MongoStore.create({
     mongoUrl: mongoDbUrl,
     crypto: {
@@ -156,29 +163,37 @@ app.use((req, res, next) => {
     next();
 });
 
+// Root redirect
 app.get("/", (req, res) => {
-    res.redirect("/pins");
-})
+    if (process.env.NODE_ENV === 'production') {
+        res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+    } else {
+        res.redirect("/pins");
+    }
+});
 
 app.use("/", userRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 
-app.all("*", (req, res, next) => {
-    // Skip API routes for 404
-    if (req.originalUrl.startsWith('/api') ||
-        req.originalUrl.startsWith('/pins') ||
-        req.originalUrl.startsWith('/auth') ||
-        req.originalUrl.startsWith('/login') ||
-        req.originalUrl.startsWith('/signup') ||
-        req.originalUrl.startsWith('/logout') ||
-        req.originalUrl.startsWith('/verify-email')) {
-        return next(new ExpressError(404, "API endpoint not found!"));
-    }
-    
-    // Serve React app for all other routes
-    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
-});
+
+// Catch-all for React app (ONLY for non-API routes)
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        // Don't serve index.html for API routes
+        if (req.originalUrl.startsWith('/api') ||
+            req.originalUrl.startsWith('/pins') ||
+            req.originalUrl.startsWith('/auth') ||
+            req.originalUrl.startsWith('/login') ||
+            req.originalUrl.startsWith('/signup') ||
+            req.originalUrl.startsWith('/logout') ||
+            req.originalUrl.startsWith('/verify-email')) {
+            return res.status(404).json({ message: "API endpoint not found" });
+        }
+        
+        res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+    });
+}
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something Went Wrong!" } = err;
