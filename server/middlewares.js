@@ -1,50 +1,54 @@
 const { pinSchema } = require("./Schema.js");
 const ExpressError = require("./utils/ExpressError.js");
+const { verifyAccessToken } = require('./utils/jwt');
+const User = require('./models/user.js');
+
 // const Pin = require("./models/pin.js");
 
 
-module.exports.isLoggedIn = (req, res, next) => {
-    // --- ADD MORE DETAILED LOGGING ---
-    console.log(`---\n[isLoggedIn] Check initiated for: ${req.method} ${req.originalUrl}`);
-    console.log(`[isLoggedIn] Session ID: ${req.sessionID}`);
-
-    // Check if req.user exists *immediately* before isAuthenticated()
-    const userExists = !!req.user;
-    const passportSessionUser = req.session?.passport?.user;
-    console.log(`[isLoggedIn] req.user exists? ${userExists}`);
-    if(userExists) {
-        console.log(`[isLoggedIn] req.user details: { id: ${req.user._id}, username: ${req.user.username} }`);
-    }
-    console.log(`[isLoggedIn] req.session.passport.user: ${passportSessionUser}`);
-
-    // Call isAuthenticated() and log its result
-    const isAuthenticatedResult = req.isAuthenticated();
-    console.log(`[isLoggedIn] req.isAuthenticated() returned: ${isAuthenticatedResult}`);
-    // --- END LOGGING ---
-
-    if (!isAuthenticatedResult) { // Use the stored result for clarity
-        console.error(`[isLoggedIn] Authentication check failed for ${req.originalUrl}. Sending 401.`);
-        req.session.redirectUrl = req.originalUrl;
-        // Use a distinct message to confirm this exact spot is failing
-        return res.status(401).json({ message: "Middleware Auth Check Failed: You must be logged in." });
+module.exports.isLoggedIn = async (req, res, next) => {
+    console.log(`[isLoggedIn] Check for: ${req.method} ${req.originalUrl}`);
+    
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.error('[isLoggedIn] No token provided');
+        return res.status(401).json({ message: "Authentication required. Please log in." });
     }
 
-    console.log(`[isLoggedIn] Authentication successful for ${req.originalUrl}. Calling next().`);
-    next(); // Proceed to the actual route handler
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyAccessToken(token);
+    
+    if (!decoded) {
+        console.error('[isLoggedIn] Invalid or expired token');
+        return res.status(401).json({ message: "Invalid or expired token. Please log in again." });
+    }
+
+    try {
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(401).json({ message: "User not found." });
+        }
+        
+        req.user = user;
+        console.log(`[isLoggedIn] User authenticated: ${user.username}`);
+        next();
+    } catch (error) {
+        console.error('[isLoggedIn] Database error:', error);
+        res.status(500).json({ message: "Authentication error." });
+    }
 };
 
 module.exports.saveRedirectUrl = (req, res, next) => {
-    if (!req.session.redirectUrl) {
+    if (req.session && req.session.redirectUrl) {
         res.locals.redirectUrl = req.session.redirectUrl;
     }
     next();
 }
 
 module.exports.validatePin = (req, res, next) => {
-
     const { error } = pinSchema.validate(req.body);
     if (error) {
-
         const errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {

@@ -24,21 +24,24 @@ const ProfilePage = () => {
     const [deleteError, setDeleteError] = useState(null);
     const [saveError, setSaveError] = useState(null); // Error for saving actions
     const [currentTab, setCurrentTab] = useState(0);
-    const [userPins, setUserPins] = useState([]);
+
 
     const fetchCreatedPins = useCallback(async () => {
         if (!currentUser) return;
         setLoadingCreated(true);
         setError(null);
         try {
+            const headers = await getAuthHeaders();
             const response = await fetch(`${API_URL}/pins/user/${currentUser._id}`, {
-                credentials: 'include' // <-- ADD THIS
+                headers
+                // const response = await fetch(`${API_URL}/pins/user/${currentUser._id}`, {
+                //     credentials: 'include' // <-- ADD THIS
             }); if (!response.ok) throw new Error('Could not fetch created pins.');
             const data = await response.json();
             setCreatedPins(data);
         } catch (err) { setError(err.message); }
         finally { setLoadingCreated(false); }
-    }, [currentUser]);
+    }, [currentUser, getAuthHeaders]);
 
     // --- Fetch Saved Pins ---
     const fetchSavedPins = useCallback(async () => {
@@ -46,15 +49,18 @@ const ProfilePage = () => {
         setLoadingSaved(true);
         setError(null); // Clear general error
         try {
+            const headers = await getAuthHeaders();
             const response = await fetch(`${API_URL}/pins/saved`, {
-                credentials: 'include' // <-- ADD THIS
+                headers
+                // const response = await fetch(`${API_URL}/pins/saved`, {
+                //     credentials: 'include' // <-- ADD THIS
             }); if (!response.ok) throw new Error('Could not fetch saved pins.');
             const data = await response.json();
             setSavedPins(data);
             setSavedPinIds(new Set(data.map(pin => pin._id))); // Update the Set of saved IDs
         } catch (err) { setError(err.message); }
         finally { setLoadingSaved(false); }
-    }, [currentUser]);
+    }, [currentUser, getAuthHeaders]);
 
 
     useEffect(() => {
@@ -72,7 +78,7 @@ const ProfilePage = () => {
         try {
             const response = await fetch(`${API_URL}/pins/${pinIdToDelete}`, {
                 method: 'DELETE',
-                credentials: 'include' // <-- ADD THIS
+                headers
             });
             if (!response.ok) {
                 let errorMsg = `HTTP error! Status: ${response.status}`;
@@ -101,9 +107,13 @@ const ProfilePage = () => {
         setSaveError(null);
 
         try {
+            const headers = await getAuthHeaders();
             const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
                 method: 'PUT',
-                credentials: 'include' // <-- ADD THIS
+                headers
+                // const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
+                //     method: 'PUT',
+                //     credentials: 'include' // <-- ADD THIS
             }); if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Failed to ${shouldSave ? 'save' : 'unsave'} pin.`);

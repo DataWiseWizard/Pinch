@@ -43,7 +43,11 @@ const userSchema = new Schema({
     savedPins: [{
         type: Schema.Types.ObjectId,
         ref: 'Pin'
-    }]
+    }],
+    refreshTokenVersion: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: true });
 
 // userSchema.plugin(passportLocalMongoose);

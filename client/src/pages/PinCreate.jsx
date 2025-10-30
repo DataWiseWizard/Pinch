@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_URL from '../apiConfig';
-
+import { useAuth } from '../context/AuthContext';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import Input from '@mui/material/Input'; // For the file input
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'; // Optional icon
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -21,7 +20,7 @@ const PinCreate = () => {
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
-
+    const { getAuthHeaders } = useAuth();
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -36,7 +35,7 @@ const PinCreate = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !image) {
-            setError("Please fill in all fields");
+            setError("Please fill in all required fields");
             return;
         }
         setError("");
@@ -46,13 +45,20 @@ const PinCreate = () => {
         formData.append("pin[title]", title);
         if (destination) {
             formData.append("pin[destination]", destination);
-        } formData.append("pin[image]", image);
+        }
+        formData.append("pin[image]", image);
 
         try {
+            const headers = await getAuthHeaders();
+            // Remove Content-Type header for FormData (browser sets it automatically)
+            delete headers['Content-Type'];
+
             const response = await fetch(`${API_URL}/pins`, {
-                method: "post",
+                method: "POST",
+                headers,
                 body: formData
-            })
+            });
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: 'Failed to create pin. Please check your input.' }));
                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -65,6 +71,39 @@ const PinCreate = () => {
             setSubmitting(false);
         }
     }
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     if (!title || !image) {
+    //         setError("Please fill in all fields");
+    //         return;
+    //     }
+    //     setError("");
+    //     setSubmitting(true);
+
+    //     const formData = new FormData();
+    //     formData.append("pin[title]", title);
+    //     if (destination) {
+    //         formData.append("pin[destination]", destination);
+    //     } formData.append("pin[image]", image);
+
+    //     try {
+    //         const response = await fetch(`${API_URL}/pins`, {
+    //             method: "post",
+    //             body: formData
+    //         })
+    //         if (!response.ok) {
+    //             const errorData = await response.json().catch(() => ({ message: 'Failed to create pin. Please check your input.' }));
+    //             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    //         }
+    //         navigate("/");
+    //     } catch (err) {
+    //         setError(err.message);
+    //         console.error('Error creating pin:', err);
+    //     } finally {
+    //         setSubmitting(false);
+    //     }
+    // }
 
     return (
         <Container component="main" maxWidth="sm" sx={{ mt: 4, mb: 4 }}> {/* Smaller container for forms */}

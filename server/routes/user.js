@@ -16,6 +16,7 @@ router.route("/login")
 .post(
     saveRedirectUrl,
     passport.authenticate("local", {
+        session: false, // Don't use sessions with JWT
         failureRedirect: '/login',
         failureFlash: true
     }),
@@ -23,6 +24,11 @@ router.route("/login")
 );
 
 router.get("/logout", userController.logout);
+
+router.post('/api/refresh', userController.refreshToken);
+
+// Check auth endpoint
+router.get('/api/check-auth', userController.checkAuth);
 
 router.put('/pins/:pinId/save',
     isLoggedIn,
@@ -34,36 +40,6 @@ router.get('/pins/saved',
     wrapAsync(userController.getSavedPins)
 );
 
-
 router.get("/verify-email", wrapAsync(userController.verifyEmail));
-
-router.get('/api/check-auth', (req, res) => {
-    // Log details RIGHT WHEN this specific request arrives
-    console.log(`---\n[/api/check-auth] Handler Reached`);
-    console.log(`[/api/check-auth] Session ID: ${req.sessionID}`);
-    console.log(`[/api/check-auth] req.session.passport?.user value: ${req.session?.passport?.user}`);
-
-    // Directly check req.user BEFORE calling isAuthenticated()
-    const userObjectPresent = !!req.user;
-    console.log(`[/api/check-auth] Is req.user object present?: ${userObjectPresent}`);
-    if (userObjectPresent) {
-        console.log(`[/api/check-auth] req.user ID: ${req.user.id}, Username: ${req.user.username}`);
-    } else {
-         console.log(`[/api/check-auth] req.user is NOT present.`);
-    }
-
-    // Now call isAuthenticated and log its result
-    const isAuthenticatedResult = req.isAuthenticated();
-    console.log(`[/api/check-auth] Result of req.isAuthenticated(): ${isAuthenticatedResult}`);
-    console.log(`---`);
-
-    if (isAuthenticatedResult && req.user) { // Double-check both
-        res.status(200).json(req.user); // Send the user data found
-    } else {
-        // Send 401 if either check fails, indicating the request isn't properly authenticated *at this moment*
-        res.status(401).json({ message: 'API check: Not authenticated' });
-    }
-});
-
 
 module.exports = router;

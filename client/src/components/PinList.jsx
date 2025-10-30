@@ -1,9 +1,6 @@
-// client/src/components/PinList.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import Pin from './Pin';
 import API_URL from '../apiConfig';
-
 import Masonry from '@mui/lab/Masonry';
 import Box from '@mui/material/Box';
 import { useAuth } from '../context/AuthContext';
@@ -24,28 +21,58 @@ const PinList = () => {
             return;
         }
         try {
+            const headers = await getAuthHeaders();
             const savedResponse = await fetch(`${API_URL}/pins/saved`, {
-                credentials: 'include' // <-- ADD THIS
-            }); if (!savedResponse.ok) {
-                // Try to get error message from backend
+                headers
+            });
+            
+            if (!savedResponse.ok) {
                 let errorMsg = 'Failed to fetch saved pins status.';
                 try {
                     const errorData = await savedResponse.json();
                     errorMsg = errorData.message || errorMsg;
-                } catch (_) { } // Ignore if response is not JSON
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
             const savedPinsData = await savedResponse.json();
             setSavedPinIds(new Set(savedPinsData.map(pin => pin._id)));
-            setError(null); // Clear previous errors if successful
+            setError(null);
         } catch (err) {
             console.error('Error fetching saved pins:', err);
-            setError(err.message); // Set error state to display
-            setSavedPinIds(new Set()); // Reset saved pins on error
+            setError(err.message);
+            setSavedPinIds(new Set());
         }
-    }, [currentUser]); // Dependency on currentUser
+    }, [currentUser, getAuthHeaders]);
+
+    // const fetchSavedPinsData = useCallback(async () => {
+    //     if (!currentUser) {
+    //         setSavedPinIds(new Set());
+    //         return;
+    //     }
+    //     try {
+    //         const savedResponse = await fetch(`${API_URL}/pins/saved`, {
+    //             credentials: 'include' // <-- ADD THIS
+    //         }); if (!savedResponse.ok) {
+    //             // Try to get error message from backend
+    //             let errorMsg = 'Failed to fetch saved pins status.';
+    //             try {
+    //                 const errorData = await savedResponse.json();
+    //                 errorMsg = errorData.message || errorMsg;
+    //             } catch (_) { } // Ignore if response is not JSON
+    //             throw new Error(errorMsg);
+    //         }
+    //         const savedPinsData = await savedResponse.json();
+    //         setSavedPinIds(new Set(savedPinsData.map(pin => pin._id)));
+    //         setError(null); // Clear previous errors if successful
+    //     } catch (err) {
+    //         console.error('Error fetching saved pins:', err);
+    //         setError(err.message); // Set error state to display
+    //         setSavedPinIds(new Set()); // Reset saved pins on error
+    //     }
+    // }, [currentUser]); // Dependency on currentUser
 
     // *** Function to fetch all pins and saved status ***
+    
     const fetchPinsAndSavedStatus = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -84,7 +111,7 @@ const PinList = () => {
         try {
             const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
                 method: 'PUT',
-                credentials: 'include' // <-- ADD THIS
+                headers
             });
 
             if (!response.ok) {

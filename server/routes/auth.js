@@ -1,79 +1,48 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
+const clientURL = process.env.CLIENT_URL;
+
 
 router.get('/google', passport.authenticate('google', {
-    scope: ['profile', 'email']
+    scope: ['profile', 'email'],
+    session: false // Don't use sessions
 }));
 
 router.get('/google/callback', 
     passport.authenticate('google', {
-        failureRedirect: '/auth/google/failure'
+        session: false,
+        failureRedirect: `${clientURL}/login?error=auth_failed`
     }), 
     (req, res) => {
         console.log('Google Callback: Authentication successful.');
         console.log('User:', req.user);
         
-        req.session.save((err) => {
-            if (err) {
-                console.error('[Google Callback] Session save error:', err);
-                return res.redirect('/auth/google/failure');
-            }
+        try {
+            // Generate tokens
+            const accessToken = generateAccessToken(req.user);
+            const refreshToken = generateRefreshToken(req.user);
             
-            console.log('[Google Callback] Session saved successfully.');
-            // Redirect to success page that will close popup
-            res.redirect('/auth/google/success');
-        });
+            // Set refresh token as httpOnly cookie
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                path: '/'
+            });
+            
+            console.log('[Google Callback] Tokens generated. Redirecting with access token...');
+            
+            // Redirect to frontend with access token
+            res.redirect(`${clientURL}/auth/callback?token=${accessToken}`);
+        } catch (error) {
+            console.error('[Google Callback] Error:', error);
+            res.redirect(`${clientURL}/login?error=token_generation_failed`);
+        }
     }
 );
-
-// Success page - sends message to parent window then closes
-router.get('/google/success', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Login Successful</title>
-        </head>
-        <body>
-            <script>
-                // Send success message to parent window (your React app)
-                if (window.opener) {
-                    window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS' }, '${process.env.CLIENT_URL}');
-                    window.close();
-                } else {
-                    // Fallback if no opener
-                    window.location.href = '${process.env.CLIENT_URL}';
-                }
-            </script>
-            <p>Login successful! This window should close automatically...</p>
-        </body>
-        </html>
-    `);
-});
-
-// Failure page
-router.get('/google/failure', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Login Failed</title>
-        </head>
-        <body>
-            <script>
-                if (window.opener) {
-                    window.opener.postMessage({ type: 'GOOGLE_AUTH_FAILURE' }, '${process.env.CLIENT_URL}');
-                    window.close();
-                } else {
-                    window.location.href = '${process.env.CLIENT_URL}/login?error=auth_failed';
-                }
-            </script>
-            <p>Login failed. This window should close automatically...</p>
-        </body>
-        </html>
-    `);
-});
 
 module.exports = router;
 

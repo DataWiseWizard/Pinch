@@ -3,25 +3,225 @@ const Pin = require("../models/pin");
 const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/Token');
 const { sendVerificationEmail } = require('../utils/Email');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
+const ExpressError = require('../utils/ExpressError');
+
 
 module.exports.renderSignupForm = (req, res) => {
     res.render("./users/signup.ejs");
 };
 
+// module.exports.signup = async (req, res, next) => {
+//     try {
+//         let { username, email, password } = req.body;
+
+//         // Hash the password before saving
+//         const salt = await bcrypt.genSalt(10);
+//         const hashedPassword = await bcrypt.hash(password, salt);
+
+//         const verificationToken = generateToken();
+
+//         const newUser = new User({ email, username, displayName: username, password: hashedPassword, verificationToken: verificationToken, verificationTokenExpires: Date.now() + 3600000 });
+//         await newUser.save();
+//         await sendVerificationEmail(newUser.email, verificationToken);
+
+
+//         res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
+//     } catch (e) {
+//         if (e.code === 11000) {
+//             return res.status(409).json({ message: "An account with that email already exists." });
+//         } else {
+//             return res.status(400).json({ message: e.message });
+//         }
+//     }
+// };
+
+// module.exports.verifyEmail = async (req, res) => {
+//     try {
+//         const { token } = req.query;
+//         if (!token) {
+//             req.flash("error", "Verification failed. Token is missing.");
+//             return res.redirect("/login");
+//         }
+
+//         const user = await User.findOne({
+//             verificationToken: token,
+//             verificationTokenExpires: { $gt: Date.now() }
+//         })
+
+//         if (!user) {
+//             req.flash("error", "Invalid or expired verification token.");
+//             return res.redirect("/login");
+//         }
+
+//         user.isVerified = true;
+//         user.verificationToken = undefined;
+//         user.verificationTokenExpires = undefined;
+//         await user.save();
+
+//         req.login(user, (err) => {
+//             {
+//                 if (err) { return next(err); }
+//                 req.flash("success", "Email verified successfully! You are now logged in.");
+//                 res.redirect("/pins");
+//             }
+//         })
+
+//     } catch (error) {
+//         req.flash("error", "Something went wrong during verification.");
+//         res.redirect("/login");
+//     }
+// }
+
+// module.exports.renderLoginForm = (req, res) => {
+//     res.render("./users/login.ejs");
+// };
+
+// module.exports.login = async (req, res) => {
+//     // Force session save before sending response
+//     req.session.save((err) => {
+//         if (err) {
+//             console.error('[Login] Session save error:', err);
+//             return res.status(500).json({ message: "Session error" });
+//         }
+//         res.status(200).json({
+//             message: "Login successful!",
+//             user: req.user
+//         });
+//     });
+// };
+
+// module.exports.logout = (req, res, next) => {
+//     req.logout((err) => {
+//         if (err) { return next(err); }
+//         req.flash("success", "You are logged out now!");
+//         res.redirect("/pins");
+//     });
+// };
+
+// module.exports.toggleSavePin = async (req, res, next) => {
+//     const { pinId } = req.params;
+//     // Ensure user is attached
+//     if (!req.user || !req.user._id) {
+//         console.error("[toggleSavePin] Error: User not found on request object.");
+//         return next(new ExpressError(401, "Authentication error: User not identified."));
+//     }
+//     const userId = req.user._id;
+
+//     try {
+//         console.log(`[toggleSavePin] User ${userId} toggling save for pin ${pinId}`); // Log: Start toggle
+//         // Fetch both user and pin concurrently
+//         const [user, pin] = await Promise.all([
+//             User.findById(userId),
+//             Pin.findById(pinId) // Check if pin exists
+//         ]);
+
+//         if (!user) { // Should be caught by isLoggedIn, but good safety check
+//             console.error(`[toggleSavePin] User not found in DB: ${userId}`);
+//             return res.status(404).json({ message: "User not found." });
+//         }
+//         if (!pin) {
+//             console.warn(`[toggleSavePin] Pin not found: ${pinId}`);
+//             return res.status(404).json({ message: "Pin not found." });
+//         }
+
+//         const savedIndex = user.savedPins.findIndex(savedId => savedId.equals(pinId));
+//         let message;
+
+//         if (savedIndex > -1) {
+//             user.savedPins.splice(savedIndex, 1);
+//             message = "Pin unsaved successfully.";
+//             console.log(`[toggleSavePin] User ${userId} unsaved pin ${pinId}`); // Log: Unsave
+//         } else {
+//             user.savedPins.push(pinId);
+//             message = "Pin saved successfully.";
+//             console.log(`[toggleSavePin] User ${userId} saved pin ${pinId}`); // Log: Save
+//         }
+
+//         console.log(`[toggleSavePin] Attempting to save user ${userId}`); // Log: Before save
+//         const updatedUser = await user.save(); // Await the save
+//         console.log(`[toggleSavePin] User ${userId} saved successfully.`); // Log: After save
+
+//         // Return the confirmed list of saved pin *IDs*
+//         const updatedSavedPinIds = updatedUser.savedPins.map(id => id.toString());
+
+//         res.status(200).json({
+//             message,
+//             savedPins: updatedSavedPinIds // Send updated IDs
+//         });
+
+//     } catch (error) {
+//         console.error(`[toggleSavePin] CRITICAL ERROR for user ${userId}, pin ${pinId}:`, error);
+//         next(new ExpressError(500, `Could not update saved pins. Details: ${error.message}`));
+//     }
+// };
+
+// module.exports.getSavedPins = async (req, res, next) => {
+//     // Check if user is properly attached by middleware
+//     if (!req.user || !req.user._id) {
+//         console.error("[getSavedPins] Error: User not found on request object. Middleware issue?");
+//         // Use next to pass error to central handler
+//         return next(new ExpressError(401, "Authentication error: User not identified."));
+//     }
+
+//     const userId = req.user._id;
+//     console.log(`[getSavedPins] Attempting to fetch saved pins for user: ${userId}`); // Log: Start
+
+//     try {
+//         console.log(`[getSavedPins] Finding user document for ID: ${userId}`); // Log: Before find
+//         const user = await User.findById(userId);
+
+//         if (!user) {
+//             console.error(`[getSavedPins] User document not found in DB for ID: ${userId}`);
+//             // Send 404 directly as user genuinely doesn't exist
+//             return res.status(404).json({ message: "User not found." });
+//         }
+//         console.log(`[getSavedPins] User document found. User has ${user.savedPins?.length ?? 0} saved pin references.`); // Log: User found
+
+//         // *** Fetch and Populate Saved Pins Separately ***
+//         // This helps isolate population errors
+//         console.log(`[getSavedPins] Attempting to find and populate pins with IDs: ${user.savedPins}`);
+//         const populatedPins = await Pin.find({
+//             '_id': { $in: user.savedPins } // Find pins whose IDs are in the user's savedPins array
+//         }).populate({
+//             path: 'postedBy',
+//             select: 'username profileImage _id'
+//         });
+//         console.log(`[getSavedPins] Successfully populated ${populatedPins.length} pins.`); // Log: Population success
+
+//         // Although Pin.find with $in naturally filters out non-existent IDs,
+//         // it's good practice, especially if the savedPins array could contain duplicates or invalid entries
+//         // Note: The previous filtering of nulls after populate isn't needed with this approach.
+
+//         res.status(200).json(populatedPins || []); // Send the successfully populated pins
+
+//     } catch (error) {
+//         // *** Log the *specific* error that occurred ***
+//         console.error(`[getSavedPins] CRITICAL ERROR fetching/populating saved pins for user ${userId}:`, error);
+//         // Pass a detailed error to the central handler
+//         next(new ExpressError(500, `Server error fetching saved pins. Details: ${error.message}`));
+//     }
+// };
+
 module.exports.signup = async (req, res, next) => {
     try {
         let { username, email, password } = req.body;
 
-        // Hash the password before saving
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
         const verificationToken = generateToken();
 
-        const newUser = new User({ email, username, displayName: username, password: hashedPassword, verificationToken: verificationToken, verificationTokenExpires: Date.now() + 3600000 });
+        const newUser = new User({ 
+            email, 
+            username, 
+            displayName: username, 
+            password: hashedPassword, 
+            verificationToken: verificationToken, 
+            verificationTokenExpires: Date.now() + 3600000 
+        });
+        
         await newUser.save();
         await sendVerificationEmail(newUser.email, verificationToken);
-
 
         res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
     } catch (e) {
@@ -56,13 +256,8 @@ module.exports.verifyEmail = async (req, res) => {
         user.verificationTokenExpires = undefined;
         await user.save();
 
-        req.login(user, (err) => {
-            {
-                if (err) { return next(err); }
-                req.flash("success", "Email verified successfully! You are now logged in.");
-                res.redirect("/pins");
-            }
-        })
+        req.flash("success", "Email verified successfully! You can now log in.");
+        res.redirect("/login");
 
     } catch (error) {
         req.flash("error", "Something went wrong during verification.");
@@ -75,47 +270,130 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    // Force session save before sending response
-    req.session.save((err) => {
-        if (err) {
-            console.error('[Login] Session save error:', err);
-            return res.status(500).json({ message: "Session error" });
-        }
-        res.status(200).json({
-            message: "Login successful!",
-            user: req.user
+    try {
+        const accessToken = generateAccessToken(req.user);
+        const refreshToken = generateRefreshToken(req.user);
+        
+        // Set refresh token as httpOnly cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/'
         });
-    });
+        
+        console.log('[Login] Tokens generated successfully');
+        
+        res.status(200).json({ 
+            message: "Login successful!", 
+            user: req.user,
+            accessToken: accessToken
+        });
+    } catch (error) {
+        console.error('[Login] Error:', error);
+        res.status(500).json({ message: "Login failed" });
+    }
 };
 
 module.exports.logout = (req, res, next) => {
-    req.logout((err) => {
-        if (err) { return next(err); }
-        req.flash("success", "You are logged out now!");
-        res.redirect("/pins");
+    // Clear refresh token cookie
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/'
     });
+    
+    res.status(200).json({ message: "Logged out successfully" });
+};
+
+module.exports.refreshToken = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    
+    if (!refreshToken) {
+        return res.status(401).json({ message: 'No refresh token provided' });
+    }
+    
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+        return res.status(401).json({ message: 'Invalid or expired refresh token' });
+    }
+    
+    try {
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+        
+        // Check token version (for revocation)
+        if (decoded.version !== user.refreshTokenVersion) {
+            return res.status(401).json({ message: 'Token has been revoked' });
+        }
+        
+        // Generate new access token
+        const newAccessToken = generateAccessToken(user);
+        
+        res.json({ accessToken: newAccessToken });
+    } catch (error) {
+        console.error('[Refresh Token] Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports.checkAuth = async (req, res) => {
+    console.log(`[/api/check-auth] Handler Reached`);
+    
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('[/api/check-auth] No token provided');
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyAccessToken(token);
+    
+    if (!decoded) {
+        console.log('[/api/check-auth] Invalid token');
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+
+    try {
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+        
+        console.log(`[/api/check-auth] User found: ${user.username}`);
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('[/api/check-auth] Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 module.exports.toggleSavePin = async (req, res, next) => {
     const { pinId } = req.params;
-    // Ensure user is attached
+    
     if (!req.user || !req.user._id) {
         console.error("[toggleSavePin] Error: User not found on request object.");
         return next(new ExpressError(401, "Authentication error: User not identified."));
     }
+    
     const userId = req.user._id;
 
     try {
-        console.log(`[toggleSavePin] User ${userId} toggling save for pin ${pinId}`); // Log: Start toggle
-        // Fetch both user and pin concurrently
+        console.log(`[toggleSavePin] User ${userId} toggling save for pin ${pinId}`);
+        
         const [user, pin] = await Promise.all([
             User.findById(userId),
-            Pin.findById(pinId) // Check if pin exists
+            Pin.findById(pinId)
         ]);
 
-        if (!user) { // Should be caught by isLoggedIn, but good safety check
-            console.error(`[toggleSavePin] User not found in DB: ${userId}`);
-            return res.status(404).json({ message: "User not found." });
+        if (!user) {
+             console.error(`[toggleSavePin] User not found in DB: ${userId}`);
+             return res.status(404).json({ message: "User not found." });
         }
         if (!pin) {
             console.warn(`[toggleSavePin] Pin not found: ${pinId}`);
@@ -128,23 +406,19 @@ module.exports.toggleSavePin = async (req, res, next) => {
         if (savedIndex > -1) {
             user.savedPins.splice(savedIndex, 1);
             message = "Pin unsaved successfully.";
-            console.log(`[toggleSavePin] User ${userId} unsaved pin ${pinId}`); // Log: Unsave
+            console.log(`[toggleSavePin] User ${userId} unsaved pin ${pinId}`);
         } else {
             user.savedPins.push(pinId);
             message = "Pin saved successfully.";
-            console.log(`[toggleSavePin] User ${userId} saved pin ${pinId}`); // Log: Save
+            console.log(`[toggleSavePin] User ${userId} saved pin ${pinId}`);
         }
 
-        console.log(`[toggleSavePin] Attempting to save user ${userId}`); // Log: Before save
-        const updatedUser = await user.save(); // Await the save
-        console.log(`[toggleSavePin] User ${userId} saved successfully.`); // Log: After save
-
-        // Return the confirmed list of saved pin *IDs*
+        const updatedUser = await user.save();
         const updatedSavedPinIds = updatedUser.savedPins.map(id => id.toString());
 
         res.status(200).json({
             message,
-            savedPins: updatedSavedPinIds // Send updated IDs
+            savedPins: updatedSavedPinIds
         });
 
     } catch (error) {
@@ -154,48 +428,37 @@ module.exports.toggleSavePin = async (req, res, next) => {
 };
 
 module.exports.getSavedPins = async (req, res, next) => {
-    // Check if user is properly attached by middleware
     if (!req.user || !req.user._id) {
-        console.error("[getSavedPins] Error: User not found on request object. Middleware issue?");
-        // Use next to pass error to central handler
+        console.error("[getSavedPins] Error: User not found on request object.");
         return next(new ExpressError(401, "Authentication error: User not identified."));
     }
 
     const userId = req.user._id;
-    console.log(`[getSavedPins] Attempting to fetch saved pins for user: ${userId}`); // Log: Start
+    console.log(`[getSavedPins] Fetching saved pins for user: ${userId}`);
 
     try {
-        console.log(`[getSavedPins] Finding user document for ID: ${userId}`); // Log: Before find
         const user = await User.findById(userId);
 
         if (!user) {
             console.error(`[getSavedPins] User document not found in DB for ID: ${userId}`);
-            // Send 404 directly as user genuinely doesn't exist
             return res.status(404).json({ message: "User not found." });
         }
-        console.log(`[getSavedPins] User document found. User has ${user.savedPins?.length ?? 0} saved pin references.`); // Log: User found
+        
+        console.log(`[getSavedPins] User has ${user.savedPins?.length ?? 0} saved pin references.`);
 
-        // *** Fetch and Populate Saved Pins Separately ***
-        // This helps isolate population errors
-        console.log(`[getSavedPins] Attempting to find and populate pins with IDs: ${user.savedPins}`);
         const populatedPins = await Pin.find({
-            '_id': { $in: user.savedPins } // Find pins whose IDs are in the user's savedPins array
+            '_id': { $in: user.savedPins }
         }).populate({
             path: 'postedBy',
             select: 'username profileImage _id'
         });
-        console.log(`[getSavedPins] Successfully populated ${populatedPins.length} pins.`); // Log: Population success
+        
+        console.log(`[getSavedPins] Successfully populated ${populatedPins.length} pins.`);
 
-        // Although Pin.find with $in naturally filters out non-existent IDs,
-        // it's good practice, especially if the savedPins array could contain duplicates or invalid entries
-        // Note: The previous filtering of nulls after populate isn't needed with this approach.
-
-        res.status(200).json(populatedPins || []); // Send the successfully populated pins
+        res.status(200).json(populatedPins || []);
 
     } catch (error) {
-        // *** Log the *specific* error that occurred ***
-        console.error(`[getSavedPins] CRITICAL ERROR fetching/populating saved pins for user ${userId}:`, error);
-        // Pass a detailed error to the central handler
+        console.error(`[getSavedPins] CRITICAL ERROR for user ${userId}:`, error);
         next(new ExpressError(500, `Server error fetching saved pins. Details: ${error.message}`));
     }
 };
