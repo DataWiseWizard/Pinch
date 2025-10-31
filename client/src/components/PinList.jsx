@@ -25,7 +25,7 @@ const PinList = () => {
             const savedResponse = await fetch(`${API_URL}/pins/saved`, {
                 headers
             });
-            
+
             if (!savedResponse.ok) {
                 let errorMsg = 'Failed to fetch saved pins status.';
                 try {
@@ -72,7 +72,7 @@ const PinList = () => {
     // }, [currentUser]); // Dependency on currentUser
 
     // *** Function to fetch all pins and saved status ***
-    
+
     const fetchPinsAndSavedStatus = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -109,6 +109,7 @@ const PinList = () => {
         setSaveError(null);
 
         try {
+            const headers = await getAuthHeaders();
             const response = await fetch(`${API_URL}/pins/${pinId}/save`, {
                 method: 'PUT',
                 headers

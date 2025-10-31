@@ -76,6 +76,7 @@ const ProfilePage = () => {
         setCreatedPins(currentPins => currentPins.filter(pin => pin._id !== pinIdToDelete));
 
         try {
+            const headers = await getAuthHeaders();
             const response = await fetch(`${API_URL}/pins/${pinIdToDelete}`, {
                 method: 'DELETE',
                 headers
