@@ -15,12 +15,24 @@ router.route("/login")
 .get(userController.renderLoginForm)
 .post(
     saveRedirectUrl,
-    passport.authenticate("local", {
-        session: false, // Don't use sessions with JWT
-        failureRedirect: '/login',
-        failureFlash: true
-    }),
-    userController.login
+    // Use a custom callback for passport.authenticate
+    (req, res, next) => {
+        passport.authenticate("local", { session: false }, (err, user, info) => {
+            // Handle server errors
+            if (err) {
+                return next(err);
+            }
+            // Handle authentication failure
+            if (!user) {
+                // Send a 401 Unauthorized status with a JSON error message
+                return res.status(401).json({ message: info.message || "Invalid username or password." });
+            }
+            // Authentication succeeded. Attach user to req and call the next middleware (userController.login)
+            req.user = user;
+            next();
+        })(req, res, next);
+    },
+    userController.login // This is only called if authentication succeeds
 );
 
 router.get("/logout", userController.logout);

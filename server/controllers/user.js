@@ -3,7 +3,7 @@ const Pin = require("../models/pin");
 const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/Token');
 const { sendVerificationEmail } = require('../utils/Email');
-const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyAccessToken } = require('../utils/jwt');
 const ExpressError = require('../utils/ExpressError');
 
 
