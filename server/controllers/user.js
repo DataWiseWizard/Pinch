@@ -220,15 +220,31 @@ module.exports.signup = async (req, res, next) => {
             verificationTokenExpires: Date.now() + 3600000 
         });
         
-        await newUser.save();
-        await sendVerificationEmail(newUser.email, verificationToken);
+        // This is the primary goal: create the user
+        await newUser.save(); 
 
+        // --- FIX: Handle email sending in its own try/catch ---
+        try {
+            // Attempt to send the verification email
+            await sendVerificationEmail(newUser.email, verificationToken);
+        } catch (emailError) {
+            // Log the email error, but don't stop the success response.
+            // The user is created, but the email failed to send.
+            console.error(`[Signup] User ${username} created, but email verification failed to send:`, emailError.message);
+        }
+        // --- END FIX ---
+
+        // Send success response regardless of email outcome
         res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
-    } catch (e) {
+    
+    } catch (e) { 
+        // This catch now primarily handles user creation errors
         if (e.code === 11000) {
+            // Duplicate email
             return res.status(409).json({ message: "An account with that email already exists." });
         } else {
-            return res.status(400).json({ message: e.message });
+            // Pass other DB/validation errors to the main error handler
+            return next(e);
         }
     }
 };

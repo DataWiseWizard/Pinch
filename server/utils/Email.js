@@ -20,13 +20,16 @@ const sendVerificationEmail = async (userEmail, token) => {
 
         if (error) {
             console.error("Error sending email via Resend:", error);
-            return;
+            // --- FIX: Throw the error so the controller can see it ---
+            throw new Error(error.message || 'Resend API error');
         }
 
         console.log("Resend: Email sent successfully!", data.id);
 
     } catch (error) {
         console.error("Critical error sending email: ", error);
+        // --- FIX: Re-throw the error ---
+        throw error;
     }
 };
 
