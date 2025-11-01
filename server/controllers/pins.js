@@ -4,7 +4,7 @@ const { cloudinary } = require("../config/cloudConfig");
 
 module.exports.index = async (req, res) => {
     const allPins = await Pin.find({})
-        .sort({ createdAt: -1 }) // <-- ADD THIS LINE
+        .sort({ _id: -1 }) // <-- ADD THIS LINE
         .populate("postedBy"); res.status(200).json(allPins);
 };
 
