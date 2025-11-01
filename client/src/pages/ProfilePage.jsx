@@ -16,6 +16,7 @@ import Button from '@mui/material/Button';
 
 const ProfilePage = () => {
     const { currentUser, getAuthHeaders, logout } = useAuth();
+    const navigate = useNavigate();
     const [createdPins, setCreatedPins] = useState([]);
     const [savedPins, setSavedPins] = useState([]);
     const [savedPinIds, setSavedPinIds] = useState(new Set()); // Keep track of saved IDs
