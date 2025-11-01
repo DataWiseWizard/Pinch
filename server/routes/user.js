@@ -42,6 +42,12 @@ router.post('/api/refresh', userController.refreshToken);
 // Check auth endpoint
 router.get('/api/check-auth', userController.checkAuth);
 
+router.delete(
+    "/api/user/delete",
+    isLoggedIn, // Protects the route, ensuring req.user is populated
+    wrapAsync(userController.deleteAccount)
+);
+
 router.post("/api/verify-email", wrapAsync(userController.verifyEmailApi));
 
 router.put('/pins/:pinId/save',
