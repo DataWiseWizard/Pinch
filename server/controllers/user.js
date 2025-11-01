@@ -250,22 +250,20 @@ module.exports.signup = async (req, res, next) => {
     }
 };
 
-module.exports.verifyEmail = async (req, res) => {
+module.exports.verifyEmailApi = async (req, res, next) => {
     try {
-        const { token } = req.query;
+        const { token } = req.body; // Token comes from POST body
         if (!token) {
-            req.flash("error", "Verification failed. Token is missing.");
-            return res.redirect("/login");
+            return next(new ExpressError(400, "Verification token is missing."));
         }
 
         const user = await User.findOne({
             verificationToken: token,
             verificationTokenExpires: { $gt: Date.now() }
-        })
+        });
 
         if (!user) {
-            req.flash("error", "Invalid or expired verification token.");
-            return res.redirect("/login");
+            return next(new ExpressError(404, "Invalid or expired verification token. Please try signing up again."));
         }
 
         user.isVerified = true;
@@ -273,14 +271,14 @@ module.exports.verifyEmail = async (req, res) => {
         user.verificationTokenExpires = undefined;
         await user.save();
 
-        req.flash("success", "Email verified successfully! You can now log in.");
-        res.redirect("/login");
+        // Send JSON response instead of flashing/redirecting
+        res.status(200).json({ message: "Email verified successfully!" });
 
     } catch (error) {
-        req.flash("error", "Something went wrong during verification.");
-        res.redirect("/login");
+        console.error("Verification API Error:", error);
+        next(new ExpressError(500, "Something went wrong during verification."));
     }
-}
+};
 
 module.exports.renderLoginForm = (req, res) => {
     res.render("./users/login.ejs");

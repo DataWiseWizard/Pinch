@@ -7,7 +7,7 @@ const FROM_EMAIL = 'Pinch App <noreply@pinch-your-pins.site>';
 
 const sendVerificationEmail = async (userEmail, token) => {
     // This URL logic stays the same
-    const verificationURL = `${process.env.BASE_URL}/verify-email?token=${token}`;
+    const verificationURL = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
 
     try {
         // This replaces the transporter.sendMail()

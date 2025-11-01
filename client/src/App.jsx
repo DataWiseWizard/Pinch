@@ -7,7 +7,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
 import GoogleCallback from './pages/GoogleCallback'; // NEW
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './components/ProtectedRoute';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<GoogleCallback />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/pins/:id" element={<PinDetail />} />
             <Route
               path="/pins/new"
