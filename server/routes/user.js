@@ -60,6 +60,5 @@ router.get('/pins/saved',
     wrapAsync(userController.getSavedPins)
 );
 
-router.get("/verify-email", wrapAsync(userController.verifyEmail));
 
 module.exports = router;
