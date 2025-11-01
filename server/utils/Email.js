@@ -15,7 +15,22 @@ const sendVerificationEmail = async (userEmail, token) => {
             from: FROM_EMAIL,
             to: userEmail, // This comes from the user signing up
             subject: 'Please verify your email address for Pinch',
-            html: `<p>Welcome to Pinch!</p><p>Please click on the following link to verify your email address:</p><p><a href="${verificationURL}">${verificationURL}</a></p><p>This link will expire in 1 hour.</p>`
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2>Welcome to Pinch!</h2>
+                    <p>Please click the button below to verify your email address and activate your account:</p>
+                    <p>
+                        <a href="${verificationURL}" 
+                           style="display: inline-block; padding: 12px 24px; font-size: 16px; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px;">
+                           Verify Email Address
+                        </a>
+                    </p>
+                    <p style="font-size: 12px; color: #888;">This verification link will expire in 1 hour.</p>
+                    <hr style="border: 0; border-top: 1px solid #eee;">
+                    <p style="font-size: 10px; color: #aaa;">If you're having trouble clicking the button, copy and paste this link into your browser:</p>
+                    <p style="font-size: 10px; color: #aaa; word-break: break-all;">${verificationURL}</p>
+                </div>
+            `
         });
 
         if (error) {

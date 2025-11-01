@@ -141,7 +141,7 @@ const LoginPage = () => {
 
                 {googleError && (
                     <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
-                        Google authentication failed. Please try again.
+                        Google authentication failed. Please verify you email and try again.
                     </Alert>
                 )}
 
