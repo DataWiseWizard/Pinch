@@ -41,7 +41,7 @@ module.exports.showPin = async (req, res) => {
 
 module.exports.getUserPins = async (req, res) => {
     const { userId } = req.params;
-    const userPins = await Pin.find({ postedBy: userId });
+    const userPins = await Pin.find({ postedBy: userId }).sort({ _id: -1 });
     res.status(200).json(userPins);
 };
 

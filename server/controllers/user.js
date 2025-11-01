@@ -211,17 +211,17 @@ module.exports.signup = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const verificationToken = generateToken();
 
-        const newUser = new User({ 
-            email, 
-            username, 
-            displayName: username, 
-            password: hashedPassword, 
-            verificationToken: verificationToken, 
-            verificationTokenExpires: Date.now() + 3600000 
+        const newUser = new User({
+            email,
+            username,
+            displayName: username,
+            password: hashedPassword,
+            verificationToken: verificationToken,
+            verificationTokenExpires: Date.now() + 3600000
         });
-        
+
         // This is the primary goal: create the user
-        await newUser.save(); 
+        await newUser.save();
 
         // --- FIX: Handle email sending in its own try/catch ---
         try {
@@ -236,8 +236,8 @@ module.exports.signup = async (req, res, next) => {
 
         // Send success response regardless of email outcome
         res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
-    
-    } catch (e) { 
+
+    } catch (e) {
         // This catch now primarily handles user creation errors
         if (e.code === 11000) {
             // Duplicate email
@@ -289,7 +289,7 @@ module.exports.login = async (req, res) => {
     try {
         const accessToken = generateAccessToken(req.user);
         const refreshToken = generateRefreshToken(req.user);
-        
+
         // Set refresh token as httpOnly cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -298,11 +298,11 @@ module.exports.login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             path: '/'
         });
-        
+
         console.log('[Login] Tokens generated successfully');
-        
-        res.status(200).json({ 
-            message: "Login successful!", 
+
+        res.status(200).json({
+            message: "Login successful!",
             user: req.user,
             accessToken: accessToken
         });
@@ -320,36 +320,36 @@ module.exports.logout = (req, res, next) => {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/'
     });
-    
+
     res.status(200).json({ message: "Logged out successfully" });
 };
 
 module.exports.refreshToken = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
-    
+
     if (!refreshToken) {
         return res.status(401).json({ message: 'No refresh token provided' });
     }
-    
+
     const decoded = verifyRefreshToken(refreshToken);
     if (!decoded) {
         return res.status(401).json({ message: 'Invalid or expired refresh token' });
     }
-    
+
     try {
         const user = await User.findById(decoded.id);
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
-        
+
         // Check token version (for revocation)
         if (decoded.version !== user.refreshTokenVersion) {
             return res.status(401).json({ message: 'Token has been revoked' });
         }
-        
+
         // Generate new access token
         const newAccessToken = generateAccessToken(user);
-        
+
         res.json({ accessToken: newAccessToken });
     } catch (error) {
         console.error('[Refresh Token] Error:', error);
@@ -359,9 +359,9 @@ module.exports.refreshToken = async (req, res) => {
 
 module.exports.checkAuth = async (req, res) => {
     console.log(`[/api/check-auth] Handler Reached`);
-    
+
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('[/api/check-auth] No token provided');
         return res.status(401).json({ message: 'Not authenticated' });
@@ -369,7 +369,7 @@ module.exports.checkAuth = async (req, res) => {
 
     const token = authHeader.split(' ')[1];
     const decoded = verifyAccessToken(token);
-    
+
     if (!decoded) {
         console.log('[/api/check-auth] Invalid token');
         return res.status(401).json({ message: 'Invalid or expired token' });
@@ -380,7 +380,7 @@ module.exports.checkAuth = async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
-        
+
         console.log(`[/api/check-auth] User found: ${user.username}`);
         res.status(200).json(user);
     } catch (error) {
@@ -391,25 +391,25 @@ module.exports.checkAuth = async (req, res) => {
 
 module.exports.toggleSavePin = async (req, res, next) => {
     const { pinId } = req.params;
-    
+
     if (!req.user || !req.user._id) {
         console.error("[toggleSavePin] Error: User not found on request object.");
         return next(new ExpressError(401, "Authentication error: User not identified."));
     }
-    
+
     const userId = req.user._id;
 
     try {
         console.log(`[toggleSavePin] User ${userId} toggling save for pin ${pinId}`);
-        
+
         const [user, pin] = await Promise.all([
             User.findById(userId),
             Pin.findById(pinId)
         ]);
 
         if (!user) {
-             console.error(`[toggleSavePin] User not found in DB: ${userId}`);
-             return res.status(404).json({ message: "User not found." });
+            console.error(`[toggleSavePin] User not found in DB: ${userId}`);
+            return res.status(404).json({ message: "User not found." });
         }
         if (!pin) {
             console.warn(`[toggleSavePin] Pin not found: ${pinId}`);
@@ -459,16 +459,17 @@ module.exports.getSavedPins = async (req, res, next) => {
             console.error(`[getSavedPins] User document not found in DB for ID: ${userId}`);
             return res.status(404).json({ message: "User not found." });
         }
-        
+
         console.log(`[getSavedPins] User has ${user.savedPins?.length ?? 0} saved pin references.`);
 
         const populatedPins = await Pin.find({
             '_id': { $in: user.savedPins }
-        }).populate({
-            path: 'postedBy',
-            select: 'username profileImage _id'
-        });
-        
+        }).sort({ _id: -1 })
+            .populate({
+                path: 'postedBy',
+                select: 'username profileImage _id'
+            });
+
         console.log(`[getSavedPins] Successfully populated ${populatedPins.length} pins.`);
 
         res.status(200).json(populatedPins || []);
