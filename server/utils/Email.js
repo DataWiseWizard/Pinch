@@ -3,7 +3,7 @@ const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // !! IMPORTANT: Replace this with the email from your verified Resend domain
-const FROM_EMAIL = 'Pinch App <PINCH_MAIL@resend.dev>';
+const FROM_EMAIL = 'Pinch App <noreply@pinch-your-pins.site>';
 
 const sendVerificationEmail = async (userEmail, token) => {
     // This URL logic stays the same
