@@ -24,7 +24,7 @@ const pinSchema = new Schema({
   //   type: Date,
   //   default: Date.now
   // },
-});
+}, { timestamps: true });
 
 const Pin = mongoose.model('Pin', pinSchema);
 module.exports = Pin;

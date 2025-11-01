@@ -3,8 +3,9 @@ const ExpressError = require("../utils/ExpressError");
 const { cloudinary } = require("../config/cloudConfig");
 
 module.exports.index = async (req, res) => {
-    const allPins = await Pin.find({}).populate("postedBy");
-    res.status(200).json(allPins);
+    const allPins = await Pin.find({})
+        .sort({ createdAt: -1 }) // <-- ADD THIS LINE
+        .populate("postedBy"); res.status(200).json(allPins);
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -55,20 +56,20 @@ module.exports.deletePin = async (req, res) => {
         return res.status(404).json({ message: "Pin not found." });
     }
 
-    if (!pin.postedBy || !pin.postedBy.equals(userId)) { 
+    if (!pin.postedBy || !pin.postedBy.equals(userId)) {
         return res.status(403).json({ message: "You are not authorized to delete this pin." });
     }
 
-   try {
+    try {
         await Pin.findByIdAndDelete(id);
 
-        if (pin.image && pin.image.filename) { 
+        if (pin.image && pin.image.filename) {
             await cloudinary.uploader.destroy(pin.image.filename);
         } else {
             console.warn(`Pin ${id} deleted, but image filename was missing. Could not delete from Cloudinary.`);
         }
 
-        
+
         res.status(200).json({ message: "Pin deleted successfully." });
 
     } catch (dbError) {
