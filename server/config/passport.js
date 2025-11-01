@@ -3,6 +3,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const { generateToken } = require('../utils/Token');
+const { sendVerificationEmail } = require('../utils/Email');
 
 // This function determines what user data to store in the session
 passport.serializeUser((user, done) => {
@@ -79,7 +81,11 @@ passport.use(new GoogleStrategy({
             let user = await User.findOne({ googleId: profile.id });
 
             if (user) {
-                return done(null, user); // User found, log them in
+                if (!user.isVerified) {
+                    // Optionally, resend verification email here
+                    return done(null, false, { message: 'This account is not verified. Please check your email.' });
+                }
+                return done(null, user); // User found and is verified, log them in
             } else {
                 // Check if user exists with that email
                 user = await User.findOne({ email: profile.emails[0].value });
@@ -87,19 +93,39 @@ passport.use(new GoogleStrategy({
                     // User exists but logged in locally, link their googleId
                     user.googleId = profile.id;
                     user.profileImage = user.profileImage || profile.photos[0].value;
+                    // If they are linking to an unverified local account, don't log them in.
+                    if (!user.isVerified) {
+                        await user.save();
+                        return done(null, false, { message: 'Account found. Please verify your email to log in.' });
+                    }
                     await user.save();
                     return done(null, user);
                 }
 
-                // If no user, create a new one
+                // If no user, create a new one, but DO NOT log them in.
+                // Force them to verify their email first.
+                const verificationToken = generateToken();
                 const newUser = new User({
                     googleId: profile.id,
                     username: profile.displayName, // or profile.emails[0].value.split('@')[0]
                     email: profile.emails[0].value,
                     profileImage: profile.photos[0].value,
+                    isVerified: false, // <-- SET TO FALSE
+                    verificationToken: verificationToken, // <-- ADD TOKEN
+                    verificationTokenExpires: Date.now() + 3600000 // 1 hour
                 });
                 await newUser.save();
-                return done(null, newUser);
+                // Try to send the verification email
+                try {
+                    await sendVerificationEmail(newUser.email, verificationToken);
+                } catch (emailError) {
+                    console.error(`[Google Strategy] Failed to send verification email to ${newUser.email}:`, emailError);
+                    // Don't block the flow, just log the error.
+                }
+
+                // --- DO NOT LOG THEM IN ---
+                // Instead, return a failure message telling them to verify.
+                return done(null, false, { message: 'Account created. Please check your email to verify your account before logging in.' });
             }
         } catch (err) {
             return done(err, null);

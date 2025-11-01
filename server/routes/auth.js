@@ -12,19 +12,33 @@ router.get('/google', passport.authenticate('google', {
     session: false // Don't use sessions
 }));
 
-router.get('/google/callback', 
+router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', {
         session: false,
-        failureRedirect: `${clientURL}/login?error=auth_failed`
-    }), 
-    (req, res) => {
+        // We don't use failureRedirect, we handle failure manually
+    }, (err, user, info) => {
+        
+        // Handle server errors
+        if (err) {
+            return next(err);
+        }
+        
+        // --- Handle authentication failure (e.g., user not verified) ---
+        if (!user) {
+            const errorMessage = info.message || 'Authentication failed. Please try again.';
+            // Redirect to login page with the specific error message
+            console.log(`[Google Callback] Auth failed: ${errorMessage}`);
+            return res.redirect(`${clientURL}/login?error=${encodeURIComponent(errorMessage)}`);
+        }
+
+        // --- Handle authentication success ---
         console.log('Google Callback: Authentication successful.');
-        console.log('User:', req.user);
+        console.log('User:', user); // Use 'user' object from callback
         
         try {
-            // Generate tokens
-            const accessToken = generateAccessToken(req.user);
-            const refreshToken = generateRefreshToken(req.user);
+            // Generate tokens for the 'user' object returned by passport
+            const accessToken = generateAccessToken(user);
+            const refreshToken = generateRefreshToken(user);
             
             // Set refresh token as httpOnly cookie
             res.cookie('refreshToken', refreshToken, {
@@ -42,13 +56,13 @@ router.get('/google/callback',
             console.log('[Google Callback] CLIENT_URL:', clientURL);
             console.log('[Google Callback] Redirecting to:', redirectURL);            
             // Redirect to frontend with access token
-            res.redirect(`${clientURL}/auth/callback?token=${accessToken}`);
+            res.redirect(redirectURL);
         } catch (error) {
             console.error('[Google Callback] Error:', error);
             res.redirect(`${clientURL}/login?error=token_generation_failed`);
         }
-    }
-);
+    })(req, res, next); // Don't forget to call the middleware
+});
 
 module.exports = router;
 
