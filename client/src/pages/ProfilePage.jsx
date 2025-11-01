@@ -3,7 +3,7 @@ import Masonry from '@mui/lab/Masonry';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
-
+import { useNavigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -12,9 +12,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Button from '@mui/material/Button';
 
 const ProfilePage = () => {
-    const { currentUser, getAuthHeaders } = useAuth();
+    const { currentUser, getAuthHeaders, logout } = useAuth();
     const [createdPins, setCreatedPins] = useState([]);
     const [savedPins, setSavedPins] = useState([]);
     const [savedPinIds, setSavedPinIds] = useState(new Set()); // Keep track of saved IDs
@@ -24,6 +25,8 @@ const ProfilePage = () => {
     const [deleteError, setDeleteError] = useState(null);
     const [saveError, setSaveError] = useState(null); // Error for saving actions
     const [currentTab, setCurrentTab] = useState(0);
+    const [accountDeleteError, setAccountDeleteError] = useState(null);
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
 
     const fetchCreatedPins = useCallback(async () => {
@@ -148,6 +151,38 @@ const ProfilePage = () => {
         setCurrentTab(newValue);
     };
 
+    const handleDeleteAccount = async () => {
+        setAccountDeleteError(null);
+
+        // Add multiple confirmations for safety
+        if (window.confirm("Are you sure you want to delete your account? This action is permanent and cannot be undone.")) {
+            if (window.confirm("Please confirm one last time. All your created pins and personal data will be lost forever.")) {
+                setIsDeletingAccount(true);
+                try {
+                    const headers = await getAuthHeaders();
+                    const response = await fetch(`${API_URL}/api/user/delete`, {
+                        method: 'DELETE',
+                        headers
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.message || "Failed to delete account.");
+                    }
+
+                    // If successful, log out and redirect
+                    await logout(); // Call logout from context
+                    navigate('/'); // Redirect to homepage
+
+                } catch (err) {
+                    console.error("Error deleting account:", err);
+                    setAccountDeleteError(err.message);
+                    setIsDeletingAccount(false);
+                }
+            }
+        }
+    };
+
     if ((loadingCreated || loadingSaved) && !currentUser) { // Adjust initial loading check
         return <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>;
     }
@@ -243,6 +278,36 @@ const ProfilePage = () => {
 
 
             {renderContent()}
+
+            <Box sx={{
+                mt: 6, // Add more margin at the top
+                p: 3,
+                border: '1px solid',
+                borderColor: 'error.main', // Use theme's error color
+                borderRadius: 2,
+                textAlign: 'center',
+                backgroundColor: 'rgba(211, 47, 47, 0.05)' // Faint red background
+            }}>
+                <Typography variant="h6" color="error" gutterBottom>
+                    Danger Zone
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                    Deleting your account is permanent. All your created pins, saved pins, and personal data will be permanently removed.
+                </Typography>
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleDeleteAccount}
+                    disabled={isDeletingAccount}
+                >
+                    {isDeletingAccount ? "Deleting..." : "Delete My Account"}
+                </Button>
+                {accountDeleteError && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                        {accountDeleteError}
+                    </Alert>
+                )}
+            </Box>
         </Container>
     );
 };

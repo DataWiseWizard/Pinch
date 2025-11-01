@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/Token');
 const { sendVerificationEmail } = require('../utils/Email');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyAccessToken } = require('../utils/jwt');
+const { cloudinary } = require('../config/cloudConfig');
 const ExpressError = require('../utils/ExpressError');
 
 
@@ -477,5 +478,66 @@ module.exports.getSavedPins = async (req, res, next) => {
     } catch (error) {
         console.error(`[getSavedPins] CRITICAL ERROR for user ${userId}:`, error);
         next(new ExpressError(500, `Server error fetching saved pins. Details: ${error.message}`));
+    }
+};
+
+module.exports.deleteAccount = async (req, res, next) => {
+    const userId = req.user._id;
+
+    if (!userId) {
+        return next(new ExpressError(401, "Not authorized."));
+    }
+
+    try {
+        console.log(`[Delete Account] Starting deletion for user: ${req.user.username} (${userId})`);
+
+        // 1. Find all pins created by this user
+        const userPins = await Pin.find({ postedBy: userId });
+        const pinIdsToDelete = userPins.map(p => p._id);
+
+        if (userPins.length > 0) {
+            // 2. Delete all images for those pins from Cloudinary
+            const filenames = userPins
+                .map(pin => pin.image && pin.image.filename)
+                .filter(filename => filename); // Filter out any pins that might not have a filename
+
+            if (filenames.length > 0) {
+                console.log(`[Delete Account] Deleting ${filenames.length} images from Cloudinary...`);
+                // Use delete_resources for batch deletion
+                await cloudinary.api.delete_resources(filenames);
+            }
+
+            // 3. Delete all pins from the 'pins' collection
+            console.log(`[Delete Account] Deleting ${userPins.length} pins from DB...`);
+            await Pin.deleteMany({ postedBy: userId });
+        }
+
+        // 4. Remove these deleted pins from *all other users'* savedPins arrays
+        if (pinIdsToDelete.length > 0) {
+            console.log(`[Delete Account] Removing deleted pin IDs from all users' savedPins arrays...`);
+            await User.updateMany(
+                { savedPins: { $in: pinIdsToDelete } },
+                { $pull: { savedPins: { $in: pinIdsToDelete } } }
+            );
+        }
+
+        // 5. Delete the user document itself
+        console.log(`[Delete Account] Deleting user document: ${req.user.username}`);
+        await User.findByIdAndDelete(userId);
+
+        // 6. Clear the refresh token cookie
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/'
+        });
+
+        // 7. Send success response
+        res.status(200).json({ message: "Account deleted successfully." });
+
+    } catch (error) {
+        console.error(`[Delete Account] Error deleting account for user ${userId}:`, error);
+        next(new ExpressError(500, "Failed to delete account."));
     }
 };
