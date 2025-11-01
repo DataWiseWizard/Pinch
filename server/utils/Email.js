@@ -27,8 +27,6 @@ const sendVerificationEmail = async (userEmail, token) => {
                     </p>
                     <p style="font-size: 12px; color: #888;">This verification link will expire in 1 hour.</p>
                     <hr style="border: 0; border-top: 1px solid #eee;">
-                    <p style="font-size: 10px; color: #aaa;">If you're having trouble clicking the button, copy and paste this link into your browser:</p>
-                    <p style="font-size: 10px; color: #aaa; word-break: break-all;">${verificationURL}</p>
                 </div>
             `
         });
