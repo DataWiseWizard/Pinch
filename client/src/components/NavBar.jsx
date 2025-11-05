@@ -28,7 +28,7 @@ const Navbar = () => {
             
             {/* 2. This is your Logo/Brand link */}
             <RouterLink to="/" className="flex items-center gap-2 text-lg font-semibold">
-                <PinWheel className="h-6 w-6" />
+                <PinWheel  className="h-6 w-6" />
                 <span>Pinch</span>
             </RouterLink>
 
