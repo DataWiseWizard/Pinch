@@ -5,15 +5,26 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import API_URL from "../apiConfig";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+    Card, CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
-import Divider from '@mui/material/Divider';
-import GoogleIcon from '@mui/icons-material/Google';
+// import Container from '@mui/material/Container';
+// import Box from '@mui/material/Box';
+// import TextField from '@mui/material/TextField';
+// import Button from '@mui/material/Button';
+// import Typography from '@mui/material/Typography';
+// import Alert from '@mui/material/Alert';
+// import Divider from '@mui/material/Divider';
+// import GoogleIcon from '@mui/icons-material/Google';
 
 
 const LoginPage = () => {
@@ -115,93 +126,83 @@ const LoginPage = () => {
         // }
     };
 
-
-
-
-
     return (
-        <Container component="main" maxWidth="xs" sx={{ mt: 4 }}>
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Typography component="h1" variant="h5">
-                    Login to Pinch
-                </Typography>
-
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle className="text-2xl">Login</CardTitle>
+                    <CardDescription>
+                        Check email after signing in through google to verify you email Id.
+                    </CardDescription>
+                </CardHeader>
+                
                 {signupSuccess && (
-                    <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
+                    <Alert className="w-full">
                         Signup successful! Please log in.
                     </Alert>
                 )}
 
                 {googleError && (
-                    <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
-                        Google authentication failed. Please verify you email and try again.
+                    <Alert severity="destructiver" className="w-full mt-2">
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            Login with a registered and verified Google account.
+                        </AlertDescription>
                     </Alert>
                 )}
+                <CardContent>
+                    <form onSubmit={handleSubmit} noValidate className="grid gap-4">
 
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoComplete="username"
-                        autoFocus
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                        <div className="grid gap-2">
+                            <Label htmlFor="username">Username</Label>
+                            <Input
+                                id="username"
+                                type="text"
+                                placeholder="YourUsername"
+                                required
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
 
-                    {error && (
-                        <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
-                            {error}
-                        </Alert>
-                    )}
+                        <div className="grid gap-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Log In
-                    </Button>
+                        {error && (
+                            <Alert variant="destructive">
+                                {/* <AlertCircle className="h-4 w-4" /> */}
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>
+                                    {error}
+                                </AlertDescription>
+                            </Alert>
+                        )}
 
-                    <Divider sx={{ my: 2 }}>OR</Divider>
+                        <Button type="submit" className="w-full">
+                            Login
+                        </Button>
 
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        onClick={handleGoogleLogin}
-                        startIcon={<GoogleIcon />}
-                    >
-                        Login with Google
-                    </Button>
-                </Box>
-            </Box>
-        </Container>
+                        <Separator orientation="horizontal" className="my-4 w-full" />
+
+                        <Button type="submit" onSubmit={handleGoogleLogin} className="w-full">
+                            Login with Google
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     );
+
     // return (
-    //     <Container component="main" maxWidth="xs" sx={{ mt: 4 }}> {/* Use Container for layout */}
+    //     <Container component="main" maxWidth="xs" sx={{ mt: 4 }}>
     //         <Box
     //             sx={{
     //                 marginTop: 8,
@@ -217,6 +218,12 @@ const LoginPage = () => {
     //             {signupSuccess && (
     //                 <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
     //                     Signup successful! Please log in.
+    //                 </Alert>
+    //             )}
+
+    //             {googleError && (
+    //                 <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+    //                     Google authentication failed. Please verify you email and try again.
     //                 </Alert>
     //             )}
 
@@ -266,12 +273,11 @@ const LoginPage = () => {
     //                 <Button
     //                     fullWidth
     //                     variant="outlined"
-    //                     href={`${API_URL}/auth/google`}
+    //                     onClick={handleGoogleLogin}
     //                     startIcon={<GoogleIcon />}
     //                 >
     //                     Login with Google
     //                 </Button>
-
     //             </Box>
     //         </Box>
     //     </Container>
