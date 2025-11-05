@@ -4,7 +4,6 @@ import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { PinWheel } from 'lucide-react';
 // import AppBar from '@mui/material/AppBar';
 // import Box from '@mui/material/Box';
 // import Toolbar from '@mui/material/Toolbar';
@@ -28,7 +27,7 @@ const Navbar = () => {
             
             {/* 2. This is your Logo/Brand link */}
             <RouterLink to="/" className="flex items-center gap-2 text-lg font-semibold">
-                <PinWheel  className="h-6 w-6" />
+                {/* <PinWheel  className="h-6 w-6" /> */}
                 <span>Pinch</span>
             </RouterLink>
 
