@@ -135,7 +135,7 @@ const LoginPage = () => {
                         Check email after signing in through google to verify you email Id.
                     </CardDescription>
                 </CardHeader>
-                
+
                 {signupSuccess && (
                     <Alert className="w-full">
                         Signup successful! Please log in.
@@ -146,7 +146,7 @@ const LoginPage = () => {
                     <Alert severity="destructiver" className="w-full mt-2">
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
-                            Login with a registered and verified Google account.
+                            {decodeURIComponent(googleError)}
                         </AlertDescription>
                     </Alert>
                 )}
@@ -160,6 +160,7 @@ const LoginPage = () => {
                                 type="text"
                                 placeholder="YourUsername"
                                 required
+                                autoComplete="username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                             />
@@ -170,6 +171,7 @@ const LoginPage = () => {
                             <Input
                                 id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -190,9 +192,18 @@ const LoginPage = () => {
                             Login
                         </Button>
 
-                        <Separator orientation="horizontal" className="my-4 w-full" />
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <Separator />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-card px-2 text-muted-foreground">
+                                    Or continue with
+                                </span>
+                            </div>
+                        </div>
 
-                        <Button type="submit" onSubmit={handleGoogleLogin} className="w-full">
+                        <Button type="submit" onClick={handleGoogleLogin} className="w-full">
                             Login with Google
                         </Button>
                     </form>
