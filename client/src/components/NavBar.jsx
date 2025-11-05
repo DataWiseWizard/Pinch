@@ -1,5 +1,3 @@
-// client/src/components/Navbar.jsx
-
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
@@ -10,8 +8,6 @@ import { Button } from "@/components/ui/button";
 // import Typography from '@mui/material/Typography';
 // import Button from '@mui/material/Button';
 // import Link from '@mui/material/Link';
-
-
 
 const Navbar = () => {
     const { currentUser, logout } = useAuth();
@@ -24,20 +20,15 @@ const Navbar = () => {
 
     return (
         <nav className="sticky top-0 z-50 flex items-center justify-between w-full px-6 py-3 bg-background border-b">
-            
-            {/* 2. This is your Logo/Brand link */}
             <RouterLink to="/" className="flex items-center gap-2 text-lg font-semibold">
                 {/* <PinWheel  className="h-6 w-6" /> */}
                 <span>Pinch</span>
             </RouterLink>
 
-            {/* 3. This div holds all the right-side items */}
             <div className="flex items-center gap-3">
                 {currentUser? (
                     <>
-                        {/* 4. Use the Shadcn Button with the `asChild` prop. */}
-                        {/* This tells the button to "pass its styles" to the child <Link> */}
-                        {/* This is the standard way to make Shadcn components act as links. */}
+                        
                         <Button variant="ghost" size="sm" asChild>
                             <RouterLink to="/pins/new">Create</RouterLink>
                         </Button>

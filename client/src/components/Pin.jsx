@@ -1,5 +1,3 @@
-// client/src/components/Pin.jsx
-
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
