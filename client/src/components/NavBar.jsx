@@ -2,6 +2,7 @@ import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { PinWheel } from 'lucide-react';
 // import AppBar from '@mui/material/AppBar';
 // import Box from '@mui/material/Box';
 // import Toolbar from '@mui/material/Toolbar';
@@ -21,7 +22,7 @@ const Navbar = () => {
     return (
         <nav className="sticky top-0 z-50 flex items-center justify-between w-full px-6 py-3 bg-background border-b">
             <RouterLink to="/" className="flex items-center gap-2 text-lg font-semibold">
-                {/* <PinWheel  className="h-6 w-6" /> */}
+                <PinWheel  className="h-6 w-6 text-white" />
                 <span>Pinch</span>
             </RouterLink>
 

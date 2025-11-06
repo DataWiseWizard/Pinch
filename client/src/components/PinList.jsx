@@ -1,11 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Pin from './Pin';
 import API_URL from '../apiConfig';
-import Masonry from '@mui/lab/Masonry';
-import Box from '@mui/material/Box';
+import Masonry from 'react-masonry-css';
+import './PinList.css';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from 'lucide-react';
+// import Masonry from '@mui/lab/Masonry';
+// import Box from '@mui/material/Box';
 import { useAuth } from '../context/AuthContext';
-import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+// import Alert from '@mui/material/Alert';
+// import CircularProgress from '@mui/material/CircularProgress';
+
+const breakpointColumnsObj = {
+    default: 4,
+    1100: 3, // lg
+    900: 2,  // md
+    600: 1   // sm
+};
 
 const PinList = () => {
     const { currentUser, getAuthHeaders } = useAuth();
@@ -142,40 +153,84 @@ const PinList = () => {
     // --- Loading State ---
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-                <CircularProgress />
-            </Box>
+            <div className="flex justify-center items-center h-screen">
+                <p>Loading...</p> {/* Or a Shadcn <Spinner> component */}
+            </div>
         );
     }
 
     // --- Error State ---
-    if (error && pins.length === 0) { // Show error only if pins couldn't be loaded at all
-        return <Alert severity="error" sx={{ m: 2 }}>{`Error loading pins: ${error}`}</Alert>;
+    if (error && pins.length === 0) {
+        return (
+            <Alert variant="destructive" className="m-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{`Error loading pins: ${error}`}</AlertDescription>
+            </Alert>
+        );
     }
 
     return (
-        <Box sx={{ width: 'auto', p: 1 }}>
-            {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
-            {/* Show general fetch error if it occurred but some pins might still be displayed */}
-            {error && !loading && pins.length > 0 && <Alert severity="warning" sx={{ mb: 2 }}>{`Warning: ${error}`}</Alert>}
-            <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2} >
+        <div className="p-4">
+            {saveError && (
+                <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{saveError}</AlertDescription>
+                </Alert>
+            )}
+            {error && !loading && pins.length > 0 && (
+                <Alert variant="default" className="mb-4"> {/* default is yellow-ish */}
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Warning</AlertTitle>
+                    <AlertDescription>{`Warning: ${error}`}</AlertDescription>
+                </Alert>
+            )}
+            <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+            >
                 {pins.map(pin => {
-                    // Pass the handleSavePin function only if a user is logged in
                     const currentOnSave = currentUser ? handleSavePin : null;
                     return (
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
-                                onSave={currentOnSave} // Pass the conditional save handler
+                                onSave={currentOnSave}
                                 isSaved={savedPinIds.has(pin._id)}
-                                onDelete={null} // No delete on home feed
+                                onDelete={null}
                             />
                         </div>
                     );
                 })}
             </Masonry>
-        </Box>
+        </div>
     );
+
+    // return (
+    //     <Box sx={{ width: 'auto', p: 1 }}>
+    //         {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
+    //         {/* Show general fetch error if it occurred but some pins might still be displayed */}
+    //         {error && !loading && pins.length > 0 && <Alert severity="warning" sx={{ mb: 2 }}>{`Warning: ${error}`}</Alert>}
+    //         <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2} >
+    //             {pins.map(pin => {
+    //                 // Pass the handleSavePin function only if a user is logged in
+    //                 const currentOnSave = currentUser ? handleSavePin : null;
+    //                 return (
+    //                     <div key={pin._id}>
+    //                         <Pin
+    //                             pin={pin}
+    //                             onSave={currentOnSave} // Pass the conditional save handler
+    //                             isSaved={savedPinIds.has(pin._id)}
+    //                             onDelete={null} // No delete on home feed
+    //                         />
+    //                     </div>
+    //                 );
+    //             })}
+    //         </Masonry>
+    //     </Box>
+    // );
 };
 
 export default PinList;
