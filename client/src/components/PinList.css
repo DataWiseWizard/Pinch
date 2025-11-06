@@ -1,6 +1,7 @@
 .my-masonry-grid {
     display: -webkit-flex;
-    display: flex; margin-left: -16px; 
+    display: flex;
+    margin-left: -16px;
     width: auto;
 }
 
