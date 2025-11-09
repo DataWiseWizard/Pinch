@@ -84,7 +84,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                     </div>
                     <div>
                         {pin.postedBy?.username && (
-                            <p className="text-sm font-medium">
+                            <p className="text-sm mb-2 ml-2 font-medium">
                                 {pin.postedBy.username}
                             </p>
                         )}
