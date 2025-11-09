@@ -47,14 +47,14 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                     <img
                         src={pin.image.url}
                         alt={pin.title}
-                        className="block w-full h-auto"
+                        className="block w-full h-auto rounded-2xl overflow-hidden"
                     />
                     <div
                         className="
                             absolute inset-0 bg-black/50 text-white
                             flex flex-col justify-between mb-2 p-4
                             opacity-0 transition-opacity duration-300
-                            group-hover:opacity-100
+                            group-hover:opacity-100 rounded-2xl
                         "
                     >
                         <div className="flex justify-end">
