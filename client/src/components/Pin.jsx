@@ -41,62 +41,63 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
             whileHover={{ y: -5 }}
+            className="relative group"
         >
-            <Card className="relative rounded-2xl overflow-hidden group">
-                <RouterLink to={`/pins/${pin._id}`} className="cursor-pointer">
-                    <img
-                        src={pin.image.url}
-                        alt={pin.title}
-                        className="block w-full h-auto rounded-2xl overflow-hidden"
-                    />
-                    <div
-                        className="
+
+            <RouterLink to={`/pins/${pin._id}`} className="cursor-pointer">
+                <img
+                    src={pin.image.url}
+                    alt={pin.title}
+                    className="block w-full h-auto rounded-2xl overflow-hidden"
+                />
+                <div
+                    className="
                             absolute inset-0 bg-black/50 text-white
                             flex flex-col justify-between mb-2 pl-4 pr-4
                             opacity-0 transition-opacity duration-300
                             group-hover:opacity-100 rounded-2xl
                         "
-                    >
-                        <div className="flex justify-end">
-                            {onSave && (
-                                <>
-                                    {isSaved ? (<Button
-                                        variant="secondary"
+                >
+                    <div className="flex justify-end">
+                        {onSave && (
+                            <>
+                                {isSaved ? (<Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleSaveClick}
+                                    className="rounded-full"
+                                >
+                                    <Check className="mr-2 h-4 w-4" /> Saved
+                                </Button>) : (
+                                    // `variant="destructive"` is red, like the original "Save" button
+                                    <Button
+                                        variant="destructive"
                                         size="sm"
                                         onClick={handleSaveClick}
                                         className="rounded-full"
                                     >
-                                        <Check className="mr-2 h-4 w-4" /> Saved
-                                    </Button>) : (
-                                        // `variant="destructive"` is red, like the original "Save" button
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={handleSaveClick}
-                                            className="rounded-full"
-                                        >
-                                            <Heart className="mr-2 h-4 w-4" /> Save
-                                        </Button>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                        <div>
-                            {pin.postedBy?.username && (
-                                <p className="text-sm font-medium">
-                                    {pin.postedBy.username}
-                                </p>
-                            )}
-                        </div>
+                                        <Heart className="mr-2 h-4 w-4" /> Save
+                                    </Button>
+                                )}
+                            </>
+                        )}
                     </div>
-                </RouterLink>
-                
-                {onDelete && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleDeleteClick}
-                        className="
+                    <div>
+                        {pin.postedBy?.username && (
+                            <p className="text-sm font-medium">
+                                {pin.postedBy.username}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </RouterLink>
+
+            {onDelete && (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDeleteClick}
+                    className="
                             absolute bottom-2 right-2 z-10 
                             h-8 w-8 rounded-full 
                             bg-black/40 text-white 
@@ -104,12 +105,12 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                             group-hover:opacity-100
                             hover:bg-black/60 hover:text-white
                         "
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                )}
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            )}
 
-            </Card>
+
         </motion.div>
     )
 
