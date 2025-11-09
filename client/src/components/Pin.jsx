@@ -52,7 +52,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                     <div
                         className="
                             absolute inset-0 bg-black/50 text-white
-                            flex flex-col justify-between mb-2 
+                            flex flex-col justify-between mb-2 p-4
                             opacity-0 transition-opacity duration-300
                             group-hover:opacity-100
                         "
