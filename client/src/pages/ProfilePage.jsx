@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Masonry from '@mui/lab/Masonry';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
