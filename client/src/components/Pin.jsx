@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Check, Heart, Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 // import Card from '@mui/material/Card';
 // import CardMedia from '@mui/material/CardMedia';
 // import Box from '@mui/material/Box';

@@ -3,25 +3,25 @@ import Pin from './Pin';
 import API_URL from '../apiConfig';
 import Masonry from 'react-masonry-css';
 import './PinList.css';
+import { useAuth } from '../context/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
 // import Masonry from '@mui/lab/Masonry';
 // import Box from '@mui/material/Box';
-import { useAuth } from '../context/AuthContext';
 // import Alert from '@mui/material/Alert';
 // import CircularProgress from '@mui/material/CircularProgress';
 
 const breakpointColumnsObj = {
     default: 4,
-    1100: 3, // lg
-    900: 2,  // md
-    600: 1   // sm
+    1100: 3,
+    900: 2, 
+    600: 1  
 };
 
 const PinList = () => {
     const { currentUser, getAuthHeaders } = useAuth();
     const [pins, setPins] = useState([]);
-    const [savedPinIds, setSavedPinIds] = useState(new Set()); // Use a Set for efficient lookups
+    const [savedPinIds, setSavedPinIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [saveError, setSaveError] = useState(null);
@@ -106,11 +106,11 @@ const PinList = () => {
         } finally {
             setLoading(false);
         }
-    }, [fetchSavedPinsData]); // Dependency on the memoized fetchSavedPinsData
+    }, [fetchSavedPinsData]);
 
     useEffect(() => {
         fetchPinsAndSavedStatus();
-    }, [fetchPinsAndSavedStatus]); // Use the memoized function
+    }, [fetchPinsAndSavedStatus]);
 
     const handleSavePin = async (pinId, shouldSave) => {
         if (!currentUser) {
@@ -150,7 +150,6 @@ const PinList = () => {
         }
     };
 
-    // --- Loading State ---
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -159,7 +158,6 @@ const PinList = () => {
         );
     }
 
-    // --- Error State ---
     if (error && pins.length === 0) {
         return (
             <Alert variant="destructive" className="m-4">
@@ -207,7 +205,8 @@ const PinList = () => {
             </Masonry>
         </div>
     );
-
+    
+    //old mui way
     // return (
     //     <Box sx={{ width: 'auto', p: 1 }}>
     //         {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}

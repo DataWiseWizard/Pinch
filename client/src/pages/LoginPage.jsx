@@ -1,5 +1,3 @@
-// client/src/pages/LoginPage.jsx
-
 import React, { useState } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -35,7 +33,6 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Check for a success message from the signup page
     const signupSuccess = new URLSearchParams(location.search).get('signup') === 'success';
     const googleError = new URLSearchParams(location.search).get('error');
 
