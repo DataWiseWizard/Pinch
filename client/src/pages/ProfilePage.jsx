@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
 import { useNavigate } from 'react-router-dom';
+import Masonry from 'react-masonry-css';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
