@@ -67,7 +67,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                                     onClick={handleSaveClick}
                                     className="rounded-full"
                                 >
-                                    <Check className="mr-2 h-4 w-4" /> Saved
+                                    <Check className="mr-3 mt-2 h-4 w-4" /> Saved
                                 </Button>) : (
                                     // `variant="destructive"` is red, like the original "Save" button
                                     <Button
@@ -76,7 +76,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                                         onClick={handleSaveClick}
                                         className="rounded-full"
                                     >
-                                        <Heart className="mr-2 h-4 w-4" /> Save
+                                        <Heart className="mr-3 mt-2 h-4 w-4" /> Save
                                     </Button>
                                 )}
                             </>
