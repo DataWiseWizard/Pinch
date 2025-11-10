@@ -238,7 +238,7 @@ const PinList = () => {
                             <Pin
                                 pin={pin}
                                 onSave={currentOnSave}
-                                isSaved={(savedPinIds || new Set()).has(pin._id)}
+                                isSaved={savedPinIds.has(pin._id)}
                                 onDelete={null}
                             />
                         </div>
