@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LoaderCircle, AlertCircle } from 'lucide-react';
+// import { LoaderCircle, AlertCircle } from 'lucide-react';
 // import Container from '@mui/material/Container';
 // import Box from '@mui/material/Box';
 // import Avatar from '@mui/material/Avatar';
@@ -202,7 +202,7 @@ const ProfilePage = () => {
 
     const renderPinGrid = (pins, isLoading, tabType) => {
         if (isLoading) {
-            return <div className="flex justify-center my-4"><LoaderCircle className="h-8 w-8 animate-spin" /></div>;
+            return <div className="flex justify-center my-4">Loading...</div>;
         }
         if (pins.length > 0) {
             return (
@@ -233,7 +233,7 @@ const ProfilePage = () => {
         return (
             <div className="max-w-md mx-auto mt-4 p-4">
                 <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                    {/* <AlertCircle className="h-4 w-4" /> */}
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>Please log in to view your profile.</AlertDescription>
                 </Alert>
@@ -252,9 +252,9 @@ const ProfilePage = () => {
                 <p className="text-lg text-muted-foreground">{currentUser?.email}</p>
             </div>
 
-            {error && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
-            {deleteError && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertTitle>Delete Error</AlertTitle><AlertDescription>{deleteError}</AlertDescription></Alert>}
-            {saveError && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertTitle>Save Error</AlertTitle><AlertDescription>{saveError}</AlertDescription></Alert>}
+            {error && <Alert variant="destructive" className="mb-4"><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+            {deleteError && <Alert variant="destructive" className="mb-4"><AlertTitle>Delete Error</AlertTitle><AlertDescription>{deleteError}</AlertDescription></Alert>}
+            {saveError && <Alert variant="destructive" className="mb-4"><AlertTitle>Save Error</AlertTitle><AlertDescription>{saveError}</AlertDescription></Alert>}
 
             <Tabs defaultValue="created" onValueChange={(value) => setCurrentTab(value)} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
@@ -280,13 +280,14 @@ const ProfilePage = () => {
                     disabled={isDeletingAccount}
                 >
                     {isDeletingAccount ? (
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        <h2>Loading...</h2>
+                        // <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     {isDeletingAccount ? "Deleting..." : "Delete My Account"}
                 </Button>
                 {accountDeleteError && (
                     <Alert variant="destructive" className="mt-4 text-left">
-                        <AlertCircle className="h-4 w-4" />
+                        {/* <AlertCircle className="h-4 w-4" /> */}
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{accountDeleteError}</AlertDescription>
                     </Alert>

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, AlertCircle, CheckCircle } from 'lucide-react';
+// import { LoaderCircle, AlertCircle, CheckCircle } from 'lucide-react';
 // import Container from '@mui/material/Container';
 // import Box from '@mui/material/Box';
 // import CircularProgress from '@mui/material/CircularProgress';
@@ -74,14 +74,14 @@ const VerifyEmailPage = () => {
                 <CardContent className="grid gap-4">
                     {loading && (
                         <div className="flex flex-col items-center gap-4 p-4">
-                            <LoaderCircle className="h-10 w-10 animate-spin" />
+                            {/* <LoaderCircle className="h-10 w-10 animate-spin" /> */}
                             <p className="text-muted-foreground">Verifying your email, please wait...</p>
                         </div>
                     )}
 
                     {error && (
                         <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
+                            {/* <AlertCircle className="h-4 w-4" /> */}
                             <AlertTitle>Verification Failed</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
@@ -89,7 +89,7 @@ const VerifyEmailPage = () => {
 
                     {success && (
                         <Alert variant="default"> {/* 'default' has green accent */}
-                            <CheckCircle className="h-4 w-4" />
+                            {/* <CheckCircle className="h-4 w-4" /> */}
                             <AlertTitle>Success!</AlertTitle>
                             <AlertDescription>{success} Redirecting you to log in...</AlertDescription>
                         </Alert>

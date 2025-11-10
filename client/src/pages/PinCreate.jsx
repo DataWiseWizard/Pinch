@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CloudUpload, AlertCircle, LoaderCircle } from "lucide-react";
+// import { CloudUpload, AlertCircle, LoaderCircle } from "lucide-react";
 // import Container from '@mui/material/Container';
 // import Box from '@mui/material/Box';
 // import TextField from '@mui/material/TextField';
@@ -136,7 +136,7 @@ const PinCreate = () => {
                         </div>
                         {error && (
                             <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
+                                {/* <AlertCircle className="h-4 w-4" /> */}
                                 <AlertTitle>Error</AlertTitle>
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
@@ -147,7 +147,8 @@ const PinCreate = () => {
                             disabled={submitting || !image || !title}
                         >
                             {submitting ? (
-                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                // <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                <h2>Loading...</h2>
                             ) : (
                                 "Add Pin"
                             )}
