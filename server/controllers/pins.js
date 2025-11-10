@@ -11,9 +11,9 @@ module.exports.index = async (req, res) => {
 
     const allPins = await Pin.find({})
         .sort({ _id: -1 })
-        .populate("postedBy"); res.status(200).json(allPins)
-            .skip(skip)
-            .limit(limit);
+        .populate("postedBy")
+        .skip(skip)
+        .limit(limit);
 
     res.status(200).json({
         pins: allPins,
