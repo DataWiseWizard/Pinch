@@ -247,7 +247,7 @@ const PinList = () => {
             </Masonry>
 
             <div ref={ref} className="flex justify-center my-4">
-                {isFetchingNextPage && <LoaderCircle className="h-8 w-8 animate-spin" />}
+                {isFetchingNextPage}
                 {!hasNextPage && allPins.length > 0 && <p>No more pins to load.</p>}
             </div>
         </div>
