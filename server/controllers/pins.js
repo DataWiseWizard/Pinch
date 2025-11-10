@@ -3,9 +3,24 @@ const ExpressError = require("../utils/ExpressError");
 const { cloudinary } = require("../config/cloudConfig");
 
 module.exports.index = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const totalPins = await Pin.countDocuments();
+
     const allPins = await Pin.find({})
-        .sort({ _id: -1 }) // <-- ADD THIS LINE
-        .populate("postedBy"); res.status(200).json(allPins);
+        .sort({ _id: -1 })
+        .populate("postedBy"); res.status(200).json(allPins)
+            .skip(skip)
+            .limit(limit);
+
+    res.status(200).json({
+        pins: allPins,
+        currentPage: page,
+        totalPages: Math.ceil(totalPins / limit),
+        hasMore: (page * limit) < totalPins
+    });
 };
 
 module.exports.renderNewForm = (req, res) => {

@@ -5,55 +5,41 @@ import Masonry from 'react-masonry-css';
 import './PinList.css';
 import { useAuth } from '../context/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-// import { AlertCircle } from 'lucide-react';
-// import Masonry from '@mui/lab/Masonry';
-// import Box from '@mui/material/Box';
-// import Alert from '@mui/material/Alert';
-// import CircularProgress from '@mui/material/CircularProgress';
+
+import { useGetPins } from '@/hooks/api/useGetPins';
+import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
+import { useInView } from 'react-intersection-observer';
 
 const breakpointColumnsObj = {
     default: 4,
     1100: 3,
-    900: 2, 
-    600: 1  
+    900: 2,
+    600: 1
 };
 
 const PinList = () => {
     const { currentUser, getAuthHeaders } = useAuth();
-    const [pins, setPins] = useState([]);
-    const [savedPinIds, setSavedPinIds] = useState(new Set());
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+
+    // const [pins, setPins] = useState([]);
+    // const [savedPinIds, setSavedPinIds] = useState(new Set());
+    // const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState(null);
     const [saveError, setSaveError] = useState(null);
 
-    const fetchSavedPinsData = useCallback(async () => {
-        if (!currentUser) {
-            setSavedPinIds(new Set());
-            return;
-        }
-        try {
-            const headers = await getAuthHeaders();
-            const savedResponse = await fetch(`${API_URL}/pins/saved`, {
-                headers
-            });
+    const {
+        data: pinsData,
+        error: pinsError,
+        isLoading: pinsLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useGetPins();
 
-            if (!savedResponse.ok) {
-                let errorMsg = 'Failed to fetch saved pins status.';
-                try {
-                    const errorData = await savedResponse.json();
-                    errorMsg = errorData.message || errorMsg;
-                } catch (_) { }
-                throw new Error(errorMsg);
-            }
-            const savedPinsData = await savedResponse.json();
-            setSavedPinIds(new Set(savedPinsData.map(pin => pin._id)));
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching saved pins:', err);
-            setError(err.message);
-            setSavedPinIds(new Set());
-        }
-    }, [currentUser, getAuthHeaders]);
+    const {
+        data: savedPinIds,
+        error: savedPinsError,
+        isLoading: savedPinsLoading
+    } = useGetSavedPinIds();
 
     // const fetchSavedPinsData = useCallback(async () => {
     //     if (!currentUser) {
@@ -61,56 +47,94 @@ const PinList = () => {
     //         return;
     //     }
     //     try {
+    //         const headers = await getAuthHeaders();
     //         const savedResponse = await fetch(`${API_URL}/pins/saved`, {
-    //             credentials: 'include' // <-- ADD THIS
-    //         }); if (!savedResponse.ok) {
-    //             // Try to get error message from backend
+    //             headers
+    //         });
+
+    //         if (!savedResponse.ok) {
     //             let errorMsg = 'Failed to fetch saved pins status.';
     //             try {
     //                 const errorData = await savedResponse.json();
     //                 errorMsg = errorData.message || errorMsg;
-    //             } catch (_) { } // Ignore if response is not JSON
+    //             } catch (_) { }
     //             throw new Error(errorMsg);
     //         }
     //         const savedPinsData = await savedResponse.json();
     //         setSavedPinIds(new Set(savedPinsData.map(pin => pin._id)));
-    //         setError(null); // Clear previous errors if successful
+    //         setError(null);
     //     } catch (err) {
     //         console.error('Error fetching saved pins:', err);
-    //         setError(err.message); // Set error state to display
-    //         setSavedPinIds(new Set()); // Reset saved pins on error
+    //         setError(err.message);
+    //         setSavedPinIds(new Set());
     //     }
-    // }, [currentUser]); // Dependency on currentUser
+    // }, [currentUser, getAuthHeaders]);
 
-    // *** Function to fetch all pins and saved status ***
+    // // const fetchSavedPinsData = useCallback(async () => {
+    // //     if (!currentUser) {
+    // //         setSavedPinIds(new Set());
+    // //         return;
+    // //     }
+    // //     try {
+    // //         const savedResponse = await fetch(`${API_URL}/pins/saved`, {
+    // //             credentials: 'include' // <-- ADD THIS
+    // //         }); if (!savedResponse.ok) {
+    // //             // Try to get error message from backend
+    // //             let errorMsg = 'Failed to fetch saved pins status.';
+    // //             try {
+    // //                 const errorData = await savedResponse.json();
+    // //                 errorMsg = errorData.message || errorMsg;
+    // //             } catch (_) { } // Ignore if response is not JSON
+    // //             throw new Error(errorMsg);
+    // //         }
+    // //         const savedPinsData = await savedResponse.json();
+    // //         setSavedPinIds(new Set(savedPinsData.map(pin => pin._id)));
+    // //         setError(null); // Clear previous errors if successful
+    // //     } catch (err) {
+    // //         console.error('Error fetching saved pins:', err);
+    // //         setError(err.message); // Set error state to display
+    // //         setSavedPinIds(new Set()); // Reset saved pins on error
+    // //     }
+    // // }, [currentUser]); // Dependency on currentUser
 
-    const fetchPinsAndSavedStatus = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        setSaveError(null);
-        try {
-            // Fetch all pins
-            const pinsResponse = await fetch(`${API_URL}/pins`);
-            if (!pinsResponse.ok) throw new Error('Failed to fetch pins.');
-            const pinsData = await pinsResponse.json();
-            setPins(pinsData);
+    // // *** Function to fetch all pins and saved status ***
 
-            // Fetch saved pins status using the helper
-            await fetchSavedPinsData();
+    // const fetchPinsAndSavedStatus = useCallback(async () => {
+    //     setLoading(true);
+    //     setError(null);
+    //     setSaveError(null);
+    //     try {
+    //         // Fetch all pins
+    //         const pinsResponse = await fetch(`${API_URL}/pins`);
+    //         if (!pinsResponse.ok) throw new Error('Failed to fetch pins.');
+    //         const pinsData = await pinsResponse.json();
+    //         setPins(pinsData);
 
-        } catch (err) {
-            console.error('Error fetching data:', err);
-            setError(err.message || 'Failed to load pins.');
-            setPins([]); // Clear pins on error
-            setSavedPinIds(new Set()); // Clear saved status on error
-        } finally {
-            setLoading(false);
-        }
-    }, [fetchSavedPinsData]);
+    //         // Fetch saved pins status using the helper
+    //         await fetchSavedPinsData();
+
+    //     } catch (err) {
+    //         console.error('Error fetching data:', err);
+    //         setError(err.message || 'Failed to load pins.');
+    //         setPins([]); // Clear pins on error
+    //         setSavedPinIds(new Set()); // Clear saved status on error
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }, [fetchSavedPinsData]);
+
+    // useEffect(() => {
+    //     fetchPinsAndSavedStatus();
+    // }, [fetchPinsAndSavedStatus]);
+
+    const { ref, inView } = useInView();
 
     useEffect(() => {
-        fetchPinsAndSavedStatus();
-    }, [fetchPinsAndSavedStatus]);
+        // If the trigger (the "ref" div) is in view and there's a next page
+        if (inView && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, fetchNextPage]);
 
     const handleSavePin = async (pinId, shouldSave) => {
         if (!currentUser) {
@@ -131,39 +155,64 @@ const PinList = () => {
                 throw new Error(errorData.message || `Failed to ${shouldSave ? 'save' : 'unsave'} pin.`);
             }
 
-            const result = await response.json();
+            // const result = await response.json();
 
-            // *** FIX: Update state based ONLY on the backend response ***
-            if (result.savedPins && Array.isArray(result.savedPins)) {
-                setSavedPinIds(new Set(result.savedPins));
-            } else {
-                // If backend response is unexpected, refetch for safety
-                console.warn("Backend response for save/unsave did not contain expected 'savedPins' array. Refetching...");
-                await fetchSavedPinsData(); // Refetch just the saved status
-            }
+            // // *** FIX: Update state based ONLY on the backend response ***
+            // if (result.savedPins && Array.isArray(result.savedPins)) {
+            //     setSavedPinIds(new Set(result.savedPins));
+            // } else {
+            //     // If backend response is unexpected, refetch for safety
+            //     console.warn("Backend response for save/unsave did not contain expected 'savedPins' array. Refetching...");
+            //     await fetchSavedPinsData(); // Refetch just the saved status
+            // }
+
+            // This part is tricky. For now, we'll just refetch
+            // In the *next* step, we'll learn to update the cache directly
+            alert("Pin saved/unsaved! We will make this smoother soon.");
+            // A full refetch is inefficient, but will work
+            window.location.reload();
 
         } catch (err) {
             console.error("Error saving/unsaving pin:", err);
             setSaveError(err.message);
-            // On error, refetch to ensure consistency
-            await fetchSavedPinsData();
         }
     };
 
-    if (loading) {
+    // if (loading) {
+    //     return (
+    //         <div className="flex justify-center items-center h-screen">
+    //             <p>Loading...</p> {/* Or a Shadcn <Spinner> component */}
+    //         </div>
+    //     );
+    // }
+
+    // if (error && pins.length === 0) {
+    //     return (
+    //         <Alert variant="destructive" className="m-4">
+    //             {/* <AlertCircle className="h-4 w-4" /> */}
+    //             <AlertTitle>Error</AlertTitle>
+    //             <AlertDescription>{`Error loading pins: ${error}`}</AlertDescription>
+    //         </Alert>
+    //     );
+    // }
+
+    const allPins = pinsData?.pages.flatMap(page => page.pins) ||;
+    const combinedError = pinsError || savedPinsError;
+    const combinedLoading = pinsLoading || (currentUser && savedPinsLoading);
+
+    if (combinedLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <p>Loading...</p> {/* Or a Shadcn <Spinner> component */}
+                Loading...
             </div>
         );
     }
 
-    if (error && pins.length === 0) {
+    if (combinedError && allPins.length === 0) {
         return (
             <Alert variant="destructive" className="m-4">
-                {/* <AlertCircle className="h-4 w-4" /> */}
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{`Error loading pins: ${error}`}</AlertDescription>
+                <AlertDescription>{`Error loading pins: ${combinedError.message}`}</AlertDescription>
             </Alert>
         );
     }
@@ -172,18 +221,11 @@ const PinList = () => {
         <div className="p-4">
             {saveError && (
                 <Alert variant="destructive" className="mb-4">
-                    <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{saveError}</AlertDescription>
                 </Alert>
             )}
-            {error && !loading && pins.length > 0 && (
-                <Alert variant="default" className="mb-4"> {/* default is yellow-ish */}
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Warning</AlertTitle>
-                    <AlertDescription>{`Warning: ${error}`}</AlertDescription>
-                </Alert>
-            )}
+
             <Masonry
                 breakpointCols={breakpointColumnsObj}
                 className="my-masonry-grid"
@@ -203,9 +245,14 @@ const PinList = () => {
                     );
                 })}
             </Masonry>
+
+            <div ref={ref} className="flex justify-center my-4">
+                {isFetchingNextPage && <LoaderCircle className="h-8 w-8 animate-spin" />}
+                {!hasNextPage && allPins.length > 0 && <p>No more pins to load.</p>}
+            </div>
         </div>
     );
-    
+
     //old mui way
     // return (
     //     <Box sx={{ width: 'auto', p: 1 }}>
