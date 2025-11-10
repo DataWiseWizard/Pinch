@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import API_URL from '../apiConfig';
-import { Loader } from 'lucide-react';
+// import { Loader } from 'lucide-react';
 // import Container from '@mui/material/Container';
 // import Box from '@mui/material/Box';
 // import Typography from '@mui/material/Typography';
@@ -34,7 +34,7 @@ const PinDetail = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-[80vh]">
-                <Loader className="h-12 w-12 animate-spin" />
+                Loading...
             </div>
         );
     }
