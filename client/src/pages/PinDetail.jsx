@@ -33,9 +33,9 @@ const PinDetail = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-[80vh]">
+            <h2>
                 Loading...
-            </div>
+            </h2>
         );
     }
 
