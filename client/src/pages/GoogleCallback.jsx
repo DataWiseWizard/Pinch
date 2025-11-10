@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LoaderCircle } from 'lucide-react';
+// import { LoaderCircle } from 'lucide-react';
 // import CircularProgress from '@mui/material/CircularProgress';
 // import Box from '@mui/material/Box';
 // import Typography from '@mui/material/Typography';
@@ -60,7 +60,7 @@ const GoogleCallback = () => {
 
     return (
         <div className="flex flex-col justify-center items-center h-[calc(100vh-80px)] gap-4">
-            <LoaderCircle className="h-10 w-10 animate-spin" />
+            {/* <LoaderCircle className="h-10 w-10 animate-spin" /> */}
             <p className="text-muted-foreground">Completing Google login...</p>
         </div>
     );
