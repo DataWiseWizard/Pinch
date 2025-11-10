@@ -196,7 +196,7 @@ const PinList = () => {
     //     );
     // }
 
-    const allPins = pinsData?.pages.flatMap(page => page.pins) || [];
+    const allPins = pinsData?.pages.flatMap(page => page.pins);
     const combinedError = pinsError || savedPinsError;
     const combinedLoading = pinsLoading || (currentUser && savedPinsLoading);
 
