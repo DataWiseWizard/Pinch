@@ -13,9 +13,13 @@ import API_URL from '../apiConfig';
 const PinDetail = () => {
     const { id } = useParams();
     const [pin, setPin] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchPin = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 const response = await fetch(`${API_URL}/pins/${id}`);
                 if (!response.ok) {
@@ -25,6 +29,9 @@ const PinDetail = () => {
                 setPin(data);
             } catch (error) {
                 console.error('Error fetching pin:', error);
+                setError(error.message);
+            } finally {
+                setLoading(false); 
             }
         };
 
