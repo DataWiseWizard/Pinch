@@ -196,7 +196,7 @@ const PinList = () => {
     //     );
     // }
 
-    const allPins = pinsData?.pages.flatMap(page => page.pins);
+    const allPins = pinsData?.pages.flatMap(page => page.pins) || [];
     const combinedError = pinsError || savedPinsError;
     const combinedLoading = pinsLoading || (currentUser && savedPinsLoading);
 
@@ -231,14 +231,14 @@ const PinList = () => {
                 className="my-masonry-grid"
                 columnClassName="my-masonry-grid_column"
             >
-                {pins.map(pin => {
+                {allPins.map(pin => {
                     const currentOnSave = currentUser ? handleSavePin : null;
                     return (
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
                                 onSave={currentOnSave}
-                                isSaved={savedPinIds.has(pin._id)}
+                                isSaved={(savedPinIds || new Set()).has(pin._id)}
                                 onDelete={null}
                             />
                         </div>
