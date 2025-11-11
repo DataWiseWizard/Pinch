@@ -145,7 +145,7 @@ const ProfilePage = () => {
                 </Alert>
             )}
 
-            <Tabs defaultValue="created" onValueChange={(value) => setCurrentTab(value)} className="w-full">
+            <Tabs defaultValue="created" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
                     <TabsTrigger value="created">Created</TabsTrigger>
                     <TabsTrigger value="saved">Saved</TabsTrigger>
