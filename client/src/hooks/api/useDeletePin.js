@@ -2,30 +2,29 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 
-const savePinMutation = async ({ pinId, getAuthHeaders }) => {
+const deletePinMutation = async ({ pinId, getAuthHeaders }) => {
     const headers = await getAuthHeaders();
-    const { data } = await api.put(`/pins/${pinId}/save`, {}, { headers });
+    const { data } = await api.delete(`/pins/${pinId}`, { headers });
     return data;
 };
 
-export const useSavePin = () => {
+export const useDeletePin = () => {
     const queryClient = useQueryClient();
     const { currentUser, getAuthHeaders } = useAuth();
 
     return useMutation({
-        mutationFn: (pinId) => savePinMutation({ pinId, getAuthHeaders }),
+        mutationFn: (pinId) => deletePinMutation({ pinId, getAuthHeaders }),
+
         onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['createdPins', currentUser?._id]
+            });
             queryClient.invalidateQueries({
                 queryKey: ['savedPins', currentUser?._id]
             });
-
             queryClient.invalidateQueries({
                 queryKey: ['savedPinIds', currentUser?._id]
             });
-        },
-
-        onError: (error) => {
-            console.error("Save pin mutation failed:", error);
         },
     });
 };
