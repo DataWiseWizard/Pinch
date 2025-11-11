@@ -34,7 +34,7 @@ const ProfilePage = () => {
     } = useGetSavedPins();
 
     const {
-        data: savedPinIds // This is the Set of IDs
+        data: savedPinIds
     } = useGetSavedPinIds();
 
     const {
@@ -125,6 +125,25 @@ const ProfilePage = () => {
         </p>;
     };
 
+    if (!currentUser && !(loadingCreated || loadingSaved)) {
+        return (
+            <div className="max-w-md mx-auto mt-4 p-4">
+                <Alert variant="destructive">
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>Please log in to view your profile.</AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    if (loadingCreated || (currentUser && loadingSaved)) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                Loading...
+            </div>
+        );
+    }
+
     const combinedError = createdError || savedError || deleteError || saveError;
 
     return (
@@ -151,10 +170,10 @@ const ProfilePage = () => {
                     <TabsTrigger value="saved">Saved</TabsTrigger>
                 </TabsList>
                 <TabsContent value="created" className="mt-6">
-                    {renderPinGrid(createdPins, loadingCreated, 'created')}
+                    {renderPinGrid(createdPins || [], loadingCreated, 'created')}
                 </TabsContent>
                 <TabsContent value="saved" className="mt-6">
-                    {renderPinGrid(savedPins, loadingSaved, 'saved')}
+                    {renderPinGrid(savedPins || [], loadingSaved, 'saved')}
                 </TabsContent>
             </Tabs>
 
