@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 
 const savePinMutation = async ({ pinId, getAuthHeaders }) => {
     const headers = await getAuthHeaders();
-    const { data } = await api.put(`/pins/${pinId}/save`, null, { headers });
+    const { data } = await api.put(`/pins/${pinId}/save`, {}, { headers });
     return data;
 };
 
