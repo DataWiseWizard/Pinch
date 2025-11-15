@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 
 const createBoardMutation = async ({ name, getAuthHeaders }) => {
     const headers = await getAuthHeaders();
-    const { data } = await api.post('/api/boards', { name }, { headers });
+    const { data } = await api.post('/api/boards', { name, description }, { headers });
     return data;
 };
 
@@ -13,10 +13,10 @@ export const useCreateBoard = () => {
     const { currentUser, getAuthHeaders } = useAuth();
 
     return useMutation({
-        mutationFn: (name) => createBoardMutation({ name, getAuthHeaders }),
+        mutationFn: (boardData) => createBoardMutation({ ...boardData, getAuthHeaders }),
         onSuccess: (newBoard) => {
             queryClient.invalidateQueries({
-                queryKey: "myBoards"
+                queryKey: ['myBoards', currentUser?._id]
             });
         },
     });

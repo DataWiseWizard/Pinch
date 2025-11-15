@@ -23,7 +23,7 @@ export const CreateBoardDialog = ({ isOpen, onOpenChange }) => {
       toast.error("Board name is required");
       return;
     }
-    createBoard(name, {
+    createBoard({name, description}, {
       onSuccess: (newBoard) => {
         toast.success(`Board "${newBoard.name}" created!`);
         onOpenChange(false);

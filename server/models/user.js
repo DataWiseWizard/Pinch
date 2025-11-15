@@ -40,7 +40,11 @@ const userSchema = new Schema({
         type: Date,
         required: false
     },
-    boards: {},
+    boards: {
+        type: [Schema.Types.ObjectId],
+        ref: 'Board',
+        default: []
+    },
     // savedPins: [{
     //     type: Schema.Types.ObjectId,
     //     ref: 'Pin'
