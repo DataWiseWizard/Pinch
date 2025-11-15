@@ -17,6 +17,8 @@ router.post("/", wrapAsync(boardController.createBoard));
 // (Adds a pin to a specific board)
 router.put("/:boardId/add-pin", wrapAsync(boardController.addPinToBoard));
 
+router.get("/:boardId", wrapAsync(boardController.getBoardDetails));
+
 router.delete("/:boardId", wrapAsync(boardController.deleteBoard));
 
 module.exports = router;

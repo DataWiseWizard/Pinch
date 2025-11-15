@@ -9,7 +9,7 @@ const ExpressError = require("../utils/ExpressError");
 module.exports.getBoardsForUser = async (req, res) => {
     const boards = await Board.find({ owner: req.user._id });
     if (!boards) {
-        return res.status(200).json(); 
+        return res.status(200).json();
     }
     res.status(200).json(boards);
 };
@@ -24,7 +24,7 @@ module.exports.createBoard = async (req, res) => {
     const newBoard = new Board({
         name,
         description,
-        owner: req.user._id 
+        owner: req.user._id
     });
 
     await newBoard.save();
@@ -66,6 +66,29 @@ module.exports.addPinToBoard = async (req, res) => {
     }
 };
 
+module.exports.getBoardDetails = async (req, res) => {
+    const { boardId } = req.params;
+    const board = await Board.findById(boardId).populate({
+        path: 'pins', 
+        model: 'Pin', 
+        populate: {
+            path: 'postedBy',
+            model: 'User',
+            select: 'username profileImage' 
+        }
+    });
+
+    if (!board) {
+        throw new ExpressError(404, "Board not found");
+    }
+
+    if (!board.owner.equals(req.user._id)) {
+        throw new ExpressError(403, "You are not authorized to view this board");
+    }
+
+    res.status(200).json(board);
+};
+
 module.exports.deleteBoard = async (req, res) => {
     const { boardId } = req.params;
 
@@ -77,7 +100,7 @@ module.exports.deleteBoard = async (req, res) => {
     }
 
     await User.findByIdAndUpdate(req.user._id, { $pull: { boards: boardId } });
-    
+
     await Board.findByIdAndDelete(boardId);
 
     res.status(200).json({ message: "Board deleted successfully" });

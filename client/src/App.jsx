@@ -9,6 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import BoardDetailPage from './pages/BoardDetailPage';
 import { Toaster } from "@/components/ui/sonner";
 import './App.css';
 
@@ -33,6 +34,14 @@ function App() {
                   <PinCreate />
                 </ProtectedRoute>
               } />
+            <Route
+              path="/board/:boardId"
+              element={
+                <ProtectedRoute>
+                  <BoardDetailPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/profile"
               element={

@@ -9,18 +9,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus } from 'lucide-react';
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"; 
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useDeletePin } from '@/hooks/api/useDeletePin';
 import { SaveToBoardDialog } from '../components/SaveToBoardDialog';
+import { CreateBoardDialog } from '@/components/CreateBoardDialog';
+import { BoardCard } from '@/components/BoardCard';
 
 
 const ProfilePage = () => {
@@ -29,6 +32,7 @@ const ProfilePage = () => {
     const [pinToSave, setPinToSave] = useState(null);
     const [accountDeleteError, setAccountDeleteError] = useState(null);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+    const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
 
 
     const {
@@ -134,32 +138,30 @@ const ProfilePage = () => {
 
     const renderBoardGrid = (boards, isLoading) => {
         if (isLoading) {
-            return <div className="flex justify-center my-4"><p className="h-8 w-8 animate-spin" >Loading...</p></div>;
+            return <div className="flex justify-center my-4"><p className="h-8 w-8" >Loading</p></div>;
         }
 
-        if (boards && boards.length > 0) {
-            return (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {boards.map(board => (
-                        <RouterLink to={`/board/${board._id}`} key={board._id}>
-                            <Card className="hover:shadow-lg transition-shadow">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        {board.name}
-                                    </CardTitle>
-                                    <CardDescription>
-                                        {board.pins.length} {board.pins.length === 1 ? 'Pin' : 'Pins'}
-                                    </CardDescription>
-                                </CardHeader>
-                            </Card>
-                        </RouterLink>
-                    ))}
+        return (
+            <div>
+                <div className="flex justify-end mb-4">
+                    <Button onClick={() => setIsCreateBoardOpen(true)}>
+                        <Plus className="mr-2 h-4 w-4" /> Create Board
+                    </Button>
                 </div>
-            );
-        }
-        return <p className="mt-4 text-center text-muted-foreground">
-            You haven't created any boards yet.
-        </p>;
+
+                {(boards && boards.length > 0) ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {boards.map(board => (
+                            <BoardCard key={board._id} board={board} />
+                        ))}
+                    </div>
+                ) : (
+                    <p className="mt-4 text-center text-muted-foreground">
+                        You haven't created any boards yet.
+                    </p>
+                )}
+            </div>
+        );
     }
 
     if (!currentUser) {
@@ -204,18 +206,18 @@ const ProfilePage = () => {
             <Tabs defaultValue="created" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
                     <TabsTrigger value="created">Created</TabsTrigger>
-                    <TabsTrigger value="boards">Boards</TabsTrigger> 
+                    <TabsTrigger value="boards">Boards</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="created" className="mt-6">
                     {renderPinGrid(createdPins || [], loadingCreated)}
                 </TabsContent>
-                
+
                 <TabsContent value="boards" className="mt-6">
                     {renderBoardGrid(boards || [], loadingBoards)}
                 </TabsContent>
             </Tabs>
-
+            
             <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
                 <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
                 <p className="text-muted-foreground mb-4">
