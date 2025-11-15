@@ -217,7 +217,7 @@ const ProfilePage = () => {
                     {renderBoardGrid(boards || [], loadingBoards)}
                 </TabsContent>
             </Tabs>
-            
+
             <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
                 <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
                 <p className="text-muted-foreground mb-4">
