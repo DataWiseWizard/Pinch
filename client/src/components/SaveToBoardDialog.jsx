@@ -15,6 +15,8 @@ import { useCreateBoard } from '@/hooks/api/useCreateBoard';
 import { useAddPinToBoard } from '@/hooks/api/useAddPinToBoard';
 import { Plus } from 'lucide-react';
 import { toast } from "sonner";
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/context/AuthContext';
 
 export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
     const [newBoardName, setNewBoardName] = useState("");
