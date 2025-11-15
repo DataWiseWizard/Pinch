@@ -9,6 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetBoards } from '@/hooks/api/useGetBoards';
@@ -128,7 +134,7 @@ const ProfilePage = () => {
 
     const renderBoardGrid = (boards, isLoading) => {
         if (isLoading) {
-            return <div className="flex justify-center my-4"><LoaderCircle className="h-8 w-8 animate-spin" /></div>;
+            return <div className="flex justify-center my-4"><p className="h-8 w-8 animate-spin" >Loading...</p></div>;
         }
 
         if (boards && boards.length > 0) {
@@ -139,7 +145,6 @@ const ProfilePage = () => {
                             <Card className="hover:shadow-lg transition-shadow">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Bookmark />
                                         {board.name}
                                     </CardTitle>
                                     <CardDescription>
