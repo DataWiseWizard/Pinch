@@ -40,10 +40,11 @@ const userSchema = new Schema({
         type: Date,
         required: false
     },
-    savedPins: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Pin'
-    }],
+    boards: {},
+    // savedPins: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Pin'
+    // }],
     refreshTokenVersion: {
         type: Number,
         default: 0

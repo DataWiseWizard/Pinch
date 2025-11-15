@@ -24,6 +24,7 @@ const cookieParser = require('cookie-parser');
 const pinRouter = require(path.join(__dirname, "routes", "pin.js"));
 const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New route for Google
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
+const boardRouter = require(path.join(__dirname, "routes", "board.js"));
 
 main()
     .then(() => {
@@ -180,6 +181,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/", userRouter);
+app.use("/api/boards", boardRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 

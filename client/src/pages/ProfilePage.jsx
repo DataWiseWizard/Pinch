@@ -13,13 +13,16 @@ import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetSavedPins } from '@/hooks/api/useGetSavedPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useDeletePin } from '@/hooks/api/useDeletePin';
-import { useSavePin } from '@/hooks/api/useSavePin';
+import { SaveToBoardDialog } from './SaveToBoardDialog';
+
 
 const ProfilePage = () => {
     const { currentUser, getAuthHeaders, logout } = useAuth();
     const navigate = useNavigate();
     const [accountDeleteError, setAccountDeleteError] = useState(null);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+    const [pinToSave, setPinToSave] = useState(null);
+
 
     const {
         data: createdPins,
@@ -42,10 +45,6 @@ const ProfilePage = () => {
         error: deleteError
     } = useDeletePin();
 
-    const {
-        mutate: savePin,
-        error: saveError
-    } = useSavePin();
 
     const handleDeletePin = (pinId) => {
         if (window.confirm("Are you sure you want to delete this pin?")) {
@@ -54,7 +53,7 @@ const ProfilePage = () => {
     };
 
     const handleSavePin = (pinId) => {
-        savePin(pinId);
+        setPinToSave(pinId);
     };
 
     const handleDeleteAccount = async () => {
@@ -176,6 +175,12 @@ const ProfilePage = () => {
                     {renderPinGrid(savedPins || [], loadingSaved, 'saved')}
                 </TabsContent>
             </Tabs>
+
+            <SaveToBoardDialog
+                pinId={pinToSave}
+                isOpen={!!pinToSave}
+                onOpenChange={() => setPinToSave(null)}
+            />
 
             <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
                 <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>

@@ -9,6 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import GoogleCallback from './pages/GoogleCallback'; // NEW
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import { Toaster } from "@/components/ui/sonner";
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     <Router>
       <div className='bg-gray-900 text-gray-200 min-h-screen'>
         <NavBar />
+        <Toaster richColors />
         <div className="App">
           <Routes>
             <Route path="/" element={<Home />} />

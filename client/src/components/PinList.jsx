@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import Pin from './Pin';
-import API_URL from '../apiConfig';
 import Masonry from 'react-masonry-css';
 import './PinList.css';
 import { useAuth } from '../context/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { useGetPins } from '@/hooks/api/useGetPins';
-import { useSavePin } from '@/hooks/api/useSavePin';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useInView } from 'react-intersection-observer';
+import { useGetPins } from '@/hooks/api/useGetPins';
+import { SaveToBoardDialog } from './SaveToBoardDialog';
 
 const breakpointColumnsObj = {
     default: 4,
@@ -20,6 +20,9 @@ const breakpointColumnsObj = {
 
 const PinList = () => {
     const { currentUser } = useAuth();
+
+    const [pinToSave, setPinToSave] = useState(null);
+
 
     const {
         data: pinsData,
@@ -36,16 +39,9 @@ const PinList = () => {
         isLoading: savedPinsLoading
     } = useGetSavedPinIds();
 
-    const {
-        mutate: savePin,
-        isLoading: isSaving,
-        error: saveError
-    } = useSavePin();
-
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        // If the trigger (the "ref" div) is in view and there's a next page
         if (inView && hasNextPage) {
             fetchNextPage();
         }
@@ -53,7 +49,7 @@ const PinList = () => {
 
     const handleSavePin = (pinId) => {
         if (!currentUser) return;
-        savePin(pinId);
+        setPinToSave(pinId);
     };
 
 
@@ -89,13 +85,6 @@ const PinList = () => {
 
     return (
         <div className="p-4">
-            {saveError && (
-                <Alert variant="destructive" className="mb-4">
-                    <AlertTitle>Save Error</AlertTitle>
-                    <AlertDescription>{saveError.message}</AlertDescription>
-                </Alert>
-            )}
-
             <Masonry
                 breakpointCols={breakpointColumnsObj}
                 className="my-masonry-grid"
@@ -115,6 +104,12 @@ const PinList = () => {
                     );
                 })}
             </Masonry>
+
+            <SaveToBoardDialog
+                pinId={pinToSave}
+                isOpen={!!pinToSave}
+                onOpenChange={() => setPinToSave(null)}
+            />
 
             <div ref={ref} className="flex justify-center my-4">
                 {isFetchingNextPage}
