@@ -20,6 +20,7 @@ const breakpointColumnsObj = {
 const PinList = () => {
     const { currentUser } = useAuth();
 
+    const [pinToSave, setPinToSave] = useState(null);
     const [] = useState(null);
 
 
