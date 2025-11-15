@@ -8,7 +8,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useGetPins } from '@/hooks/api/useGetPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useInView } from 'react-intersection-observer';
-import { useGetPins } from '@/hooks/api/useGetPins';
 import { SaveToBoardDialog } from './SaveToBoardDialog';
 
 const breakpointColumnsObj = {

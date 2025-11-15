@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useCreateBoard } from '@/hooks/api/useCreateBoard';
 import { useAddPinToBoard } from '@/hooks/api/useAddPinToBoard';
-import { LoaderCircle, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { toast } from "sonner";
 
 export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
@@ -71,7 +71,7 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
 
                 {boardsLoading ? (
                     <div className="flex justify-center items-center h-24">
-                        <LoaderCircle className="animate-spin" />
+                        Loading...
                     </div>
                 ) : (
                     <ScrollArea className="h-48 pr-4">
@@ -106,7 +106,7 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
                             onClick={handleCreateBoard}
                             disabled={isCreating || !newBoardName.trim()}
                         >
-                            {isCreating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                            {isCreating ? <p>Loading...</p> : <Plus className="h-4 w-4" />}
                         </Button>
                     </div>
                 </DialogFooter>

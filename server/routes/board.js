@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const { isLoggedIn } = require('../middlewares.js');
-const boardController = require("../controllers/board.js");
+const boardController = require("../controllers/boards.js");
 
 router.use(isLoggedIn);
 
