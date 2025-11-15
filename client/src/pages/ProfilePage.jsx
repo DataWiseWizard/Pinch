@@ -13,7 +13,7 @@ import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetSavedPins } from '@/hooks/api/useGetSavedPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useDeletePin } from '@/hooks/api/useDeletePin';
-import { SaveToBoardDialog } from './SaveToBoardDialog';
+import { SaveToBoardDialog } from '../components/SaveToBoardDialog';
 
 
 const ProfilePage = () => {
