@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
