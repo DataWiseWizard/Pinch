@@ -31,12 +31,6 @@ const ProfilePage = () => {
     } = useGetCreatedPins();
 
     const {
-        data: savedPins,
-        isLoading: loadingSaved,
-        error: savedError
-    } = useGetSavedPins();
-
-    const {
         data: boards,
         isLoading: loadingBoards,
         error: boardsError
