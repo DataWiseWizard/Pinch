@@ -9,7 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
-import BoardDetailPage from './pages/BoardDetailPage';
+import BoardDetailPage from './pages/BoardDetailsPage';
 import { Toaster } from "@/components/ui/sonner";
 import './App.css';
 
