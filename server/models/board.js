@@ -14,7 +14,11 @@ const boardSchema = new Schema({
         ref: 'User',
         required: true
     },
-    pins: {},
+    pins: {
+        type: [Schema.Types.ObjectId],
+        ref: 'Pin',
+        default: []
+    },
     isPrivate: {
         type: Boolean,
         default: false
