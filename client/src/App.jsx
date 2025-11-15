@@ -6,7 +6,7 @@ import PinCreate from './pages/PinCreate';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
-import GoogleCallback from './pages/GoogleCallback'; // NEW
+import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import { Toaster } from "@/components/ui/sonner";

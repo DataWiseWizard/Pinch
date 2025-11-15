@@ -18,6 +18,8 @@ import { toast } from "sonner";
 
 export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
     const [newBoardName, setNewBoardName] = useState("");
+    const queryClient = useQueryClient();
+    const { currentUser } = useAuth();
 
     const { data: boards, isLoading: boardsLoading } = useGetBoards();
 
@@ -35,7 +37,7 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
     const { mutate: addPinToBoard, isLoading: isSaving } = useAddPinToBoard({
         onSuccess: (data) => {
             toast.success(data.message);
-            onOpenChange(false); // Close the dialog on success
+            onOpenChange(false);
         },
         onError: (err) => {
             toast.error(`Failed to save pin: ${err.message}`);
@@ -46,10 +48,10 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
         if (newBoardName.trim()) {
             createBoard(newBoardName, {
                 onSuccess: (newBoard) => {
-                    // Special success handling: auto-save to this new board
                     toast.success(`Board "${newBoard.name}" created!`);
+                    queryClient.invalidateQueries({ queryKey: ""});
                     addPinToBoard({ pinId, boardId: newBoard._id });
-                    setNewBoardName(""); // Clear input
+                    setNewBoardName("");
                 }
             });
         }
@@ -84,6 +86,7 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
                                     onClick={() => handleSaveToBoard(board._id)}
                                     disabled={isSaving}
                                 >
+                                    {isSaving? <h4 className='className="mr-2 h-4 w-4'>Saving...</h4> : null}
                                     {board.name}
                                 </Button>
                             ))}
