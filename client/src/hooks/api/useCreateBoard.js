@@ -16,7 +16,7 @@ export const useCreateBoard = () => {
         mutationFn: (boardData) => createBoardMutation({ ...boardData, getAuthHeaders }),
         onSuccess: (newBoard) => {
             queryClient.invalidateQueries({
-                queryKey: ['myBoards', currentUser?._id]
+                queryKey: ''
             });
         },
     });
