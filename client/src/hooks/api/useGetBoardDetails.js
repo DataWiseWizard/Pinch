@@ -12,7 +12,7 @@ export const useGetBoardDetails = (boardId) => {
   const { currentUser, getAuthHeaders } = useAuth();
 
   return useQuery({
-    queryKey: ['myBoards', currentUser?._id],
+    queryKey: ['myBoards', boardId],
     queryFn: () => fetchBoardDetails(boardId, getAuthHeaders),
     enabled:!!currentUser &&!!boardId,
   });

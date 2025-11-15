@@ -246,6 +246,10 @@ const ProfilePage = () => {
                 isOpen={!!pinToSave}
                 onOpenChange={() => setPinToSave(null)}
             />
+            <CreateBoardDialog
+                isOpen={isCreateBoardOpen}
+                onOpenChange={setIsCreateBoardOpen}
+            />
         </div>
     );
 };
