@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
@@ -19,9 +19,9 @@ import { SaveToBoardDialog } from '../components/SaveToBoardDialog';
 const ProfilePage = () => {
     const { currentUser, getAuthHeaders, logout } = useAuth();
     const navigate = useNavigate();
+    const [pinToSave, setPinToSave] = useState(null);
     const [accountDeleteError, setAccountDeleteError] = useState(null);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-    const [pinToSave, setPinToSave] = useState(null);
 
 
     const {
@@ -53,6 +53,7 @@ const ProfilePage = () => {
     };
 
     const handleSavePin = (pinId) => {
+        if (!currentUser) return;
         setPinToSave(pinId);
     };
 
@@ -176,12 +177,6 @@ const ProfilePage = () => {
                 </TabsContent>
             </Tabs>
 
-            <SaveToBoardDialog
-                pinId={pinToSave}
-                isOpen={!!pinToSave}
-                onOpenChange={() => setPinToSave(null)}
-            />
-
             <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
                 <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
                 <p className="text-muted-foreground mb-4">
@@ -204,6 +199,12 @@ const ProfilePage = () => {
                     </Alert>
                 )}
             </div>
+            
+            <SaveToBoardDialog
+                pinId={pinToSave}
+                isOpen={!!pinToSave}
+                onOpenChange={() => setPinToSave(null)}
+            />
         </div>
     );
 };
