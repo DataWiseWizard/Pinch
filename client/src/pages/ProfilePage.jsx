@@ -125,7 +125,7 @@ const ProfilePage = () => {
         </p>;
     };
 
-    if (!currentUser && !(loadingCreated || loadingSaved)) {
+    if (!currentUser) {
         return (
             <div className="max-w-md mx-auto mt-4 p-4">
                 <Alert variant="destructive">
