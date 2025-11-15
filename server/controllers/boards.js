@@ -45,7 +45,10 @@ module.exports.addPinToBoard = async (req, res) => {
         throw new ExpressError(400, "Pin ID is required in the request body");
     }
 
-    const [board, pin] = await Promise.all();
+    const [board, pin] = await Promise.all([
+        Board.findById(boardId),
+        Pin.findById(pinId)
+    ]);
 
     if (!board) throw new ExpressError(404, "Board not found");
     if (!pin) throw new ExpressError(404, "Pin not found");

@@ -51,9 +51,12 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
             createBoard(newBoardName, {
                 onSuccess: (newBoard) => {
                     toast.success(`Board "${newBoard.name}" created!`);
-                    queryClient.invalidateQueries({ queryKey: ""});
+                    // queryClient.invalidateQueries({ queryKey: ""});
                     addPinToBoard({ pinId, boardId: newBoard._id });
                     setNewBoardName("");
+                },
+                onError: (err) => {
+                    toast.error(`Failed to create board: ${err.message}`);
                 }
             });
         }
@@ -80,18 +83,32 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
                 ) : (
                     <ScrollArea className="h-48 pr-4">
                         <div className="grid gap-2">
-                            {boards?.map((board) => (
-                                <Button
-                                    key={board._id}
-                                    variant="outline"
-                                    className="w-full justify-start"
-                                    onClick={() => handleSaveToBoard(board._id)}
-                                    disabled={isSaving}
-                                >
-                                    {isSaving? <h4 className='className="mr-2 h-4 w-4'>Saving...</h4> : null}
-                                    {board.name}
-                                </Button>
-                            ))}
+                            {boards && boards.length > 0 ? (
+                                boards.map((board) => (
+                                    <Button
+                                        key={board._id}
+                                        variant="outline"
+                                        className="w-full justify-start"
+                                        onClick={() => handleSaveToBoard(board._id)}
+                                        disabled={isSaving}
+                                    >
+                                        {isSaving ? <p className="mr-2 h-4 w-4">Saving...</p> : null}
+                                        {board.name}
+                                    </Button>
+                                ))
+                            ) : (
+                                <div className="text-center text-muted-foreground p-4">
+                                    <p className="mb-4">You don't have any boards yet.</p>
+                                    <Button
+                                        className="w-full"
+                                        onClick={() => handleCreateBoard("Saved")}
+                                        disabled={isCreating}
+                                    >
+                                        {isCreating ? <p className="mr-2 h-4 w-4">Loading...</p> : <Plus className="mr-2 h-4 w-4" />}
+                                        Create 'Saved' Board
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </ScrollArea>
                 )}

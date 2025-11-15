@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
-import { useGetSavedPins } from '@/hooks/api/useGetSavedPins';
+import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { useDeletePin } from '@/hooks/api/useDeletePin';
 import { SaveToBoardDialog } from '../components/SaveToBoardDialog';
@@ -35,6 +35,12 @@ const ProfilePage = () => {
         isLoading: loadingSaved,
         error: savedError
     } = useGetSavedPins();
+
+    const {
+        data: boards,
+        isLoading: loadingBoards,
+        error: boardsError
+    } = useGetBoards();
 
     const {
         data: savedPinIds
@@ -125,6 +131,37 @@ const ProfilePage = () => {
         </p>;
     };
 
+    const renderBoardGrid = (boards, isLoading) => {
+        if (isLoading) {
+            return <div className="flex justify-center my-4"><LoaderCircle className="h-8 w-8 animate-spin" /></div>;
+        }
+
+        if (boards && boards.length > 0) {
+            return (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {boards.map(board => (
+                        <RouterLink to={`/board/${board._id}`} key={board._id}>
+                            <Card className="hover:shadow-lg transition-shadow">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Bookmark />
+                                        {board.name}
+                                    </CardTitle>
+                                    <CardDescription>
+                                        {board.pins.length} {board.pins.length === 1 ? 'Pin' : 'Pins'}
+                                    </CardDescription>
+                                </CardHeader>
+                            </Card>
+                        </RouterLink>
+                    ))}
+                </div>
+            );
+        }
+        return <p className="mt-4 text-center text-muted-foreground">
+            You haven't created any boards yet.
+        </p>;
+    }
+
     if (!currentUser) {
         return (
             <div className="max-w-md mx-auto mt-4 p-4">
@@ -136,7 +173,7 @@ const ProfilePage = () => {
         );
     }
 
-    if (loadingCreated || (currentUser && loadingSaved)) {
+    if (loadingCreated || (currentUser && loadingBoards)) {
         return (
             <div className="flex justify-center items-center h-screen">
                 Loading...
@@ -144,7 +181,8 @@ const ProfilePage = () => {
         );
     }
 
-    const combinedError = createdError || savedError || deleteError;
+    const combinedError = createdError || boardsError || deleteError;
+
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8">
             <div className="flex flex-col items-center mb-8">
@@ -166,13 +204,15 @@ const ProfilePage = () => {
             <Tabs defaultValue="created" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
                     <TabsTrigger value="created">Created</TabsTrigger>
-                    <TabsTrigger value="saved">Saved</TabsTrigger>
+                    <TabsTrigger value="boards">Boards</TabsTrigger> 
                 </TabsList>
+                
                 <TabsContent value="created" className="mt-6">
-                    {renderPinGrid(createdPins || [], loadingCreated, 'created')}
+                    {renderPinGrid(createdPins || [], loadingCreated)}
                 </TabsContent>
-                <TabsContent value="saved" className="mt-6">
-                    {renderPinGrid(savedPins || [], loadingSaved, 'saved')}
+                
+                <TabsContent value="boards" className="mt-6">
+                    {renderBoardGrid(boards || [], loadingBoards)}
                 </TabsContent>
             </Tabs>
 
@@ -198,7 +238,7 @@ const ProfilePage = () => {
                     </Alert>
                 )}
             </div>
-            
+
             <SaveToBoardDialog
                 pinId={pinToSave}
                 isOpen={!!pinToSave}
