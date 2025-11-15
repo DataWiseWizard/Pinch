@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Pin from './Pin';
 import Masonry from 'react-masonry-css';
 import './PinList.css';
@@ -20,7 +20,7 @@ const breakpointColumnsObj = {
 const PinList = () => {
     const { currentUser } = useAuth();
 
-    const [pinToSave, setPinToSave] = useState(null);
+    const [] = useState(null);
 
 
     const {
