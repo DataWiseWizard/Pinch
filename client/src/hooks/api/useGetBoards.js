@@ -4,10 +4,11 @@ import { useAuth } from '@/context/AuthContext';
 
 const fetchBoards = async (getAuthHeaders) => {
   const headers = await getAuthHeaders();
-  const { data } = await api.get('/api/boards/myboards', {
-    headers,
-    params: { pinId }
-  });
+  const config = { headers };
+  if (pinId) {
+    config.params = { pinId };
+  }
+  const { data } = await api.get('/api/boards/myboards', config);
   return data;
 };
 
@@ -17,6 +18,6 @@ export const useGetBoards = (pinId) => {
   return useQuery({
     queryKey: ['myBoards', currentUser?._id, pinId],
     queryFn: () => fetchBoards(getAuthHeaders, pinId),
-    enabled: !!currentUser && !!pinId,
+    enabled: !!currentUser,
   });
 };
