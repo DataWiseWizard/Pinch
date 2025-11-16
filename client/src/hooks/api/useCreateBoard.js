@@ -9,7 +9,7 @@ const createBoardMutation = async ({ name, description, getAuthHeaders }) => {
     return data;
 };
 
-export const useCreateBoard = () => {
+export const useCreateBoard = (options = {}) => {
     const queryClient = useQueryClient();
     const { currentUser, getAuthHeaders } = useAuth();
 
