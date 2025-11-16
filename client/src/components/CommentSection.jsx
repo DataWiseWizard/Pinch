@@ -6,7 +6,6 @@ import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from './ui/button';
-// import { Loader2Icon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const CommentSection = ({ pinId }) => {
@@ -51,7 +50,7 @@ export const CommentSection = ({ pinId }) => {
             {/* --- COMMENT LIST --- */}
             {isLoadingComments && (
                 <div className="flex justify-center items-center py-8">
-                    <Loader2Icon className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <p className="h-8 w-8 animate-spin text-muted-foreground">Loading...</p>
                 </div>
             )}
 

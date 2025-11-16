@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2Icon } from 'lucide-react';
 
 export const CommentForm = ({
     onSubmit,
