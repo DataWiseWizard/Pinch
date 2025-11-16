@@ -8,7 +8,7 @@ const addPinToBoardMutation = async ({ pinId, boardId, getAuthHeaders }) => {
     return data;
 };
 
-export const useAddPinToBoard = () => {
+export const useAddPinToBoard = (options = {}) => {
     const queryClient = useQueryClient();
     const { currentUser, getAuthHeaders } = useAuth();
 
@@ -17,7 +17,7 @@ export const useAddPinToBoard = () => {
         onSuccess: (data, variables) => {
             const { boardId } = variables;
             queryClient.invalidateQueries({
-                queryKey: ['myBoards', currentUser?._id]
+                queryKey: ['myBoards', currentUser?._id, pinId]
             });
 
             queryClient.invalidateQueries({
@@ -31,6 +31,10 @@ export const useAddPinToBoard = () => {
             queryClient.invalidateQueries({
                 queryKey: ['savedPins', currentUser?._id]
             });
+            if (options.onSuccess) {
+                options.onSuccess(data, variables);
+            }
         },
+        onError: options.onError,
     });
 };

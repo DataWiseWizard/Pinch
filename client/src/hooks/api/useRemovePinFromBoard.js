@@ -9,7 +9,7 @@ const removePinFromBoardMutation = async ({ pinId, boardId, getAuthHeaders }) =>
     return data;
 };
 
-export const useRemovePinFromBoard = () => {
+export const useRemovePinFromBoard = (options = {}) => {
     const queryClient = useQueryClient();
     const { currentUser, getAuthHeaders } = useAuth();
 
@@ -20,7 +20,7 @@ export const useRemovePinFromBoard = () => {
             toast.success(data.message || "Pin removed from board");
 
             queryClient.invalidateQueries({
-                queryKey: ['myBoards', currentUser?._id, pinId] 
+                queryKey: ['myBoards', currentUser?._id, pinId]
             });
             queryClient.invalidateQueries({
                 queryKey: ['boardDetails', boardId]
@@ -31,9 +31,10 @@ export const useRemovePinFromBoard = () => {
             queryClient.invalidateQueries({
                 queryKey: ['savedPins', currentUser?._id]
             });
+            if (options.onSuccess) {
+                options.onSuccess(data, variables);
+            }
         },
-        onError: (err) => {
-            toast.error(err.message || "Failed to remove pin");
-        }
+        onError: options.onError,
     });
 };
