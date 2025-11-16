@@ -3,15 +3,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Check, Trash2 } from 'lucide-react';
-// import Card from '@mui/material/Card';
-// import CardMedia from '@mui/material/CardMedia';
-// import Box from '@mui/material/Box';
-// import Typography from '@mui/material/Typography';
-// import Button from '@mui/material/Button';
-// import Link from '@mui/material/Link';
-// import IconButton from '@mui/material/IconButton';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import CheckIcon from '@mui/icons-material/Check';
 
 const Pin = ({ pin, onDelete, onSave, isSaved }) => {
     const handleDeleteClick = (e) => {
@@ -32,7 +23,6 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
         }
     };
 
-    //new and updated way
     return (
         <motion.div
             layout
@@ -57,24 +47,27 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                             group-hover:opacity-100 rounded-2xl
                         "
                 >
-                    <div className="flex justify-end">
+                    <div className="flex justify-end p-2">
                         {onSave && (
                             <>
-                                {isSaved ? (<Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={handleSaveClick}
-                                    className="rounded-full mr-2 mt-2"
-                                >
-                                    <Check className="mr-2 h-4 w-4" />Saved
-                                </Button>) : (
-                                    // `variant="destructive"` is red, like the original "Save" button
+                                {isSaved ? (
                                     <Button
-                                        variant="destructive"
+                                        variant="destructive" 
                                         size="sm"
                                         onClick={handleSaveClick}
-                                        className="rounded-full"
+                                        className="rounded-full font-semibold"
                                     >
+                                        <Check className="mr-1 h-4 w-4" />
+                                        Saved
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="destructive" 
+                                        size="sm"
+                                        onClick={handleSaveClick}
+                                        className="rounded-full font-semibold"
+                                    >
+                                        <PinIcon className="mr-1 h-4 w-4" />
                                         Save
                                     </Button>
                                 )}
@@ -112,106 +105,6 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
 
         </motion.div>
     )
-
-
-    //old mui way
-    // return (
-    //     <Card sx={{
-    //         position: 'relative',
-    //         borderRadius: 4,
-    //         cursor: 'pointer',
-    //         overflow: 'hidden',
-    //         '&:hover .pin-overlay': {
-    //             opacity: 1,
-    //         }
-    //     }}>
-
-    //         <Link component={RouterLink} to={`/pins/${pin._id}`} underline="none">
-    //             <CardMedia
-    //                 component="img"
-    //                 image={pin.image.url}
-    //                 alt={pin.title}
-    //                 sx={{ display: 'block', width: '100%' }}
-    //             />
-
-    //             <Box
-    //                 className="pin-overlay"
-    //                 sx={{
-    //                     position: 'absolute',
-    //                     top: 0,
-    //                     left: 0,
-    //                     width: '100%',
-    //                     height: '100%',
-    //                     bgcolor: 'rgba(0, 0, 0, 0.5)',
-    //                     color: 'white',
-    //                     display: 'flex',
-    //                     flexDirection: 'column',
-    //                     justifyContent: 'space-between',
-    //                     p: 2,
-    //                     opacity: 0,
-    //                     transition: (theme) => theme.transitions.create('opacity', {
-    //                         duration: theme.transitions.duration.short,
-    //                     }),
-    //                 }}
-    //             >
-    //                 {/* Header section of overlay */}
-    //                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-    //                     <Box sx={{ flexGrow: 1 }} />
-
-    //                     {onSave && (
-    //                         <Button
-    //                             variant="contained"
-    //                             size="small"
-    //                             sx={{
-    //                                 bgcolor: isSaved ? 'grey.700' : '#e60023', 
-    //                                 color: 'white',
-    //                                 borderRadius: '20px',
-    //                                 minWidth: 'auto',
-    //                                 px: 1.5,
-    //                                 '&:hover': { bgcolor: isSaved ? 'grey.700' : '#ad081b' }
-    //                             }}
-    //                             onClick={handleSaveClick}
-    //                             startIcon={isSaved ? <CheckIcon fontSize="small" /> : null} // Show checkmark if saved
-    //                         >
-    //                             {isSaved ? "Saved" : "Save"}
-    //                         </Button>
-    //                     )}
-
-
-
-    //                 </Box>
-    //                 {/* Footer section of overlay */}
-    //                 <Box>
-    //                     <Typography variant="caption">
-    //                         {pin.postedBy?.username}
-    //                     </Typography>
-    //                 </Box>
-    //             </Box>
-    //         </Link>
-
-
-    //         {
-    //             onDelete && (
-    //                 <IconButton
-    //                     aria-label="delete pin"
-    //                     className="delete-button"
-    //                     onClick={handleDeleteClick}
-    //                     sx={{
-    //                         position: 'absolute',
-    //                         bottom: 8,
-    //                         right: 8,
-    //                         color: 'white',
-    //                         bgcolor: 'rgba(0, 0, 0, 0.4)',
-    //                         opacity: 0.7,
-    //                     }}
-    //                     size="small"
-    //                 >
-    //                     <DeleteIcon fontSize="small" />
-    //                 </IconButton>
-    //             )
-    //         }
-    //     </Card >
-    // );
 };
 
 export default Pin;

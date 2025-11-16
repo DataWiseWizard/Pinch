@@ -21,4 +21,6 @@ router.get("/:boardId", wrapAsync(boardController.getBoardDetails));
 
 router.delete("/:boardId", wrapAsync(boardController.deleteBoard));
 
+router.delete("/:boardId/pins/:pinId", wrapAsync(boardController.removePinFromBoard));
+
 module.exports = router;

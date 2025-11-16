@@ -4,16 +4,19 @@ import { useAuth } from '@/context/AuthContext';
 
 const fetchBoards = async (getAuthHeaders) => {
   const headers = await getAuthHeaders();
-  const { data } = await api.get('/api/boards/myboards', { headers });
+  const { data } = await api.get('/api/boards/myboards', {
+    headers,
+    params: { pinId }
+  });
   return data;
 };
 
-export const useGetBoards = () => {
+export const useGetBoards = (pinId) => {
   const { currentUser, getAuthHeaders } = useAuth();
-  
+
   return useQuery({
-    queryKey: ['myBoards', currentUser?._id],
-    queryFn: () => fetchBoards(getAuthHeaders),
-    enabled:!!currentUser,
+    queryKey: ['myBoards', currentUser?._id, pinId],
+    queryFn: () => fetchBoards(getAuthHeaders, pinId),
+    enabled: !!currentUser && !!pinId,
   });
 };

@@ -7,12 +7,24 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useCreateBoard } from '@/hooks/api/useCreateBoard';
 import { useAddPinToBoard } from '@/hooks/api/useAddPinToBoard';
+import { useRemovePinFromBoard } from '@/hooks/api/useRemovePinFromBoard';
 import { Plus } from 'lucide-react';
 import { toast } from "sonner";
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,6 +36,8 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
     const { currentUser } = useAuth();
 
     const { data: boards, isLoading: boardsLoading } = useGetBoards();
+
+    const { mutate: removePinFromBoard, isLoading: isRemoving } = useRemovePinFromBoard();
 
     const { mutate: createBoard, isLoading: isCreating } = useCreateBoard({
         onSuccess: (newBoard) => {
@@ -85,28 +99,52 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
                         <div className="grid gap-2">
                             {boards && boards.length > 0 ? (
                                 boards.map((board) => (
-                                    <Button
-                                        key={board._id}
-                                        variant="outline"
-                                        className="w-full justify-start"
-                                        onClick={() => handleSaveToBoard(board._id)}
-                                        disabled={isSaving}
-                                    >
-                                        {isSaving ? <p className="mr-2 h-4 w-4">Saving...</p> : null}
-                                        {board.name}
-                                    </Button>
+                                    board.isPinSaved ? (
+                                        <AlertDialog key={board._id}>
+                                            <AlertDialogTrigger asChild>
+                                                <Button
+                                                    variant="default" 
+                                                    className="w-full justify-between bg-primary"
+                                                    disabled={isRemoving}
+                                                >
+                                                    {board.name}
+                                                    <Check className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Remove from board?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This pin is already saved to "{board.name}". Do you want to remove it?
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        className="bg-destructive hover:bg-destructive/90"
+                                                        onClick={() => handleRemoveFromBoard(board._id)}
+                                                        disabled={isRemoving}
+                                                    >
+                                                        {isRemoving ? "Removing..." : "Remove"}
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    ) : (
+                                        <Button
+                                            key={board._id}
+                                            variant="outline"
+                                            className="w-full justify-start"
+                                            onClick={() => handleSaveToBoard(board._id)}
+                                            disabled={isSaving}
+                                        >
+                                            {isSaving ? "Saving..." : board.name}
+                                        </Button>
+                                    )
                                 ))
                             ) : (
                                 <div className="text-center text-muted-foreground p-4">
                                     <p className="mb-4">You don't have any boards yet.</p>
-                                    <Button
-                                        className="w-full"
-                                        onClick={() => handleCreateBoard("Saved")}
-                                        disabled={isCreating}
-                                    >
-                                        {isCreating ? <p className="mr-2 h-4 w-4">Loading...</p> : <Plus className="mr-2 h-4 w-4" />}
-                                        Create 'Saved' Board
-                                    </Button>
                                 </div>
                             )}
                         </div>

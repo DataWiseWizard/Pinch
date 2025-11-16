@@ -5,18 +5,28 @@ const ExpressError = require("../utils/ExpressError");
 
 
 module.exports.getBoardsForUser = async (req, res) => {
+    const { pinId } = req.query;
     const boards = await Board.find({ owner: req.user._id })
         .populate({
             path: 'pins',
             select: 'image',
             options: {
-                sort: { createdAt: -1 }, 
-                limit: 3 
+                sort: { createdAt: -1 },
+                limit: 3
             }
         })
         .sort({ updatedAt: -1 });
     if (!boards) {
         return res.status(200).json();
+    }
+    if (pinId) {
+        const boardsWithSaveStatus = boards.map(board => {
+            const boardObj = board.toObject();
+            const isPinSaved = board.pins.some(p => p.equals(pinId));
+            boardObj.isPinSaved = isPinSaved;
+            return boardObj;
+        });
+        return res.status(200).json(boardsWithSaveStatus);
     }
     res.status(200).json(boards);
 };
@@ -71,6 +81,21 @@ module.exports.addPinToBoard = async (req, res) => {
     } else {
         res.status(200).json({ message: "Pin is already on this board", board });
     }
+};
+
+module.exports.removePinFromBoard = async (req, res) => {
+    const { boardId, pinId } = req.params;
+
+    const board = await Board.findById(boardId);
+
+    if (!board) throw new ExpressError(404, "Board not found");
+
+    if (!board.owner.equals(req.user._id)) {
+        throw new ExpressError(403, "You are not authorized to modify this board");
+    }
+    await board.updateOne({ $pull: { pins: pinId } });
+
+    res.status(200).json({ message: "Pin removed from board" });
 };
 
 module.exports.getBoardDetails = async (req, res) => {
