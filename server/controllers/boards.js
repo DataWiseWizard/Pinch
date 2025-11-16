@@ -1,5 +1,3 @@
-// server/controllers/board.js
-
 const Board = require("../models/board");
 const User = require("../models/user");
 const Pin = require("../models/pin");
@@ -7,7 +5,16 @@ const ExpressError = require("../utils/ExpressError");
 
 
 module.exports.getBoardsForUser = async (req, res) => {
-    const boards = await Board.find({ owner: req.user._id });
+    const boards = await Board.find({ owner: req.user._id })
+        .populate({
+            path: 'pins',
+            select: 'image',
+            options: {
+                sort: { createdAt: -1 }, 
+                limit: 3 
+            }
+        })
+        .sort({ updatedAt: -1 });
     if (!boards) {
         return res.status(200).json();
     }
@@ -69,12 +76,12 @@ module.exports.addPinToBoard = async (req, res) => {
 module.exports.getBoardDetails = async (req, res) => {
     const { boardId } = req.params;
     const board = await Board.findById(boardId).populate({
-        path: 'pins', 
-        model: 'Pin', 
+        path: 'pins',
+        model: 'Pin',
         populate: {
             path: 'postedBy',
             model: 'User',
-            select: 'username profileImage' 
+            select: 'username profileImage'
         }
     });
 

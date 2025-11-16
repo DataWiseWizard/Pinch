@@ -18,14 +18,62 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from './ui/button';
-import { Bookmark, Trash2} from 'lucide-react';
+import { Bookmark, Trash2 } from 'lucide-react';
 import { useDeleteBoard } from '@/hooks/api/useDeleteBoard';
+
+const BoardPreview = ({ pins }) => {
+  const pinPreviews = pins || [];
+  if (pinPreviews.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full bg-muted">
+        <Bookmark className="h-10 w-10 text-muted-foreground/50" />
+      </div>
+    );
+  }
+
+  if (pinPreviews.length === 1) {
+    return (
+      <img
+        src={pinPreviews[0].image.url}
+        alt={pinPreviews[0].title}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+
+  if (pinPreviews.length === 2) {
+    return (
+      <div className="grid grid-cols-2 h-full">
+        <img src={pinPreviews[0].image.url} alt="Pin 1" className="h-full w-full object-cover" />
+        <img src={pinPreviews[1].image.url} alt="Pin 2" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 grid-rows-2 h-full">
+      {/* Hero slot */}
+      <div className="col-span-1 row-span-2 h-full">
+        <img src={pinPreviews[0].image.url} alt="Pin 1" className="h-full w-full object-cover" />
+      </div>
+      {/* Top right */}
+      <div className="col-span-1 row-span-1 h-full">
+        <img src={pinPreviews[1].image.url} alt="Pin 2" className="h-full w-full object-cover" />
+      </div>
+      {/* Bottom right */}
+      <div className="col-span-1 row-span-1 h-full">
+        <img src={pinPreviews[2].image.url} alt="Pin 3" className="h-full w-full object-cover" />
+      </div>
+    </div>
+  );
+};
 
 export const BoardCard = ({ board }) => {
   const { mutate: deleteBoard, isLoading } = useDeleteBoard();
 
   const handleDelete = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     deleteBoard(board._id);
   };
 
@@ -33,13 +81,15 @@ export const BoardCard = ({ board }) => {
     <AlertDialog>
       <Card className="hover:shadow-lg transition-shadow relative group">
         <RouterLink to={`/board/${board._id}`} className="block">
+          <div className="aspect-square w-full bg-muted rounded-t-lg overflow-hidden">
+            <BoardPreview pins={board.pins} />
+          </div>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 truncate">
-              <Bookmark />
               {board.name}
             </CardTitle>
             <CardDescription>
-              {board.pins?.length || 0} {board.pins?.length === 1? 'Pin' : 'Pins'}
+              {board.pins?.length || 0} {board.pins?.length === 1 ? 'Pin' : 'Pins'}
             </CardDescription>
           </CardHeader>
         </RouterLink>
@@ -60,7 +110,7 @@ export const BoardCard = ({ board }) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the "{board.name}" board. 
+            This will permanently delete the "{board.name}" board.
             (Note: This will not delete the {board.pins?.length || 0} pins on it.)
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -71,7 +121,7 @@ export const BoardCard = ({ board }) => {
             onClick={handleDelete}
             disabled={isLoading}
           >
-            {isLoading? <p>Deleting...</p> : "Delete"}
+            {isLoading ? <p>Deleting...</p> : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
