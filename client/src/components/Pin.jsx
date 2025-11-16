@@ -67,7 +67,6 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                                         onClick={handleSaveClick}
                                         className="rounded-full font-semibold"
                                     >
-                                        <PinIcon className="mr-1 h-4 w-4" />
                                         Save
                                     </Button>
                                 )}
