@@ -79,19 +79,20 @@ export const BoardCard = ({ board }) => {
 
   return (
     <AlertDialog>
-      <Card className="hover:shadow-lg transition-shadow relative group">
-        <RouterLink to={`/board/${board._id}`} className="block">
-          <div className="aspect-square w-full bg-muted rounded-t-lg overflow-hidden">
+      <Card className="hover:shadow-lg  relative aspect-square w-full border-none p-0 group overflow-hidden rounded-lg shadow-md">
+        <RouterLink to={`/board/${board._id}`} className="absolute inset-0 z-0">
+          <div className="h-full w-full">
             <BoardPreview pins={board.pins} />
           </div>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 truncate">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-3 text-white">
+            <h3 className="text-lg font-semibold truncate" title={board.name}>
               {board.name}
-            </CardTitle>
-            {/* <CardDescription>
+            </h3>
+            <p className="text-sm text-white/90">
               {board.pins?.length || 0} {board.pins?.length === 1 ? 'Pin' : 'Pins'}
-            </CardDescription> */}
-          </CardHeader>
+            </p>
+          </div>
         </RouterLink>
         <AlertDialogTrigger asChild>
           <Button
