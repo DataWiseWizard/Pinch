@@ -15,7 +15,7 @@ export const useAddPinToBoard = (options = {}) => {
     return useMutation({
         mutationFn: (variables) => addPinToBoardMutation({ ...variables, getAuthHeaders }),
         onSuccess: (data, variables) => {
-            const { boardId } = variables;
+            const { boardId, pinId } = variables;
             queryClient.invalidateQueries({
                 queryKey: ['myBoards', currentUser?._id, pinId]
             });
@@ -35,6 +35,16 @@ export const useAddPinToBoard = (options = {}) => {
                 options.onSuccess(data, variables);
             }
         },
-        onError: options.onError,
+        onError: (err, variables, context) => {
+            const { pinId } = variables || {};
+            if (pinId) {
+                queryClient.invalidateQueries({
+                    queryKey: ['myBoards', currentUser?._id, pinId]
+                });
+            }
+            if (options.onError) {
+                options.onError(err, variables, context);
+            }
+        },
     });
 };

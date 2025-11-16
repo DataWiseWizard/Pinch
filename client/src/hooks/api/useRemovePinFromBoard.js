@@ -35,6 +35,16 @@ export const useRemovePinFromBoard = (options = {}) => {
                 options.onSuccess(data, variables);
             }
         },
-        onError: options.onError,
+        onError: (err, variables, context) => {
+            const { pinId } = variables || {};
+            if (pinId) {
+                queryClient.invalidateQueries({
+                    queryKey: ['myBoards', currentUser?._id, pinId]
+                });
+            }
+            if (options.onError) {
+                options.onError(err, variables, context);
+            }
+        },
     });
 };
