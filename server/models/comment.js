@@ -21,7 +21,10 @@ const commentSchema = new Schema({
         ref: 'Comment',
         default: null 
     },
-    replies: {},
+    replies: [{
+        type: Schema.Types.ObjectId,
+        // ref: 'Comment'
+    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Comment', commentSchema);

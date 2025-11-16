@@ -25,6 +25,7 @@ const pinRouter = require(path.join(__dirname, "routes", "pin.js"));
 const authRouter = require(path.join(__dirname, "routes", "auth.js")); // New route for Google
 const userRouter = require(path.join(__dirname, "routes", "user.js"));
 const boardRouter = require(path.join(__dirname, "routes", "board.js"));
+const commentRouter = require(path.join(__dirname, "routes", "comment.js"));
 
 main()
     .then(() => {
@@ -181,6 +182,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/", userRouter);
+app.use("/api", commentRouter);
 app.use("/api/boards", boardRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
