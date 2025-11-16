@@ -88,9 +88,9 @@ export const BoardCard = ({ board }) => {
             <CardTitle className="flex items-center gap-2 truncate">
               {board.name}
             </CardTitle>
-            <CardDescription>
+            {/* <CardDescription>
               {board.pins?.length || 0} {board.pins?.length === 1 ? 'Pin' : 'Pins'}
-            </CardDescription>
+            </CardDescription> */}
           </CardHeader>
         </RouterLink>
         <AlertDialogTrigger asChild>
