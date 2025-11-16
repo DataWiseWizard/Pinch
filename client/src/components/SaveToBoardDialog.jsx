@@ -130,7 +130,7 @@ export const SaveToBoardDialog = ({ pinId, isOpen, onOpenChange }) => {
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
-                                    ) : (
+                                    ) : ( 
                                         <Button
                                             key={board._id}
                                             variant="outline"
