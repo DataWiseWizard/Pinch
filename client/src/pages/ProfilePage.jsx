@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
@@ -10,13 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Plus } from 'lucide-react';
-import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-
 import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
@@ -101,10 +93,10 @@ const ProfilePage = () => {
     };
 
     const breakpointColumnsObj = {
-        default: 4,
-        1100: 3,
-        700: 2,
-        500: 1
+        default: 5,
+        1100: 4,
+        700: 3,
+        500: 2
     };
 
     const renderPinGrid = (pins, isLoading, tabType) => {

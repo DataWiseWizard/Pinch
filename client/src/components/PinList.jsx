@@ -11,10 +11,10 @@ import { useInView } from 'react-intersection-observer';
 import { SaveToBoardDialog } from './SaveToBoardDialog';
 
 const breakpointColumnsObj = {
-    default: 4,
-    1100: 3,
-    900: 2,
-    600: 1
+    default: 5,
+    1100: 4,
+    900: 3,
+    600: 2
 };
 
 const PinList = () => {
@@ -117,31 +117,6 @@ const PinList = () => {
             </div>
         </div>
     );
-
-    //old mui way
-    // return (
-    //     <Box sx={{ width: 'auto', p: 1 }}>
-    //         {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
-    //         {/* Show general fetch error if it occurred but some pins might still be displayed */}
-    //         {error && !loading && pins.length > 0 && <Alert severity="warning" sx={{ mb: 2 }}>{`Warning: ${error}`}</Alert>}
-    //         <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2} >
-    //             {pins.map(pin => {
-    //                 // Pass the handleSavePin function only if a user is logged in
-    //                 const currentOnSave = currentUser ? handleSavePin : null;
-    //                 return (
-    //                     <div key={pin._id}>
-    //                         <Pin
-    //                             pin={pin}
-    //                             onSave={currentOnSave} // Pass the conditional save handler
-    //                             isSaved={savedPinIds.has(pin._id)}
-    //                             onDelete={null} // No delete on home feed
-    //                         />
-    //                     </div>
-    //                 );
-    //             })}
-    //         </Masonry>
-    //     </Box>
-    // );
 };
 
 export default PinList;

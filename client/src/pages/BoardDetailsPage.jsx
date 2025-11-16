@@ -17,10 +17,10 @@ const BoardDetailPage = () => {
     const { data: savedPinIds } = useGetSavedPinIds();
 
     const breakpointColumnsObj = {
-        default: 4,
-        1100: 3,
-        700: 2,
-        500: 1
+        default: 5,
+        1100: 4,
+        700: 3,
+        500: 2
     };
 
     const handleSavePin = (pinId) => {
