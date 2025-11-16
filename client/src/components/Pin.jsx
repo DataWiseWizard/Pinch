@@ -2,16 +2,24 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, X } from 'lucide-react';
 
-const Pin = ({ pin, onDelete, onSave, isSaved }) => {
-    const handleDeleteClick = (e) => {
+const Pin = ({ pin, onSave, isSaved, onAction, actionIcon }) => {
+    // const handleDeleteClick = (e) => {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    //     if (onDelete) {
+    //         if (window.confirm(`Are you sure you want to delete "${pin.title}"?`)) {
+    //             onDelete(pin._id);
+    //         }
+    //     }
+    // };
+    const handleActionClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (onDelete) {
-            if (window.confirm(`Are you sure you want to delete "${pin.title}"?`)) {
-                onDelete(pin._id);
-            }
+        if (onAction) {
+            // Confirmation logic is now handled by the parent page
+            onAction(pin._id);
         }
     };
 
@@ -21,6 +29,16 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
         if (onSave) {
             onSave(pin._id, !isSaved);
         }
+    };
+
+    const renderActionIcon = () => {
+        if (actionIcon === 'delete') {
+            return <Trash2 className="h-4 w-4" />;
+        }
+        if (actionIcon === 'remove') {
+            return <X className="h-4 w-4" />;
+        }
+        return null;
     };
 
     return (
@@ -52,7 +70,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                             <>
                                 {isSaved ? (
                                     <Button
-                                        variant="destructive" 
+                                        variant="destructive"
                                         size="sm"
                                         onClick={handleSaveClick}
                                         className="rounded-full font-semibold"
@@ -62,7 +80,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                                     </Button>
                                 ) : (
                                     <Button
-                                        variant="destructive" 
+                                        variant="destructive"
                                         size="sm"
                                         onClick={handleSaveClick}
                                         className="rounded-full font-semibold"
@@ -83,7 +101,25 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                 </div>
             </RouterLink>
 
-            {onDelete && (
+            {onAction && actionIcon && (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleActionClick} // Use the new handler
+                    className="
+                            absolute bottom-2 right-2 z-10 
+                            h-8 w-8 rounded-full 
+                            bg-black/40 text-white 
+                            opacity-0 transition-opacity 
+                            group-hover:opacity-100
+                            hover:bg-black/60 hover:text-white
+                        "
+                >
+                    {renderActionIcon()} {/* Render the correct icon */}
+                </Button>
+            )}
+
+            {/* {onDelete && (
                 <Button
                     variant="ghost"
                     size="icon"
@@ -99,7 +135,7 @@ const Pin = ({ pin, onDelete, onSave, isSaved }) => {
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
-            )}
+            )} */}
 
 
         </motion.div>

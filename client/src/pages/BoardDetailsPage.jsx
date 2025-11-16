@@ -3,11 +3,14 @@ import { useParams } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
 import Pin from '../components/Pin';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import '../components/PinList.css'; 
+import '../components/PinList.css';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { SaveToBoardDialog } from '@/components/SaveToBoardDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useGetBoardDetails } from '@/hooks/api/useGetBoardDetails';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useRemovePinFromBoard } from '@/hooks/api/useRemovePinFromBoard';
 
 const BoardDetailPage = () => {
     const { boardId } = useParams();
@@ -15,6 +18,18 @@ const BoardDetailPage = () => {
     const [pinToSave, setPinToSave] = useState(null);
     const { data: board, isLoading, error } = useGetBoardDetails(boardId);
     const { data: savedPinIds } = useGetSavedPinIds();
+
+    const queryClient = useQueryClient();
+    const { mutate: removePin, isLoading: isRemoving } = useRemovePinFromBoard({
+        onSuccess: () => {
+            toast.success("Pin removed from board");
+            queryClient.invalidateQueries({ queryKey: ['myBoards', boardId] });
+            queryClient.invalidateQueries({ queryKey: ['savedPinIds', currentUser?._id] });
+        },
+        onError: (err) => {
+            toast.error(err.message || "Failed to remove pin");
+        }
+    });
 
     const breakpointColumnsObj = {
         default: 5,
@@ -26,6 +41,12 @@ const BoardDetailPage = () => {
     const handleSavePin = (pinId) => {
         if (!currentUser) return;
         setPinToSave(pinId);
+    };
+
+    const handleRemovePin = (pinId) => {
+        if (window.confirm("Are you sure you want to remove this pin from this board?")) {
+            removePin({ pinId, boardId });
+        }
     };
 
     if (isLoading) {
@@ -64,7 +85,8 @@ const BoardDetailPage = () => {
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
-                                onDelete={null} 
+                                onAction={handleRemovePin} 
+                                actionIcon="remove"
                                 onSave={handleSavePin}
                                 isSaved={(savedPinIds || new Set()).has(pin._id)}
                             />
@@ -72,7 +94,7 @@ const BoardDetailPage = () => {
                     ))
                     }
                 </Masonry>
-            ) : ( <p className="mt-4 text-center text-muted-foreground"> There are no pins on this board yet. </p>)}
+            ) : (<p className="mt-4 text-center text-muted-foreground"> There are no pins on this board yet. </p>)}
             <SaveToBoardDialog
                 pinId={pinToSave}
                 isOpen={!!pinToSave}

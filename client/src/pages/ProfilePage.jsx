@@ -114,7 +114,8 @@ const ProfilePage = () => {
                         <div key={pin._id}>
                             <Pin
                                 pin={pin}
-                                onDelete={tabType === 'created' ? handleDeletePin : null}
+                                onAction={tabType === 'created' ? handleDeletePin : null}
+                                actionIcon={tabType === 'created' ? "delete" : null}
                                 onSave={handleSavePin}
                                 isSaved={savedPinIds.has(pin._id)}
                             />
