@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 
-const fetchBoards = async (getAuthHeaders) => {
+const fetchBoards = async (getAuthHeaders, pinId) => {
   const headers = await getAuthHeaders();
   const config = { headers };
   if (pinId) {
