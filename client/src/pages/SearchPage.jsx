@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSearchPins } from '@/hooks/api/useSearchPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
@@ -57,8 +57,8 @@ const SearchPage = () => {
                     {pins.map(pin => (
                         <div key={pin._id}>
                             <Pin pin={pin}
-                                onSave={handleSavePin}
-                                isSaved={savedPinIds.has(pin._id)}
+                                isSaved={(savedPinIds || new Set()).has(pin._id)}
+                                onSave={currentUser ? handleSavePin : null}
                             />
                         </div>
                     ))}
