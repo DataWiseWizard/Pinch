@@ -74,7 +74,7 @@ const PinDetail = () => {
                             <p className="text-lg text-muted-foreground mt-4">
                                 Posted by: {' '}
                                 <RouterLink
-                                    to={`/user/${pin.postedBy._id}`}
+                                    to={`/user/${pin.postedBy.username}`}
                                     className="font-semibold text-primary hover:underline"
                                 >
                                     {pin.postedBy.username}
