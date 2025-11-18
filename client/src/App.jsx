@@ -11,6 +11,7 @@ import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import BoardDetailPage from './pages/BoardDetailsPage';
+import SearchPage from './pages/SearchPage';
 import { Toaster } from "@/components/ui/sonner";
 import './App.css';
 
