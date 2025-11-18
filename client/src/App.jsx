@@ -29,6 +29,7 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/pins/:id" element={<PinDetail />} />
             <Route path="/user/:username" element={<UserProfilePage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route
               path="/pins/new"
               element={

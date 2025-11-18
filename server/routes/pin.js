@@ -17,6 +17,8 @@ router.get("/new", isLoggedIn, pinController.renderNewForm);
 
 router.get("/user/:userId", isLoggedIn, wrapAsync(pinController.getUserPins));
 
+router.get("/search", wrapAsync(pinController.searchPins));
+
 router.get("/:id", wrapAsync(pinController.showPin));
 
 router.post("/",
@@ -30,7 +32,5 @@ router.delete("/:id",
   isLoggedIn, 
   wrapAsync(pinController.deletePin)
 );
-
-
 
 module.exports = router;

@@ -92,3 +92,50 @@ module.exports.deletePin = async (req, res) => {
         return res.status(500).json({ message: "Failed to delete pin due to a server error." });
     }
 };
+
+module.exports.searchPins = async (req, res) => {
+    const { q } = req.query;
+
+    if (!q) {
+        return res.status(400).json({ message: "Search query is required" });
+    }
+
+    try {
+        const pins = await Pin.aggregate([
+            {
+                $search: {
+                    index: "default", 
+                    autocomplete: {
+                        query: q,
+                        path: "title",
+                        fuzzy: {
+                            maxEdits: 2, 
+                        },
+                    },
+                },
+            },
+            {
+                $limit: 20 
+            },
+            {
+                $project: {
+                    title: 1,
+                    image: 1,
+                    destination: 1,
+                    postedBy: 1,
+                    score: { $meta: "searchScore" }
+                }
+            }
+        ]);
+
+        const populatedPins = await Pin.populate(pins, { 
+            path: "postedBy", 
+            select: "username profileImage" 
+        });
+
+        res.status(200).json(populatedPins);
+    } catch (error) {
+        console.error("Search Error:", error);
+        res.status(500).json({ message: "Search failed" });
+    }
+};
