@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState} from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSearchPins } from '@/hooks/api/useSearchPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
