@@ -60,5 +60,6 @@ router.get('/pins/saved',
     wrapAsync(userController.getSavedPins)
 );
 
+router.get("/api/users/:username", wrapAsync(userController.getUserProfile));
 
 module.exports = router;

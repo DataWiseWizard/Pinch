@@ -6,6 +6,7 @@ import PinCreate from './pages/PinCreate';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
+import UserProfilePage from './pages/UserProfilePage';
 import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/auth/callback" element={<GoogleCallback />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/pins/:id" element={<PinDetail />} />
+            <Route path="/user/:username" element={<UserProfilePage />} />
             <Route
               path="/pins/new"
               element={

@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const Pin = require("../models/pin");
+const Board = require("../models/board");
 const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/Token');
 const { sendVerificationEmail } = require('../utils/Email');
@@ -538,4 +539,32 @@ module.exports.deleteAccount = async (req, res, next) => {
         console.error(`[Delete Account] Error deleting account for user ${userId}:`, error);
         next(new ExpressError(500, "Failed to delete account."));
     }
+};
+
+module.exports.getUserProfile = async (req, res, next) => {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username })
+        .select("username profileImage _id createdAt");
+
+    if (!user) {
+        throw new ExpressError(404, "User not found");
+    }
+
+    const boards = await Board.find({ owner: user._id })
+        .populate({
+            path: 'pins',
+            select: 'image title',
+            options: { limit: 3 }
+        })
+        .sort({ updatedAt: -1 });
+
+    const createdPins = await Pin.find({ postedBy: user._id })
+        .sort({ createdAt: -1 });
+
+    res.status(200).json({
+        user,
+        boards,
+        createdPins
+    });
 };
