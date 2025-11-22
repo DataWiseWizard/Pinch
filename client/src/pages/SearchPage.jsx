@@ -4,11 +4,13 @@ import { useSearchPins } from '@/hooks/api/useSearchPins';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
 import { SaveToBoardDialog } from '../components/SaveToBoardDialog';
 import Masonry from 'react-masonry-css';
+import { useAuth } from '../context/AuthContext';
 import Pin from '@/components/Pin';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import '../components/PinList.css';
 
 const SearchPage = () => {
+    const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q');
     const [pinToSave, setPinToSave] = useState(null);
