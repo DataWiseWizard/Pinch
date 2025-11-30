@@ -1,30 +1,55 @@
 const axios = require('axios');
 
 /**
- * Helper to call HF with fallback
+ * Robust AI Analyzer
+ * Tries multiple models (Classification AND Captioning) to guarantee a result.
  */
 async function retryWithFallback(imageUrl, token) {
-    const models = [
-        "google/vit-base-patch16-224", // Primary (Best accuracy)
-        "microsoft/resnet-50",       // Backup (High stability)
-        "facebook/detr-resnet-50"    // Emergency Backup
+    const strategies = [
+        {
+            model: "google/vit-base-patch16-224",
+            type: "classification"
+        },
+        {
+            model: "Salesforce/blip-image-captioning-base", // <--- NEW: High availability model
+            type: "captioning"
+        },
+        {
+            model: "microsoft/resnet-50",
+            type: "classification"
+        }
     ];
 
     const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
     const imageBuffer = Buffer.from(imageResponse.data);
 
-    for (const model of models) {
+    for (const strategy of strategies) {
         try {
-            console.log(`🤖 Trying AI Model: ${model}...`);
+            console.log(`🤖 Trying AI Model: ${strategy.model}...`);
             const response = await axios.post(
-                `https://router.huggingface.co/hf-inference/models/${model}`,
+                `https://router.huggingface.co/hf-inference/models/${strategy.model}`,
                 imageBuffer,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            return response.data; // Success!
+
+            // --- STRATEGY ADAPTER ---
+            // If it's a classification model, it returns labels.
+            if (strategy.type === "classification" && Array.isArray(response.data)) {
+                return response.data.map(item => item.label.split(',')[0].trim());
+            }
+            
+            // If it's a captioning model, it returns a sentence. We turn that into tags.
+            if (strategy.type === "captioning" && Array.isArray(response.data) && response.data[0].generated_text) {
+                const caption = response.data[0].generated_text;
+                console.log(`📝 Generated Caption: "${caption}"`);
+                // Simple trick: Split sentence into words to create "tags"
+                return caption.split(' ')
+                    .filter(word => word.length > 3) // Remove 'a', 'the', 'is'
+                    .slice(0, 5); // Take first 5 meaningful words
+            }
+
         } catch (error) {
-            console.warn(`⚠️ Model ${model} failed (${error.response?.status || 'Unknown'}). Switching to backup...`);
-            // Continue loop to next model
+            console.warn(`⚠️ Model ${strategy.model} failed (${error.response?.status || 'Unknown'}). Switching...`);
         }
     }
     throw new Error("All AI Vision models are currently down.");
@@ -35,42 +60,35 @@ async function analyzeImage(imageUrl) {
     if (!imageUrl) return { tags: [], embedding: [] };
 
     try {
-        // --- STEP 1: ROBUST TAGGING ---
-        const rawTags = await retryWithFallback(imageUrl, HF_TOKEN);
-
-        if (!Array.isArray(rawTags)) {
-            return { tags: [], embedding: [] };
-        }
-
-        const tags = rawTags
-            .slice(0, 5)
-            .map(item => item.label.split(',')[0].trim());
-
+        // --- STEP 1: GET TAGS (With Fallback) ---
+        const tags = await retryWithFallback(imageUrl, HF_TOKEN);
         console.log("✨ Tags generated:", tags);
 
-        // --- STEP 2: EMBEDDING ---
-        // (Keep using MiniLM as it's rarely down, but handle its errors gracefully too)
+        // --- STEP 2: EMBEDDING (Feature Extraction) ---
+        // We use the tags we just found to generate the math vector
         const textDescription = tags.join(" ");
         let embedding = [];
-
+        
         try {
             const embeddingResponse = await axios.post(
                 "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2",
                 { inputs: textDescription },
                 { headers: { Authorization: `Bearer ${HF_TOKEN}` } }
             );
+            // Handle Embedding Response Format
             embedding = embeddingResponse.data;
             if (Array.isArray(embedding) && Array.isArray(embedding[0])) {
                 embedding = embedding[0];
             }
         } catch (embedError) {
-            console.warn("⚠️ Embedding failed, saving tags only.");
+            console.warn("⚠️ Embedding failed (Skipping vector search for this pin).");
         }
 
         return { tags, embedding };
 
     } catch (error) {
-        console.error("❌ All AI attempts failed:", error.message);
+        console.error("❌ All AI attempts failed. Uploading without tags.");
+        // Return empty arrays so the upload SUCCEEDS even if AI fails
         return { tags: [], embedding: [] };
     }
 }
