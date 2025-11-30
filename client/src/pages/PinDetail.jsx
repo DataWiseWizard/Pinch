@@ -3,19 +3,24 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import API_URL from '../apiConfig';
 import { CommentSection } from '@/components/CommentSection';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/context/AuthContext';
 
 const PinDetail = () => {
     const { id } = useParams();
     const [pin, setPin] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { getAuthHeaders } = useAuth();
 
     useEffect(() => {
         const fetchPin = async () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await fetch(`${API_URL}/pins/${id}`);
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${API_URL}/pins/${id}`, {
+                    headers: headers
+                });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -30,7 +35,7 @@ const PinDetail = () => {
         };
 
         fetchPin();
-    }, [id]);
+    }, [id, getAuthHeaders]);
 
     if (loading) {
         return (

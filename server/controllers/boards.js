@@ -2,7 +2,7 @@ const Board = require("../models/board");
 const User = require("../models/user");
 const Pin = require("../models/pin");
 const ExpressError = require("../utils/ExpressError");
-
+const { updateUserInterests } = require("../utils/signals");
 
 module.exports.getBoardsForUser = async (req, res) => {
     const { pinId } = req.query;
@@ -77,6 +77,10 @@ module.exports.addPinToBoard = async (req, res) => {
     if (!board.pins.includes(pinId)) {
         board.pins.push(pinId);
         await board.save();
+        if (pin.tags && pin.tags.length > 0) {
+            // +5 Points for saving to a board
+            updateUserInterests(req.user._id, pin.tags, 5);
+        }
         res.status(200).json({ message: "Pin added to board", board });
     } else {
         res.status(200).json({ message: "Pin is already on this board", board });
