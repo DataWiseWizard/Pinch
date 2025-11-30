@@ -5,15 +5,16 @@ import { motion } from "framer-motion";
 import { Check, Trash2, X } from 'lucide-react';
 
 const Pin = ({ pin, onSave, isSaved, onAction, actionIcon }) => {
-    // const handleDeleteClick = (e) => {
-    //     e.preventDefault();
-    //     e.stopPropagation();
-    //     if (onDelete) {
-    //         if (window.confirm(`Are you sure you want to delete "${pin.title}"?`)) {
-    //             onDelete(pin._id);
-    //         }
-    //     }
-    // };
+    const handleDeleteClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onDelete) {
+            if (window.confirm(`Are you sure you want to delete "${pin.title}"?`)) {
+                onDelete(pin._id);
+            }
+        }
+    };
+    
     const handleActionClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -119,7 +120,7 @@ const Pin = ({ pin, onSave, isSaved, onAction, actionIcon }) => {
                 </Button>
             )}
 
-            {/* {onDelete && (
+            {onDelete && (
                 <Button
                     variant="ghost"
                     size="icon"
@@ -135,7 +136,7 @@ const Pin = ({ pin, onSave, isSaved, onAction, actionIcon }) => {
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
-            )} */}
+            )}
 
 
         </motion.div>
