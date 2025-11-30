@@ -231,13 +231,30 @@ module.exports.searchPins = async (req, res) => {
             {
                 $search: {
                     index: "default",
-                    autocomplete: {
-                        query: q,
-                        path: "title",
-                        fuzzy: {
-                            maxEdits: 2,
-                        },
-                    },
+                    compound: {
+                        should: [
+                            {
+                                autocomplete: {
+                                    query: q,
+                                    path: "title",
+                                    fuzzy: {
+                                        maxEdits: 1,
+                                    },
+                                    score: { boost: { value: 3 } }
+                                },
+                            },
+                            {
+                                text: {
+                                    query: q,
+                                    path: "tags",
+                                    fuzzy: {
+                                        maxEdits: 1,
+                                    }
+                                }
+                            }
+                        ],
+                        minimumShouldMatch: 1
+                    }
                 },
             },
             {
