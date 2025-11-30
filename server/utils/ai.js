@@ -29,7 +29,7 @@ async function analyzeImage(imageUrl) {
         console.log("🤖 Asking Gemini to see...");
         
         // --- 1. VISION ANALYSIS (Tags & Description) ---
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
         const imagePart = await urlToGenerativePart(imageUrl);
 
         const prompt = `
