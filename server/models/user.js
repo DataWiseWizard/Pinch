@@ -45,13 +45,14 @@ const userSchema = new Schema({
         ref: 'Board',
         default: []
     },
-    // savedPins: [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Pin'
-    // }],
     refreshTokenVersion: {
         type: Number,
         default: 0
+    },
+    interestProfile: {
+        type: Map,
+        of: Number,
+        default: {}
     }
 }, { timestamps: true });
 

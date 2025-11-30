@@ -10,21 +10,24 @@ const pinSchema = new Schema({
     type: String,
   },
   image: {
-    url: String, // Correctly defined as an object property
+    url: String, 
     filename: String 
   },
-  // category: {
-  //   type: String,
-  // },
+  tags: {
+    type: [String], 
+    index: true 
+  },
+  embedding: {
+    type: [Number], // e.g., [0.12, -0.45, 0.88, ...]
+    select: false   // Optimization: Don't fetch this huge array unless explicitly asked
+  },
   postedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  // uploadedAt: {
-  //   type: Date,
-  //   default: Date.now
-  // },
 }, { timestamps: true });
+
+pinSchema.index({ title: 'text', tags: 'text' });
 
 const Pin = mongoose.model('Pin', pinSchema);
 module.exports = Pin;

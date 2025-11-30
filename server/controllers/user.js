@@ -7,7 +7,7 @@ const { sendVerificationEmail } = require('../utils/Email');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyAccessToken } = require('../utils/jwt');
 const { cloudinary } = require('../config/cloudConfig');
 const ExpressError = require('../utils/ExpressError');
-
+const { updateUserInterests } = require("../utils/signals");
 
 module.exports.renderSignupForm = (req, res) => {
     res.render("./users/signup.ejs");
@@ -426,7 +426,9 @@ module.exports.toggleSavePin = async (req, res, next) => {
         } else {
             user.savedPins.push(pinId);
             message = "Pin saved successfully.";
-            console.log(`[toggleSavePin] User ${userId} saved pin ${pinId}`);
+            if (pin.tags && pin.tags.length > 0) {
+                updateUserInterests(userId, pin.tags, 5);
+            }
         }
 
         const updatedUser = await user.save();

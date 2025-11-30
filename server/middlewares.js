@@ -76,3 +76,27 @@ module.exports.validatePin = (req, res, next) => {
         next();
     }
 };
+
+module.exports.optionalAuth = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    // If no token, just continue (guest mode)
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyAccessToken(token); // Use your existing jwt utility
+
+    if (decoded) {
+        try {
+            const user = await User.findById(decoded.id);
+            if (user) {
+                req.user = user; // Attach user if found
+            }
+        } catch (err) {
+            console.error("Optional Auth Error:", err);
+        }
+    }
+    next();
+};
