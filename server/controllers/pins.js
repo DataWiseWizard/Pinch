@@ -230,7 +230,7 @@ module.exports.searchPins = async (req, res) => {
         const pins = await Pin.aggregate([
             {
                 $search: {
-                    index: "default",
+                    index: "default_1",
                     compound: {
                         should: [
                             {
