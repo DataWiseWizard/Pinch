@@ -239,8 +239,7 @@ module.exports.searchPins = async (req, res) => {
                                     path: "title",
                                     fuzzy: {
                                         maxEdits: 1,
-                                    },
-                                    score: { boost: { value: 3 } }
+                                    }
                                 },
                             },
                             {
@@ -249,7 +248,8 @@ module.exports.searchPins = async (req, res) => {
                                     path: "tags",
                                     fuzzy: {
                                         maxEdits: 1,
-                                    }
+                                    },
+                                    score: { boost: { value: 2 } }
                                 }
                             }
                         ],
