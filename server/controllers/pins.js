@@ -239,11 +239,12 @@ module.exports.searchPins = async (req, res) => {
                                     path: "title",
                                     fuzzy: {
                                         maxEdits: 1,
-                                    }
+                                    },
+                                    score: { boost: { value: 2 } }
                                 },
                             },
                             {
-                                text: {
+                                autocomplete: {
                                     query: q,
                                     path: "tags",
                                     fuzzy: {
@@ -266,6 +267,7 @@ module.exports.searchPins = async (req, res) => {
                     image: 1,
                     destination: 1,
                     postedBy: 1,
+                    tags: 1,
                     score: { $meta: "searchScore" }
                 }
             }
