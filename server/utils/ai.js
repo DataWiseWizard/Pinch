@@ -11,6 +11,7 @@ async function analyzeImage(imageUrl) {
 
     try {
         // --- STEP 1: GET TAGS (Image Classification) ---
+        
         // We fetch the image data as a buffer to send to Hugging Face
         const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(imageResponse.data);
