@@ -157,6 +157,7 @@ const ProfilePage = () => {
         );
     }
 
+    
     if (!currentUser) {
         return (
             <div className="max-w-md mx-auto mt-4 p-4">
