@@ -203,7 +203,7 @@ const ProfilePage = () => {
                 </TabsList>
 
                 <TabsContent value="created" className="mt-6">
-                    {renderPinGrid(createdPins || [], loadingCreated)}
+                    {renderPinGrid(createdPins || [], loadingCreated, 'created')}
                 </TabsContent>
 
                 <TabsContent value="boards" className="mt-6">
