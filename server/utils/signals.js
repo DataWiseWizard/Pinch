@@ -1,5 +1,6 @@
 const User = require("../models/user");
 
+
 /**
  * Updates a user's interest profile based on interaction.
  * @param {string} userId - The ID of the user.
