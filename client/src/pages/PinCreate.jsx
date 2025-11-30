@@ -13,56 +13,90 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-// import { CloudUpload, AlertCircle, LoaderCircle } from "lucide-react";
-// import Container from '@mui/material/Container';
-// import Box from '@mui/material/Box';
-// import TextField from '@mui/material/TextField';
-// import Button from '@mui/material/Button';
-// import Typography from '@mui/material/Typography';
-// import Alert from '@mui/material/Alert';
-// import CloudUploadIcon from '@mui/icons-material/CloudUpload'; // Optional icon
-// import CircularProgress from '@mui/material/CircularProgress';
-
+import { Wand2, Upload } from "lucide-react";
 
 const PinCreate = () => {
     const [title, setTitle] = useState("");
     const [destination, setDestination] = useState("");
     const [image, setImage] = useState(null);
     const [imageName, setImageName] = useState("");
+    const [aiImageUrl, setAiImageUrl] = useState(""); // URL string (for AI)
+    const [aiFilename, setAiFilename] = useState(""); // Filename from Cloudinary
+
+    const [prompt, setPrompt] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    const [activeTab, setActiveTab] = useState("upload"); // 'upload' or 'ai'
+
     const navigate = useNavigate();
     const { getAuthHeaders } = useAuth();
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImage(e.target.files[0]);
-            setImageName(e.target.files[0].name);
-        } else {
+            // Clear AI state if user picks a file
+            setAiImageUrl("");
+            setAiFilename("");
+        }
+    };
+
+    const handleGenerate = async () => {
+        if (!prompt) return;
+        setIsGenerating(true);
+        setError("");
+
+        try {
+            const headers = await getAuthHeaders();
+            const response = await fetch(`${API_URL}/pins/generate-ai`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ prompt })
+            });
+
+            if (!response.ok) throw new Error("Generation failed");
+
+            const data = await response.json();
+            setAiImageUrl(data.url);
+            setAiFilename(data.filename);
+
+            if (!title) setTitle(prompt);
             setImage(null);
-            setImageName("");
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsGenerating(false);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!title || !image) {
+        if (!title || (!image && !aiImageUrl)) {
             setError("Please fill in all required fields");
             return;
         }
         setError("");
         setSubmitting(true);
 
-        const formData = new FormData();
-        formData.append("pin[title]", title);
-        if (destination) {
-            formData.append("pin[destination]", destination);
-        }
-        formData.append("pin[image]", image);
-
         try {
             const headers = await getAuthHeaders();
-            // Remove Content-Type header for FormData (browser sets it automatically)
+            const formData = new FormData();
+
+            formData.append("pin[title]", title);
+            if (destination) formData.append("pin[destination]", destination);
+
+            if (activeTab === 'upload' && image) {
+                formData.append("pin[image]", image);
+            } else if (activeTab === 'ai' && aiImageUrl) {
+                formData.append("aiImageUrl", aiImageUrl);
+                formData.append("aiFilename", aiFilename);
+            } else {
+                throw new Error("No image selected");
+            }
+
             delete headers['Content-Type'];
 
             const response = await fetch(`${API_URL}/pins`, {
@@ -72,13 +106,12 @@ const PinCreate = () => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'Failed to create pin. Please check your input.' }));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to create pin");
             }
             navigate("/");
         } catch (err) {
             setError(err.message);
-            console.error('Error creating pin:', err);
         } finally {
             setSubmitting(false);
         }
@@ -89,16 +122,57 @@ const PinCreate = () => {
             <Card className="w-full max-w-lg">
                 <CardHeader>
                     <CardTitle className="text-2xl">Create a New Pin</CardTitle>
-                    <CardDescription>Upload an image and add a title to share it with the world.</CardDescription>
+                    <CardDescription>Share an image or generate one with AI.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="upload"><Upload className="w-4 h-4 mr-2" /> Upload</TabsTrigger>
+                            <TabsTrigger value="ai"><Wand2 className="w-4 h-4 mr-2" /> Create with AI</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="upload">
+                            <div className="grid gap-2">
+                                <Label htmlFor="image-upload">Choose File</Label>
+                                <Input
+                                    id="image-upload"
+                                    type="file"
+                                    onChange={handleImageChange}
+                                    accept="image/*"
+                                    disabled={submitting}
+                                />
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="ai">
+                            <div className="flex gap-2">
+                                <Input
+                                    placeholder="A cyberpunk city with neon lights..."
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    disabled={isGenerating || submitting}
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating || !prompt}
+                                >
+                                    {isGenerating ? <p className="animate-spin">Loading</p> : "Generate"}
+                                </Button>
+                            </div>
+                            {aiImageUrl && (
+                                <div className="mt-4 rounded-lg overflow-hidden border">
+                                    <img src={aiImageUrl} alt="Generated" className="w-full h-auto" />
+                                </div>
+                            )}
+                        </TabsContent>
+                    </Tabs>
+
                     <form onSubmit={handleSubmit} className="grid gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="title">Title *</Label>
+                            <Label htmlFor="title">Title</Label>
                             <Input
                                 id="title"
-                                name="title"
-                                autoFocus
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 disabled={submitting}
@@ -106,52 +180,25 @@ const PinCreate = () => {
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="destination">Destination URL (Optional)</Label>
+                            <Label htmlFor="destination">Link (Optional)</Label>
                             <Input
                                 id="destination"
-                                name="destination"
                                 value={destination}
                                 onChange={(e) => setDestination(e.target.value)}
                                 disabled={submitting}
-                                type="url"
-                                placeholder="https://example.com"
+                                placeholder="https://..."
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="image-upload">Upload Image *</Label>
-                            <Input
-                                id="image-upload"
-                                type="file"
-                                onChange={handleImageChange}
-                                accept="image/*"
-                                required
-                                disabled={submitting}
-                                className="file:text-primary-foreground"
-                            />
-                            {imageName && (
-                                <p className="text-sm text-muted-foreground">
-                                    Selected: {imageName}
-                                </p>
-                            )}
-                        </div>
+
                         {error && (
                             <Alert variant="destructive">
-                                {/* <AlertCircle className="h-4 w-4" /> */}
                                 <AlertTitle>Error</AlertTitle>
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
                         )}
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={submitting || !image || !title}
-                        >
-                            {submitting ? (
-                                // <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                                <h2>Loading...</h2>
-                            ) : (
-                                "Add Pin"
-                            )}
+
+                        <Button type="submit" className="w-full" disabled={submitting}>
+                            {submitting ? "Creating..." : "Create Pin"}
                         </Button>
                     </form>
                 </CardContent>

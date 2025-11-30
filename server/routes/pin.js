@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const { isLoggedIn, validatePin, optionalAuth } = require('../middlewares.js');
-
+const generatorController = require("../controllers/generator.js");
 const pinController = require("../controllers/pins.js");
 const multer = require('multer');
 const { storage } = require("../config/cloudConfig.js");
@@ -33,5 +33,7 @@ router.delete("/:id",
   isLoggedIn,
   wrapAsync(pinController.deletePin)
 );
+
+router.post("/generate-ai", isLoggedIn, wrapAsync(generatorController.generateImage));
 
 module.exports = router;

@@ -121,15 +121,35 @@ module.exports.renderNewForm = (req, res) => {
 module.exports.createPin = async (req, res, next) => {
     const newPin = new Pin(req.body.pin);
 
-    newPin.image = {
-        url: req.file.path,
-        filename: req.file.filename
-    };
+    // 1. Handle Image Source (File Upload OR AI)
+    let imageUrlForAnalysis = "";
+
+    if (req.file) {
+        // CASE A: Standard File Upload
+        newPin.image = {
+            url: req.file.path,
+            filename: req.file.filename
+        };
+        imageUrlForAnalysis = req.file.path;
+    } else if (req.body.aiImageUrl) {
+        // CASE B: AI Generated (Already uploaded to Cloudinary in the previous step)
+        newPin.image = {
+            url: req.body.aiImageUrl,
+            filename: req.body.aiFilename
+        };
+        imageUrlForAnalysis = req.body.aiImageUrl;
+    } else {
+        return res.status(400).json({ message: "Image is required" });
+    }
+
     newPin.postedBy = req.user._id;
 
+    // 2. AI Analysis (Tags + Embedding)
+    // We run this for BOTH cases so AI generated images also get tags!
     console.log("🤖 AI Analysis starting for:", newPin.title);
 
-    const { tags, embedding } = await analyzeImage(req.file.path);
+    // Pass the Cloudinary URL to your existing analyzeImage function
+    const { tags, embedding } = await analyzeImage(imageUrlForAnalysis);
 
     if (tags.length > 0) {
         newPin.tags = tags;
