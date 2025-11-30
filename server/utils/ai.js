@@ -2,15 +2,11 @@ const axios = require('axios');
 
 /**
  * Analyzes an image using Hugging Face (Free Tier).
- * 1. Uses Google's Vision Transformer (ViT) to identify the image content.
- * 2. Uses MiniLM to create a vector embedding for recommendations.
- * * @param {string} imageUrl - The public Cloudinary URL.
- * @returns {Promise<{tags: string[], embedding: number[]}>}
+ * Note: Updated to use the new router.huggingface.co endpoint as api-inference is deprecated (410).
  */
 async function analyzeImage(imageUrl) {
     const HF_TOKEN = process.env.HF_API_KEY;
-    
-    // Check if image URL is valid
+
     if (!imageUrl) return { tags: [], embedding: [] };
 
     try {
@@ -20,8 +16,9 @@ async function analyzeImage(imageUrl) {
         const imageBuffer = Buffer.from(imageResponse.data);
 
         // Call Model: google/vit-base-patch16-224
+        // UPDATED URL: api-inference.huggingface.co -> router.huggingface.co/hf-inference
         const taggingResponse = await axios.post(
-            "https://api-inference.huggingface.co/models/google/vit-base-patch16-224",
+            "https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224",
             imageBuffer,
             { headers: { Authorization: `Bearer ${HF_TOKEN}` } }
         );
@@ -30,8 +27,8 @@ async function analyzeImage(imageUrl) {
         // We take the top 5 labels
         const rawTags = taggingResponse.data;
         if (!Array.isArray(rawTags)) {
-             console.log("⚠️ HF Tagging Warning:", rawTags);
-             return { tags: [], embedding: [] };
+            console.log("⚠️ HF Tagging Warning:", rawTags);
+            return { tags: [], embedding: [] };
         }
 
         const tags = rawTags
@@ -41,17 +38,18 @@ async function analyzeImage(imageUrl) {
         // --- STEP 2: GET EMBEDDING (Feature Extraction) ---
         // We turn the tags into a "sentence" to get the vector.
         const textDescription = tags.join(" ");
-        
+
         // Call Model: sentence-transformers/all-MiniLM-L6-v2
+        // UPDATED URL
         const embeddingResponse = await axios.post(
-            "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2",
+            "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2",
             { inputs: textDescription },
             { headers: { Authorization: `Bearer ${HF_TOKEN}` } }
         );
 
         // The response is the array of numbers (vector)
         let embedding = embeddingResponse.data;
-        
+
         // Handle simplified API response edge cases
         if (Array.isArray(embedding) && Array.isArray(embedding[0])) {
             embedding = embedding[0]; // Sometimes it returns [[0.1, ...]]
