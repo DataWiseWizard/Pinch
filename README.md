@@ -47,11 +47,11 @@ In bash:
 git clone [https://github.com/DataWiseWizard/Pinch.git]
 cd pinch
 
-# Install Server Dependencies
+#### Install Server Dependencies
 cd server
 npm install
 
-# Install Client Dependencies
+#### Install Client Dependencies
 cd ../client
 npm install
 
@@ -61,15 +61,15 @@ Create a .env file in the server directory:
 ATLASDB_URL=mongodb+srv://...
 SECRET=your_session_secret
 
-# Cloudinary
+#### Cloudinary
 CLOUD_NAME=...
 CLOUD_API_KEY=...
 CLOUD_API_SECRET=...
 
-# AI Services
+#### AI Services
 GEMINI_API_KEY=...
 
-# App Config
+#### App Config
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 
