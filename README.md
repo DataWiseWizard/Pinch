@@ -1,7 +1,6 @@
 # Pinch - AI-Powered Visual Discovery Engine
 
-![Pinch Banner](https://via.placeholder.com/1200x600/0f172a/ffffff?text=Pinch+AI+Platform)
-*(Replace this link with a real screenshot of your Home or Pin Detail page)*
+![Pinch Banner](Will update soon)
 
 **Pinch** is a next-generation social platform that combines the visual curation of Pinterest with the power of Generative AI and Semantic Search. Unlike traditional galleries that rely on manual tagging, Pinch uses a **Hybrid Recommendation Engine** powered by Google Gemini and Vector Embeddings to understand the "vibe" of content, not just keywords.
 
@@ -45,7 +44,7 @@
 
 ### 1. Clone & Install
 In bash:
-git clone [https://github.com/yourusername/pinch.git](https://github.com/yourusername/pinch.git)
+git clone [https://github.com/DataWiseWizard/Pinch.git]
 cd pinch
 
 # Install Server Dependencies
@@ -84,7 +83,7 @@ Terminal 2 (Client):
 cd client
 npm run dev
 
-##🧪 Architecture
+## 🧪 Architecture
 graph TD
     User[User] -->|Uploads Image| Client[React Client]
     Client -->|Multipart Data| Server[Express API]
@@ -98,7 +97,7 @@ graph TD
     Server -->|Vector Search| DB
     DB -->|Semantic Results| Client
 
-##🛡️ Security
+## 🛡️ Security
 Data Privacy: User interest profiles are siloed and only accessible via authenticated endpoints.
 
 Validation: All write operations are validated using Joi schemas to prevent injection and data corruption.
