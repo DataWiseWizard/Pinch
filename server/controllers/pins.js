@@ -165,7 +165,10 @@ module.exports.createPin = async (req, res, next) => {
 
 module.exports.showPin = async (req, res) => {
     let { id } = req.params;
-    const pin = await Pin.findById(id).populate("postedBy");
+    const pin = await Pin.findById(id)
+        .populate("postedBy")
+        .select('+embedding');
+
     if (!pin) {
         return res.status(404).json({ message: "Pin not found." });
     }
@@ -176,7 +179,48 @@ module.exports.showPin = async (req, res) => {
         updateUserInterests(req.user._id, pin.tags, 1);
     }
 
-    res.status(200).json(pin);
+    let relatedPins = [];
+
+    if (pin.embedding && pin.embedding.length > 0) {
+        try {
+            relatedPins = await Pin.aggregate([
+                {
+                    $vectorSearch: {
+                        index: "vector_index", // Must match the Atlas Index Name
+                        path: "embedding",
+                        queryVector: pin.embedding,
+                        numCandidates: 100, // Look at 100 closest vectors
+                        limit: 6 // Return the top 6
+                    }
+                },
+                {
+                    // Filter out the CURRENT pin (don't recommend the same pin)
+                    $match: { _id: { $ne: pin._id } }
+                },
+                {
+                    // Project only what we need (hide embeddings for speed)
+                    $project: {
+                        title: 1,
+                        image: 1,
+                        destination: 1,
+                        postedBy: 1
+                    }
+                }
+            ]);
+
+            relatedPins = await Pin.populate(relatedPins, {
+                path: "postedBy",
+                select: "username profileImage"
+            });
+
+        } catch (err) {
+            console.error("Vector Search Failed:", err.message);
+        }
+    }
+
+    pin.embedding = undefined;
+
+    res.status(200).json({pin, relatedPins});
 };
 
 

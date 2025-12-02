@@ -10,6 +10,7 @@ const PinDetail = () => {
     const [pin, setPin] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [relatedPins, setRelatedPins] = useState([]);
     const { getAuthHeaders } = useAuth();
 
     useEffect(() => {
@@ -25,7 +26,8 @@ const PinDetail = () => {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                setPin(data);
+                setPin(data.pin);
+                setRelatedPins(data.relatedPins || []);
             } catch (error) {
                 console.error('Error fetching pin:', error);
                 setError(error.message);
@@ -89,6 +91,27 @@ const PinDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* --- VISUAL SEARCH GRID --- */}
+            {relatedPins.length > 0 && (
+                <div className="mt-12 mb-8">
+                    <h3 className="text-xl font-bold mb-4">More like this</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {relatedPins.map(related => (
+                            <RouterLink to={`/pins/${related._id}`} key={related._id} className="block group">
+                                <div className="rounded-lg overflow-hidden aspect-[2/3]">
+                                    <img
+                                        src={related.image.url}
+                                        alt={related.title}
+                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                    />
+                                </div>
+                                <p className="font-medium text-sm mt-2 truncate">{related.title}</p>
+                            </RouterLink>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <Separator className="my-4 max-w-6xl mx-auto" />
             <div className="max-w-6xl mx-auto px-4 md:px-8">
