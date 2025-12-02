@@ -5,8 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -22,5 +21,23 @@ export default defineConfig({
       '/auth': 'http://localhost:5000',   // For Google login
       '/api': 'http://localhost:5000',    // For our new auth check
     }
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('framer-motion')) {
+            return 'framer-motion';
+          }
+          if (id.includes('lucide-react')) {
+            return 'lucide-react';
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
 })

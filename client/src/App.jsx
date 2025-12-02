@@ -1,19 +1,27 @@
-import React from 'react'; import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
-import Home from './pages/Home';
-import PinDetail from './pages/PinDetail';
-import PinCreate from './pages/PinCreate';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
-import ProfilePage from './pages/ProfilePage';
-import UserProfilePage from './pages/UserProfilePage';
-import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
-import VerifyEmailPage from './pages/VerifyEmailPage';
-import BoardDetailPage from './pages/BoardDetailsPage';
-import SearchPage from './pages/SearchPage';
 import { Toaster } from "@/components/ui/sonner";
 import './App.css';
+
+const Home = lazy(() => import('./pages/Home'));
+const PinDetail = lazy(() => import('./pages/PinDetail'));
+const PinCreate = lazy(() => import('./pages/PinCreate'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignUpPage = lazy(() => import('./pages/SignUpPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
+const GoogleCallback = lazy(() => import('./pages/GoogleCallback'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const BoardDetailPage = lazy(() => import('./pages/BoardDetailsPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+
+const PageLoader = () => (
+  <div className="flex justify-center items-center h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+  </div>
+);
 
 function App() {
   return (
@@ -22,41 +30,43 @@ function App() {
         <NavBar />
         <Toaster richColors />
         <div className="App">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/auth/callback" element={<GoogleCallback />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/pins/:id" element={<PinDetail />} />
-            <Route path="/user/:username" element={<UserProfilePage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route
-              path="/pins/new"
-              element={
-                <ProtectedRoute>
-                  <PinCreate />
-                </ProtectedRoute>
-              } />
-            <Route
-              path="/board/:boardId"
-              element={
-                <ProtectedRoute>
-                  <BoardDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/callback" element={<GoogleCallback />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/pins/:id" element={<PinDetail />} />
+              <Route path="/user/:username" element={<UserProfilePage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route
+                path="/pins/new"
+                element={
+                  <ProtectedRoute>
+                    <PinCreate />
+                  </ProtectedRoute>
+                } />
+              <Route
+                path="/board/:boardId"
+                element={
+                  <ProtectedRoute>
+                    <BoardDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                } />
+            </Routes>
+
+          </Suspense>
         </div>
       </div>
-
     </Router>
   );
 
