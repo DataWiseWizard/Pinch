@@ -15,7 +15,7 @@ module.exports.generateImage = async (req, res, next) => {
         // 1. Call Pollinations.ai (Flux Model is great for details)
         // We use a random seed to ensure unique images every time
         const seed = Math.floor(Math.random() * 10000);
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&width=1024&height=1024&seed=${seed}`;
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&seed=${seed}&enhance=true`;
         //https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&seed=${seed}
         // 2. Fetch the image data as a buffer
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
