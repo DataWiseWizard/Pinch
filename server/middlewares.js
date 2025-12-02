@@ -67,14 +67,16 @@ module.exports.isCommentAuthor = async (req, res, next) => {
     next();
 };
 
-module.exports.validatePin = (req, res, next) => {
-    const { error } = pinSchema.validate(req.body);
-    if (error) {
-        const errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
+module.exports.validateBody = (schema) => {
+    return (req, res, next) => {
+        const { error } = schema.validate(req.body);
+        if (error) {
+            const msg = error.details.map(el => el.message).join(',');
+            throw new ExpressError(400, msg);
+        } else {
+            next();
+        }
+    };
 };
 
 module.exports.optionalAuth = async (req, res, next) => {

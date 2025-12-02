@@ -99,9 +99,13 @@ const PinDetail = () => {
                                     {pin.tags && pin.tags.length > 0 && (
                                         <div className="flex flex-wrap gap-2 mb-6">
                                             {pin.tags.map(tag => (
-                                                <span key={tag} className="px-3 py-1 bg-secondary/50 text-secondary-foreground rounded-full text-xs font-medium">
+                                                <RouterLink
+                                                    key={tag}
+                                                    to={`/search?q=${encodeURIComponent(tag)}`} // Links to your search page
+                                                    className="px-3 py-1 bg-secondary/50 text-secondary-foreground rounded-full text-xs font-medium hover:bg-secondary transition-colors cursor-pointer"
+                                                >
                                                     #{tag}
-                                                </span>
+                                                </RouterLink>
                                             ))}
                                         </div>
                                     )}
@@ -169,7 +173,7 @@ const PinDetail = () => {
                 )}
 
             </div>
-        </div>
+        </div >
     );
 
     // return (

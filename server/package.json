@@ -30,6 +30,7 @@
     "flash": "^1.1.0",
     "helmet": "^8.1.0",
     "joi": "^17.13.3",
+    "joi-password-complexity": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "method-override": "^3.0.0",
