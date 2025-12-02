@@ -68,7 +68,10 @@ passport.use(new LocalStrategy(async (username, password, done) => {
     }
 }));
 
-const backendUrl = process.env.BASE_URL;
+const backendUrl = process.env.NODE_ENV === 'production'
+    ? process.env.BASE_URL
+    : 'http://localhost:5000';
+
 
 // --- GOOGLE OAUTH STRATEGY ---
 passport.use(new GoogleStrategy({

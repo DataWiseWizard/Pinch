@@ -89,9 +89,10 @@ app.use(mongoSanitize());
 app.use(cookieParser());
 
 const allowedOrigins = [
-    process.env.CLIENT_URL,                 // The URL from your env variables
-    'https://pinch-nk6z.onrender.com',      // Your exact frontend URL, hardcoded as a fallback
-    'http://localhost:5173'                 // Your local dev environment
+    process.env.CLIENT_URL,
+    'https://pinch-nk6z.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
 ];
 
 const corsOptions = {
@@ -177,7 +178,7 @@ app.use((req, res, next) => {
 });
 
 // Root redirect for API
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
     res.json({ message: "Pinch API Server", status: "running" });
 });
 
@@ -187,7 +188,14 @@ app.use("/api/boards", boardRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 
-// 404 handler for unknown API routes
+app.get("*", (req, res, next) => {
+    if (req.accepts('html') && !req.path.startsWith('/api')) {
+        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    } else {
+        next();
+    }
+});
+
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "API endpoint not found!"));
 });

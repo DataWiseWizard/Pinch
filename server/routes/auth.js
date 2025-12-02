@@ -2,10 +2,11 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
-const clientURL = process.env.CLIENT_URL;
+const clientURL = process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_URL 
+    : 'http://localhost:5173';
 
 console.log('[Auth Routes] CLIENT_URL is set to:', clientURL);
-
 
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email'],
