@@ -57,7 +57,7 @@ npm install
 
 ### 2. Environment Variables
 Create a .env file in the server directory:
-# Database
+#### Database
 ATLASDB_URL=mongodb+srv://...
 SECRET=your_session_secret
 
