@@ -248,8 +248,28 @@ const ProfilePage = () => {
                     className="absolute bottom-0 right-0 rounded-full shadow-md"
                     onClick={() => setIsEditOpen(true)}
                 >
-                    <FaPen className="h-4 w-4" />
+                    <FaPen className="h-4 w-4 text-gray-700" />
                 </Button>
+            </div>
+            <div className="flex flex-col items-center md:items-start pt-2">
+                <h1 className="text-2xl md:text-3xl font-bold mb-1">{currentUser.username}</h1>
+                <p className="text-muted-foreground text-sm mb-4">
+                    @{currentUser.username.toLowerCase().replace(/\s/g, '')} • {currentUser.email}
+                </p>
+
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        className="rounded-full h-9"
+                        onClick={() => setIsEditOpen(true)}
+                    >
+                        Edit Profile
+                    </Button>
+
+                    <Button variant="outline" className="rounded-full h-9">
+                        Share
+                    </Button>
+                </div>
             </div>
 
             {combinedError && (
