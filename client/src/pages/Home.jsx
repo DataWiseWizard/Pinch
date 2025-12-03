@@ -33,12 +33,6 @@ const Home = () => {
             {currentUser && (
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-bold">Pinch Feed</h1>
-                    <Button asChild>
-                        <RouterLink to="/pins/new">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create Pin
-                        </RouterLink>
-                    </Button>
                 </div>
             )}
 
