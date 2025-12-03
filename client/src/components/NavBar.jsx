@@ -67,10 +67,10 @@ const Navbar = () => {
             <div className="max-w-[1800px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
 
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-2 font-bold text-xl text-primary hover:opacity-90 transition-opacity">
+                <RouterLink to="/" className="flex items-center gap-2 font-bold text-xl text-primary hover:opacity-90 transition-opacity">
                     <img src="/PinWheel.svg" alt="Logo" className="h-8 w-8" />
                     <span className="hidden md:inline">Pinch</span>
-                </Link>
+                </RouterLink>
 
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative">
