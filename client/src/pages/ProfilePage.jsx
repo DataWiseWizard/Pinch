@@ -30,6 +30,7 @@ const ProfilePage = () => {
     // const [accountDeleteError, setAccountDeleteError] = useState(null);
     // const [isDeletingAccount, setIsDeletingAccount] = useState(false);
     const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [editUsername, setEditUsername] = useState(currentUser?.username || "");
     const [editPassword, setEditPassword] = useState("");
     const [editImage, setEditImage] = useState(null);
