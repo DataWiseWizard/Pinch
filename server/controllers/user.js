@@ -483,17 +483,22 @@ module.exports.getSavedPins = async (req, res, next) => {
 };
 
 module.exports.updateProfile = async (req, res) => {
-    const { username } = req.body;
+    const { username, password } = req.body;
     const userId = req.user._id;
 
     const updateData = {};
-    
     if (username) {
         updateData.username = username;
     }
 
     if (req.file) {
         updateData.profileImage = req.file.path;
+    }
+
+    if (password && password.trim() !== "") {
+        const salt = await bcrypt.genSalt(10);
+        updateData.password = await bcrypt.hash(password, salt);
+        updateData.refreshTokenVersion = (req.user.refreshTokenVersion || 0) + 1;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -504,7 +509,6 @@ module.exports.updateProfile = async (req, res) => {
 
     res.status(200).json(updatedUser);
 };
-
 
 module.exports.deleteAccount = async (req, res, next) => {
     const userId = req.user._id;

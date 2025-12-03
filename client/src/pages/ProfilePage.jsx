@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Pin from '../components/Pin';
 import API_URL from '../apiConfig';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,13 +19,15 @@ import { BoardCard } from '@/components/BoardCard';
 
 
 const ProfilePage = () => {
-    const { currentUser, getAuthHeaders, logout } = useAuth();
-    const navigate = useNavigate();
+    const { currentUser, getAuthHeaders, setCurrentUser } = useAuth();
     const [pinToSave, setPinToSave] = useState(null);
-    const [accountDeleteError, setAccountDeleteError] = useState(null);
-    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+    // const [accountDeleteError, setAccountDeleteError] = useState(null);
+    // const [isDeletingAccount, setIsDeletingAccount] = useState(false);
     const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
-
+    const [editUsername, setEditUsername] = useState(currentUser?.username || "");
+    const [editPassword, setEditPassword] = useState("");
+    const [editImage, setEditImage] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const {
         data: createdPins,
@@ -48,6 +50,47 @@ const ProfilePage = () => {
         error: deleteError
     } = useDeletePin();
 
+    const handleProfileUpdate = async (e) => {
+        e.preventDefault();
+        setIsUpdating(true);
+
+        try {
+            const headers = await getAuthHeaders();
+            const formData = new FormData();
+            formData.append('username', editUsername);
+
+            if (editPassword && editPassword.trim() !== "") {
+                formData.append('password', editPassword);
+            }
+
+            if (editImage) {
+                formData.append('profileImage', editImage);
+            }
+
+            const response = await fetch(`${API_URL}/users/profile`, {
+                method: 'PUT',
+                headers: {
+                    ...headers,
+                    'Authorization': headers.Authorization
+                },
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Failed to update profile");
+
+            const updatedUser = await response.json();
+            setCurrentUser(updatedUser);
+            toast.success("Profile updated successfully!");
+            setEditPassword("");
+            setIsEditOpen(false);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update profile");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
 
     const handleDeletePin = (pinId) => {
         if (window.confirm("Are you sure you want to delete this pin?")) {
@@ -59,38 +102,38 @@ const ProfilePage = () => {
         if (!currentUser) return;
         setPinToSave(pinId);
     };
+    // const handleDeleteAccount = async () => {
 
-    const handleDeleteAccount = async () => {
-        setAccountDeleteError(null);
-
-
-        if (window.confirm("Are you sure you want to delete your account? This action is permanent and cannot be undone.")) {
-            if (window.confirm("Please confirm one last time. All your created pins and personal data will be lost forever.")) {
-                setIsDeletingAccount(true);
-                try {
-                    const headers = await getAuthHeaders();
-                    const response = await fetch(`${API_URL}/api/user/delete`, {
-                        method: 'DELETE',
-                        headers
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.message || "Failed to delete account.");
-                    }
+    //     setAccountDeleteError(null);
 
 
-                    await logout();
-                    navigate('/');
+    //     if (window.confirm("Are you sure you want to delete your account? This action is permanent and cannot be undone.")) {
+    //         if (window.confirm("Please confirm one last time. All your created pins and personal data will be lost forever.")) {
+    //             setIsDeletingAccount(true);
+    //             try {
+    //                 const headers = await getAuthHeaders();
+    //                 const response = await fetch(`${API_URL}/api/user/delete`, {
+    //                     method: 'DELETE',
+    //                     headers
+    //                 });
 
-                } catch (err) {
-                    console.error("Error deleting account:", err);
-                    setAccountDeleteError(err.message);
-                    setIsDeletingAccount(false);
-                }
-            }
-        }
-    };
+    //                 if (!response.ok) {
+    //                     const errorData = await response.json().catch(() => ({}));
+    //                     throw new Error(errorData.message || "Failed to delete account.");
+    //                 }
+
+
+    //                 await logout();
+    //                 navigate('/');
+
+    //             } catch (err) {
+    //                 console.error("Error deleting account:", err);
+    //                 setAccountDeleteError(err.message);
+    //                 setIsDeletingAccount(false);
+    //             }
+    //         }
+    //     }
+    // };
 
     const breakpointColumnsObj = {
         default: 5,
@@ -157,7 +200,7 @@ const ProfilePage = () => {
         );
     }
 
-    
+
     if (!currentUser) {
         return (
             <div className="max-w-md mx-auto mt-4 p-4">
@@ -212,7 +255,7 @@ const ProfilePage = () => {
                 </TabsContent>
             </Tabs>
 
-            <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
+            {/* <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
                 <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
                 <p className="text-muted-foreground mb-4">
                     Deleting your account is permanent. All your created pins and personal data will be removed.
@@ -233,7 +276,7 @@ const ProfilePage = () => {
                         <AlertDescription>{accountDeleteError}</AlertDescription>
                     </Alert>
                 )}
-            </div>
+            </div> */}
 
             <SaveToBoardDialog
                 pinId={pinToSave}
@@ -244,6 +287,61 @@ const ProfilePage = () => {
                 isOpen={isCreateBoardOpen}
                 onOpenChange={setIsCreateBoardOpen}
             />
+
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit Profile</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleProfileUpdate} className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="username" className="text-right">
+                                Username
+                            </Label>
+                            <Input
+                                id="username"
+                                value={editUsername}
+                                onChange={(e) => setEditUsername(e.target.value)}
+                                className="col-span-3"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="password" className="text-right">
+                                New Password
+                            </Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Leave blank to keep current"
+                                value={editPassword}
+                                onChange={(e) => setEditPassword(e.target.value)}
+                                className="col-span-3"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="picture" className="text-right">
+                                Picture
+                            </Label>
+                            <Input
+                                id="picture"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setEditImage(e.target.files[0])}
+                                className="col-span-3"
+                            />
+                        </div>
+
+                        <div className="flex justify-end pt-4">
+                            <Button type="submit" disabled={isUpdating}>
+                                {isUpdating ? <p className="animate-spin mr-2" >Loading...</p> : null}
+                                Save Changes
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
