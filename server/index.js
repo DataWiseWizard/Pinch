@@ -121,12 +121,12 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Serve static files from React app ONLY in production
-if (process.env.NODE_ENV === 'production') {
-    const clientBuildPath = path.join(__dirname, '../client/dist');
-    console.log('Serving static files from:', clientBuildPath);
-    app.use(express.static(clientBuildPath));
-}
+// // Serve static files from React app ONLY in production
+// if (process.env.NODE_ENV === 'production') {
+//     const clientBuildPath = path.join(__dirname, '../client/dist');
+//     console.log('Serving static files from:', clientBuildPath);
+//     app.use(express.static(clientBuildPath));
+// }
 
 const store = MongoStore.create({
     mongoUrl: mongoDbUrl,
@@ -188,13 +188,13 @@ app.use("/api/boards", boardRouter);
 app.use("/pins", pinRouter);
 app.use("/auth", authRouter);
 
-app.get("*", (req, res, next) => {
-    if (req.accepts('html') && !req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-    } else {
-        next();
-    }
-});
+// app.get("*", (req, res, next) => {
+//     if (req.accepts('html') && !req.path.startsWith('/api')) {
+//         res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+//     } else {
+//         next();
+//     }
+// });
 
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "API endpoint not found!"));
