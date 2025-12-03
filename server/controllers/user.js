@@ -482,6 +482,30 @@ module.exports.getSavedPins = async (req, res, next) => {
     }
 };
 
+module.exports.updateProfile = async (req, res) => {
+    const { username } = req.body;
+    const userId = req.user._id;
+
+    const updateData = {};
+    
+    if (username) {
+        updateData.username = username;
+    }
+
+    if (req.file) {
+        updateData.profileImage = req.file.path;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        userId, 
+        { $set: updateData }, 
+        { new: true, runValidators: true }
+    );
+
+    res.status(200).json(updatedUser);
+};
+
+
 module.exports.deleteAccount = async (req, res, next) => {
     const userId = req.user._id;
 

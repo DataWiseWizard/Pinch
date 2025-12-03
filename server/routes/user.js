@@ -37,6 +37,20 @@ router.post('/api/refresh', userController.refreshToken);
 
 router.get('/api/check-auth', userController.checkAuth);
 
+router.put(
+    "/profile", 
+    isLoggedIn, 
+    upload.single('profileImage'),
+    wrapAsync(userController.updateProfile)
+);
+
+router.delete(
+    "/profile",
+    isLoggedIn,
+    wrapAsync(userController.deleteUser) 
+);
+
+
 router.delete(
     "/api/user/delete",
     isLoggedIn,
