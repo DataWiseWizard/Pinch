@@ -245,7 +245,7 @@ const ProfilePage = () => {
                 <Button
                     size="icon"
                     variant="secondary"
-                    className="absolute bottom-0 right-0 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute bottom-0 right-0 rounded-full shadow-md"
                     onClick={() => setIsEditOpen(true)}
                 >
                     <FaPen className="h-4 w-4" />
