@@ -241,6 +241,14 @@ const ProfilePage = () => {
                 </Avatar>
                 <h1 className="text-4xl font-bold">{currentUser?.username}</h1>
                 <p className="text-lg text-muted-foreground">{currentUser?.email}</p>
+                <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute bottom-0 right-0 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => setIsEditOpen(true)}
+                >
+                    <Edit2 className="h-4 w-4" />
+                </Button>
             </div>
 
             {combinedError && (
@@ -264,29 +272,6 @@ const ProfilePage = () => {
                     {renderBoardGrid(boards || [], loadingBoards)}
                 </TabsContent>
             </Tabs>
-
-            {/* <div className="mt-12 p-6 border border-destructive/50 rounded-lg bg-destructive/5 text-center">
-                <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
-                <p className="text-muted-foreground mb-4">
-                    Deleting your account is permanent. All your created pins and personal data will be removed.
-                </p>
-                <Button
-                    variant="destructive"
-                    onClick={handleDeleteAccount}
-                    disabled={isDeletingAccount}
-                >
-                    {isDeletingAccount ? (
-                        <h2>Loading...</h2>
-                    ) : null}
-                    {isDeletingAccount ? "Deleting..." : "Delete My Account"}
-                </Button>
-                {accountDeleteError && (
-                    <Alert variant="destructive" className="mt-4 text-left">
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{accountDeleteError}</AlertDescription>
-                    </Alert>
-                )}
-            </div> */}
 
             <SaveToBoardDialog
                 pinId={pinToSave}

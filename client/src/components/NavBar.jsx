@@ -88,14 +88,9 @@ const Navbar = () => {
                 <div className="flex items-center gap-2 md:gap-4">
                     {currentUser ? (
                         <>
-                            <Button variant="ghost" asChild className="hidden md:flex">
-                                <RouterLink to="/">Home</RouterLink>
-                            </Button>
                             <Button asChild className="rounded-full">
                                 <RouterLink to="/pins/new">Create</RouterLink>
                             </Button>
-
-                            {/* USER DROPDOWN MENU */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -119,12 +114,6 @@ const Navbar = () => {
                                         <RouterLink to="/profile" className="cursor-pointer">
                                             <User className="mr-2 h-4 w-4" />
                                             <span>Profile</span>
-                                        </RouterLink>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <RouterLink to="/profile?edit=true" className="cursor-pointer">
-                                            <Settings className="mr-2 h-4 w-4" />
-                                            <span>Settings</span>
                                         </RouterLink>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -155,7 +144,6 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* DELETE ACCOUNT ALERT DIALOG */}
             <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
