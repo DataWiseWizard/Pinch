@@ -67,6 +67,8 @@ const ProfilePage = () => {
 
         try {
             const headers = await getAuthHeaders();
+            delete headers['Content-Type'];
+
             const formData = new FormData();
             formData.append('username', editUsername);
 
@@ -78,12 +80,9 @@ const ProfilePage = () => {
                 formData.append('profileImage', editImage);
             }
 
-            const response = await fetch(`${API_URL}/users/profile`, {
+            const response = await fetch(`${API_URL}/profile`, {
                 method: 'PUT',
-                headers: {
-                    ...headers,
-                    'Authorization': headers.Authorization
-                },
+                headers: headers,
                 body: formData
             });
 
@@ -241,19 +240,16 @@ const ProfilePage = () => {
                     <AvatarFallback className="text-4xl">{currentUser.username[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
 
-                {/* EDIT BUTTON with React Icons */}
                 <Button
                     size="icon"
                     variant="secondary"
                     className="absolute bottom-0 right-0 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => setIsEditOpen(true)}
                 >
-                    {/* Using FontAwesome Pen Icon */}
                     <FaPen className="h-4 w-4 text-gray-700" />
                 </Button>
             </div>
 
-            {/* Info Section */}
             <div className="flex flex-col items-center md:items-start pt-2">
                 <h1 className="text-2xl md:text-3xl font-bold mb-1">{currentUser.username}</h1>
                 <p className="text-muted-foreground text-sm mb-4">
