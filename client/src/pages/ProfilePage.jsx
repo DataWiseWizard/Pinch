@@ -17,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Plus } from 'lucide-react';
+import { FaPen } from "react-icons/fa";
+import { CiSquarePlus } from "react-icons/ci";
 import { useGetCreatedPins } from '@/hooks/api/useGetCreatedPins';
 import { useGetBoards } from '@/hooks/api/useGetBoards';
 import { useGetSavedPinIds } from '@/hooks/api/useGetSavedPinIds';
@@ -191,7 +192,7 @@ const ProfilePage = () => {
             <div>
                 <div className="flex justify-end mb-4">
                     <Button onClick={() => setIsCreateBoardOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" /> Create Board
+                        <CiSquarePlus className="mr-2 h-4 w-4" /> Create Board
                     </Button>
                 </div>
 
@@ -247,7 +248,7 @@ const ProfilePage = () => {
                     className="absolute bottom-0 right-0 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => setIsEditOpen(true)}
                 >
-                    <Edit2 className="h-4 w-4" />
+                    <FaPen className="h-4 w-4" />
                 </Button>
             </div>
 
