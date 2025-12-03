@@ -4,8 +4,8 @@ const expect = require('chai').expect;
 const API_URL = 'http://localhost:5000'; 
 
 describe('Pinch API Smoke Tests', function() {
-    it('should return 200 OK on root /api/health', async function() {
-        const response = await request(API_URL).get('/api/health');
+    it('should return 200 OK on root /', async function() {
+        const response = await request(API_URL).get('/');
         expect(response.status).to.equal(200);
         expect(response.body).to.have.property('status', 'running');
     });

@@ -178,7 +178,7 @@ app.use((req, res, next) => {
 });
 
 // Root redirect for API
-app.get("/api/health", (req, res) => {
+app.get("/", (req, res) => {
     res.json({ message: "Pinch API Server", status: "running" });
 });
 
