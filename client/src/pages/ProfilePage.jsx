@@ -235,22 +235,25 @@ const ProfilePage = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8">
-            <div className="flex flex-col items-center mb-8">
-                <Avatar className="w-32 h-32 mb-4">
-                    <AvatarImage src={currentUser?.profileImage || '/broken-image.jpg'} alt={currentUser?.username} />
-                    <AvatarFallback>{currentUser?.username?.toUpperCase()}</AvatarFallback>
+            <div className="relative group shrink-0">
+                <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-lg">
+                    <AvatarImage src={currentUser.profileImage} className="object-cover" />
+                    <AvatarFallback className="text-4xl">{currentUser.username[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <h1 className="text-4xl font-bold">{currentUser?.username}</h1>
-                <p className="text-lg text-muted-foreground">{currentUser?.email}</p>
+
+                {/* EDIT BUTTON with React Icons */}
                 <Button
                     size="icon"
                     variant="secondary"
-                    className="absolute bottom-0 right-0 rounded-full shadow-md"
+                    className="absolute bottom-0 right-0 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => setIsEditOpen(true)}
                 >
+                    {/* Using FontAwesome Pen Icon */}
                     <FaPen className="h-4 w-4 text-gray-700" />
                 </Button>
             </div>
+
+            {/* Info Section */}
             <div className="flex flex-col items-center md:items-start pt-2">
                 <h1 className="text-2xl md:text-3xl font-bold mb-1">{currentUser.username}</h1>
                 <p className="text-muted-foreground text-sm mb-4">
