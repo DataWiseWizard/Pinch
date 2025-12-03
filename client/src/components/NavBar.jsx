@@ -89,10 +89,10 @@ const Navbar = () => {
                     {currentUser ? (
                         <>
                             <Button variant="ghost" asChild className="hidden md:flex">
-                                <Link to="/">Home</Link>
+                                <RouterLink to="/">Home</RouterLink>
                             </Button>
                             <Button asChild className="rounded-full">
-                                <Link to="/pins/new">Create</Link>
+                                <RouterLink to="/pins/new">Create</RouterLink>
                             </Button>
 
                             {/* USER DROPDOWN MENU */}
@@ -116,16 +116,16 @@ const Navbar = () => {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link to="/profile" className="cursor-pointer">
+                                        <RouterLink to="/profile" className="cursor-pointer">
                                             <User className="mr-2 h-4 w-4" />
                                             <span>Profile</span>
-                                        </Link>
+                                        </RouterLink>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link to="/profile?edit=true" className="cursor-pointer">
+                                        <RouterLink to="/profile?edit=true" className="cursor-pointer">
                                             <Settings className="mr-2 h-4 w-4" />
                                             <span>Settings</span>
-                                        </Link>
+                                        </RouterLink>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
@@ -145,10 +145,10 @@ const Navbar = () => {
                     ) : (
                         <>
                             <Button variant="ghost" asChild>
-                                <Link to="/login">Log in</Link>
+                                <RouterLink to="/login">Log in</RouterLink>
                             </Button>
                             <Button asChild>
-                                <Link to="/signup">Sign up</Link>
+                                <RouterLink to="/signup">Sign up</RouterLink>
                             </Button>
                         </>
                     )}
