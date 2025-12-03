@@ -4,7 +4,9 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
 const { saveRedirectUrl, isLoggedIn, validateBody } = require("../middlewares.js");
 const { userSignupSchema } = require('../validation/schemas');
-
+const multer = require('multer');
+const { storage } = require("../config/cloudConfig.js");
+const upload = multer({ storage });
 const userController = require("../controllers/user.js");
 
 router
