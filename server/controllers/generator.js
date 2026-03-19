@@ -18,7 +18,7 @@ module.exports.generateImage = async (req, res, next) => {
         const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&seed=${seed}&nologo=true`;
         //https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&seed=${seed}
         // 2. Fetch the image data as a buffer
-        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 15000 });
         const imageBuffer = Buffer.from(response.data);
 
         // 3. Upload to Cloudinary using a stream
@@ -43,7 +43,11 @@ module.exports.generateImage = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("Generation failed:", error);
-        next(new ExpressError(500, "Failed to generate image"));
+        if (error.response && error.response.status === 429) {
+        console.error("🚨 API Rate Limited: The AI queue is currently full.");
+        return next(new ExpressError(429, "The AI generator is busy. Please try again in a minute."));
+    }
+    console.error("Generation failed:", error);
+    next(new ExpressError(500, "Failed to generate image"));
     }
 };
